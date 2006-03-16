@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PaperClips Plug-in
+Bundle-SymbolicName: net.sf.paperclips
+Bundle-Version: 0.4.0
+Bundle-Vendor: Woodcraft Mill & Cabinet
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.swt
+Export-Package: net.sf.paperclips,
+ net.sf.paperclips.preview
