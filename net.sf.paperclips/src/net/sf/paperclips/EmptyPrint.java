@@ -56,68 +56,49 @@ public class EmptyPrint implements Print {
   }
 
   public PrintIterator iterator (Device device, GC gc) {
-    return new EmptyIterator (device);
+    return new EmptyIterator (device, this);
+  }
+}
+
+class EmptyIterator implements PrintIterator {
+  private final Point size;
+
+  private boolean hasNext = true;
+
+  EmptyIterator (Device dev, EmptyPrint target) {
+    BeanUtils.checkNull (dev);
+    Point dpi = dev.getDPI ();
+    this.size = new Point (
+        Math.round (target.width  * dpi.x / 72f),
+        Math.round (target.height * dpi.y / 72f));
   }
 
-  private class EmptyIterator implements PrintIterator {
-    private final Point size;
-
-    private boolean hasNext = true;
-
-    EmptyIterator (Device dev) {
-      BeanUtils.checkNull (dev);
-      Point dpi = dev.getDPI ();
-      this.size = new Point (Math.round (width * dpi.x / 72f), Math
-          .round (height * dpi.y / 72f));
-    }
-
-    EmptyIterator (EmptyIterator that) {
-      this.size = that.size;
-      this.hasNext = that.hasNext;
-    }
-
-    public boolean hasNext () {
-      return hasNext;
-    }
-
-    public PrintPiece next (int width, int height) {
-      if (size.x > width || size.y > height) return null;
-
-      hasNext = false;
-
-      return new EmptyPiece (size);
-    }
-
-    public Point minimumSize () {
-      return new Point (size.x, size.y);
-    }
-
-    public Point preferredSize () {
-      return new Point (size.x, size.y);
-    }
-
-    public PrintIterator copy () {
-      return new EmptyIterator (this);
-    }
+  EmptyIterator (EmptyIterator that) {
+    this.size = that.size;
+    this.hasNext = that.hasNext;
   }
 
-  private class EmptyPiece implements PrintPiece {
-    private Point size;
+  public boolean hasNext () {
+    return hasNext;
+  }
 
-    EmptyPiece (Point size) {
-      this.size = BeanUtils.checkNull (size);
-    }
+  public PrintPiece next (int width, int height) {
+    if (size.x > width || size.y > height) return null;
 
-    public Point getSize () {
-      return new Point (size.x, size.y);
-    }
+    hasNext = false;
 
-    public void paint (GC gc, int x, int y) {
-    // Nothing to paint
-    }
+    return new EmptyPiece (size);
+  }
 
-    public void dispose () {
-    // Nothing to dispose
-    }
+  public Point minimumSize () {
+    return new Point (size.x, size.y);
+  }
+
+  public Point preferredSize () {
+    return new Point (size.x, size.y);
+  }
+
+  public PrintIterator copy () {
+    return new EmptyIterator (this);
   }
 }
