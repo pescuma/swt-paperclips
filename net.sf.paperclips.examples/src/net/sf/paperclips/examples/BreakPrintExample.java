@@ -43,10 +43,10 @@ public class BreakPrintExample extends FactoryPrint {
   }
 
   /**
-   * Prints the NoBreakPrintExample to the default printer.
+   * Prints the BreakPrintExample to the default printer.
    * @param args command-line args
    */
   public static void main(String[] args) {
-    PrintUtil.print("NoBreakPrintExample.java", new BreakPrintExample());
+    PrintUtil.print("BreakPrintExample.java", new BreakPrintExample());
   }
 }
