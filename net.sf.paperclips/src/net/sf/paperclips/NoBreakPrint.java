@@ -64,7 +64,7 @@ class NoBreakIterator implements PrintIterator {
     if (result == null)
       return result;
 
-    if (target.hasNext()) // Failed to print the whole thing
+    if (testIterator.hasNext()) // Failed to print the whole thing
       return null;
 
     this.target = testIterator;
