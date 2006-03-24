@@ -439,12 +439,10 @@ class GridIterator implements PrintIterator {
       spacing.y = cellBorder.getHeight (false, false) - overlap.y;
 
     this.minimumColSizes = computeColumnSizes (PrintSizeStrategy.MINIMUM, gc);
-    this.preferredColSizes = computeColumnSizes (PrintSizeStrategy.PREFERRED,
-        gc);
+    this.preferredColSizes = computeColumnSizes (PrintSizeStrategy.PREFERRED, gc);
 
     this.minimumSize = computeSize (PrintSizeStrategy.MINIMUM, minimumColSizes);
-    this.preferredSize = computeSize (PrintSizeStrategy.PREFERRED,
-        preferredColSizes);
+    this.preferredSize = computeSize (PrintSizeStrategy.PREFERRED, preferredColSizes);
 
     row = 0;
     rowStarted = false;
@@ -527,12 +525,11 @@ class GridIterator implements PrintIterator {
     for (GridEntry[] row : rows) {
       int col = 0;
       for (GridEntry entry : row) {
-        if (entry.colspan == 1 && !isExplicitSize (columns[col])) { // ignore
-                                                                    // explicitly
-                                                                    // sized
-                                                                    // cols
-          colSizes[col] = Math.max (colSizes[col], computeColumnSize (entry,
-              columns[col], strategy, gc));
+        // ignore explicitly sized cols
+        if (entry.colspan == 1 && !isExplicitSize (columns[col])) { 
+          colSizes[col] = Math.max (
+              colSizes[col],
+              computeColumnSize (entry, columns[col], strategy, gc));
         }
         col += entry.colspan;
       }
@@ -688,7 +685,7 @@ class GridIterator implements PrintIterator {
     return colSizes;
   }
 
-  Point computeSize (PrintSizeStrategy strategy, int[] colSizes) {
+  private Point computeSize (PrintSizeStrategy strategy, int[] colSizes) {
     // Calculate width from column sizes and spacing.
     int width = spacing.x * (colSizes.length - 1);
     // Add width of cell border at far left and far right.
@@ -808,11 +805,13 @@ class GridIterator implements PrintIterator {
       for (int i = 0; i < shrinkableCols.length; i++) {
         int col = shrinkableCols[i];
 
+        if (shrinkableWidth == 0) break;
+
         int shrinkBy = colSizes[col] * extraWidth / shrinkableWidth;
 
+        shrinkableWidth -= colSizes[col];
         colSizes[col] -= shrinkBy;
         extraWidth -= shrinkBy;
-        shrinkableWidth -= shrinkBy;
       }
 
       return colSizes;
@@ -969,8 +968,8 @@ class GridIterator implements PrintIterator {
       }
 
       // Iterate the current cell.
-      PrintPiece piece = rowPieces[i] = iter.next (cellspanWidth, height
-          - cellBorder.getHeight (topOpen, bottomOpen));
+      PrintPiece piece = rowPieces[i] = iter.next (cellspanWidth,
+          height - cellBorder.getHeight (topOpen, bottomOpen));
 
       // If bottomOpen is false, then all of the row's content must be
       // consumed in this iteration. Therefore if the iterator has more
