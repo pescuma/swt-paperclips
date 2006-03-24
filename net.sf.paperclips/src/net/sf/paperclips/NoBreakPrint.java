@@ -14,7 +14,11 @@ import org.eclipse.swt.graphics.Point;
  * A print wrapper which prevents its target from being broken into multiple
  * pieces when printed.  If there isn't enough room to print the target in one
  * piece on the current page (or column, if it's inside a ColumnPrint), it
- * will be printed on the next page (or column).  
+ * will be printed on the next page (or column).
+ * 
+ * <p>Care must be taken when using this class to avoid unprintable documents.
+ * If the target of a NoBreakPrint does not fit in the available space on the
+ * print device, the entire document will not print.  
  * @author Matthew
  */
 public class NoBreakPrint implements Print {
