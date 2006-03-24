@@ -38,20 +38,20 @@ class BorderIterator implements PrintIterator {
   private final BorderPainter border;
 
   // Quasi-cursor
-  private boolean topOpen;
+  private boolean opened;
 
   BorderIterator (BorderPrint print, Device device, GC gc) {
     this.target = print.target.iterator (device, gc);
     this.border = print.border.createPainter (device, gc);
 
-    this.topOpen = false;
+    this.opened = false;
   }
 
   BorderIterator (BorderIterator that) {
     this.target = that.target.copy ();
     this.border = that.border;
 
-    this.topOpen = that.topOpen;
+    this.opened = that.opened;
   }
 
   public boolean hasNext () {
@@ -70,52 +70,53 @@ class BorderIterator implements PrintIterator {
         + border.getMaxHeight ());
   }
 
+  private PrintPiece next(int width, int height, boolean bottomOpen) {
+    // Adjust iteration area for border dimensions.
+    width -= border.getWidth();
+    height -= border.getHeight(opened, bottomOpen);
+    if (width < 0 || height < 0) return null;
+
+    PrintIterator testIterator = target.copy();
+    PrintPiece piece = testIterator.next (width, height);
+
+    if (piece == null) return null;
+
+    // If bottom border is closed, testIterator must be consumed in this
+    // iteration (don't close the border until the target is consumed).
+    if (!bottomOpen && testIterator.hasNext()) {
+      piece.dispose();
+      return null;
+    }
+
+    // Wrap the print piece with border
+    piece = new BorderPiece (piece, border, opened, bottomOpen);
+
+    this.target = testIterator;
+    return piece;
+  }
+
   public PrintPiece next (int width, int height) {
     if (!hasNext ()) throw new IllegalStateException ();
 
-    // Is area less than border size?
-    if (width < border.getWidth ()
-        || height < border.getHeight (topOpen, false)) return null;
+    // Try iterating with a closed bottom border first.
+    PrintPiece piece = next(width, height, false);
 
-    // Backup target iterator
-    PrintIterator backup = target.copy ();
-
-    // Try iterating with a closed bottom border.
-    boolean bottomOpen = false;
-    PrintPiece piece = target.next (width - border.getWidth (), height
-        - border.getTop (topOpen) - border.getBottom (bottomOpen));
-
-    // If the iteration did not completely consume the target, then a closed
-    // border at the bottom is not correct. Restore the target from the
-    // backup and clear the PrintPiece so we can try the iteration again.
-    if (target.hasNext ()) {
-      target = backup;
-
-      // Dispose unused PrintPiece, if any
-      if (piece != null) piece.dispose ();
-
-      piece = null;
-    }
-
-    // Previous iteration failed. Try iterating
-    // again with an open border instead.
+    // If iteration failed with a closed bottom border, try again with an
+    // open bottom border instead.
     if (piece == null) {
-      bottomOpen = true;
-      piece = target.next (width - border.getWidth (), height
-          - border.getTop (topOpen) - border.getBottom (bottomOpen));
+      piece = next(width, height, true);
+
+      // If we still get null, then there isn't enough room to iterate the
+      // target with the correct borders. Iteration fails.
+      if (piece == null)
+        return null;
     }
 
-    // If we still get null, then there isn't enough room to iterate the
-    // target with the correct borders. Iteration fails.
-    if (piece == null) return null;
+    // Iteration successful.  Set the topOpen field so it is correct for the
+    // next iteration (if any).
+    this.opened = true;
 
-    // Iteration successful.
-    PrintPiece result = new BorderPiece (piece, border, topOpen, bottomOpen);
-
-    // Set the topOpen field so it is correct for the next iteration.
-    this.topOpen = true;
-
-    return result;
+    return piece;
   }
 
   public PrintIterator copy () {
@@ -145,8 +146,9 @@ class BorderPiece implements PrintPiece {
     this.bottomOpen = bottomOpen;
 
     Point targetSize = target.getSize ();
-    this.size = new Point (targetSize.x + border.getWidth (), targetSize.y
-        + border.getHeight (topOpen, bottomOpen));
+    this.size = new Point (
+        targetSize.x + border.getWidth (),
+        targetSize.y + border.getHeight (topOpen, bottomOpen));
   }
 
   public void dispose () {
