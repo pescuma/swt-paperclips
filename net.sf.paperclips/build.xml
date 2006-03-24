@@ -8,7 +8,6 @@
   <property name="lib"     location="lib" />
   <property name="doc"     location="doc" />
   <property name="javadoc" location="doc/api" />
-  <property name="releases" location="releases" />
 
   <property name="jarname" value="net.sf.paperclips" />
   <property name="releasename" value="PaperClips" />
@@ -62,7 +61,7 @@
     </javadoc>
   </target>
 
-  <target name="release" depends="javadoc,rebuild">
+  <target name="release" depends="rebuild,javadoc">
   	<delete file="${releasename}_${version}.zip"/>
   	<zip zipfile="${releasename}_${version}.zip">
   		<fileset dir=".">
@@ -74,6 +73,5 @@
   			<include name="doc/**"/>
   		</fileset>
   	</zip>
-  	<copy file="${releasename}_${version}.zip" todir="${releases}" />
   </target>
 </project>
