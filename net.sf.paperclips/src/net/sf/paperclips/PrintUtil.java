@@ -14,6 +14,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 
 /**
@@ -119,10 +120,24 @@ public class PrintUtil {
                               int margins) {
     if (printer.startJob (jobName)) {
       GC gc = null;
+      Transform transform = null;
       List <PrintPiece> pages = new ArrayList <PrintPiece> ();
 
       try {
         gc = new GC (printer);
+        /* This code appears to set things back to the right size, at least on
+         * my WinXP machine printing on an HP LaserJet 1012.  Not tested on
+         * other platforms or printers.  --Matthew
+         * 
+         * See also Eclipse Bug 96378:
+         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96378 
+         * 
+         * transform = new Transform(printer);
+         * gc.getTransform(transform);
+         * transform.scale(0.1668f, 0.1668f);
+         * gc.setTransform(transform);
+         */
+
         Rectangle bounds = computePrintArea (printer, margins);
 
         PrintIterator iterator = print.iterator (printer, gc);
@@ -147,7 +162,10 @@ public class PrintUtil {
 
         printer.endJob ();
       } finally {
-        if (gc != null) gc.dispose ();
+        if (gc != null)
+          gc.dispose ();
+        if (transform != null)
+          transform.dispose();
         for (PrintPiece page : pages)
           page.dispose ();
       }
