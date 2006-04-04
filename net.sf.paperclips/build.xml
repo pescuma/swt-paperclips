@@ -6,7 +6,6 @@
   <property name="src"     location="src" />
   <property name="class"   location="class" />
   <property name="lib"     location="lib" />
-  <property name="doc"     location="doc" />
   <property name="javadoc" location="doc/api" />
 
   <property name="jarname" value="net.sf.paperclips" />
@@ -54,10 +53,10 @@
 	</delete>
 
   	<javadoc destdir="${javadoc}">
-		<fileset dir="${src}">
-		    <include name="**/*.java"/>
-		    <exclude name="**/*Test.java"/>
-		</fileset>
+      <fileset dir="${src}">
+        <include name="**/*.java"/>
+        <exclude name="**/*Test.java"/>
+      </fileset>
     </javadoc>
   </target>
 
