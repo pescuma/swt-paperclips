@@ -59,7 +59,7 @@ DAMAGE.
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-<title>TiddlyWiki - a reusable non-linear personal web notebook</title>
+<title>PaperClips - Simplified Java Printing Support for SWT</title>
 <?= cct_print_includes($standalone);/*cct*/ ?>
 <script type="text/javascript">
 
