@@ -38,7 +38,7 @@ import org.eclipse.swt.graphics.Point;
  * @see PrintIterator#minimumSize()
  * @see PrintIterator#preferredSize()
  */
-public class GridPrint implements Print {
+public final class GridPrint implements Print {
   /**
    * Constant colspan value indicating that all remaining columns in the row
    * should be used.
@@ -63,14 +63,22 @@ public class GridPrint implements Print {
    * The horizontal spacing between adjacent cells, in points. 72 points = 1".
    * The default value is BORDER_OVERLAP.
    * @see #BORDER_OVERLAP
+   * @deprecated use {@link #setHorizontalSpacing(int)} and
+   *             {@link #getHorizontalSpacing()} instead.  This field will be
+   *             made private in a future release.
    */
+  @Deprecated
   public int horizontalSpacing;
 
   /**
    * The vertical spacing between adjacent cells, in points. 72 points = 1". The
    * default value is BORDER_OVERLAP.
    * @see #BORDER_OVERLAP
+   * @deprecated use {@link #setVerticalSpacing(int)} and
+   *             {@link #getVerticalSpacing()} instead.  This field will be
+   *             made private in a future release.
    */
+  @Deprecated
   public int verticalSpacing;
 
   /** The columns for this grid. */
@@ -90,10 +98,10 @@ public class GridPrint implements Print {
   final List <List <GridEntry>> rows = new ArrayList <List <GridEntry>> ();
 
   /** Column cursor - the column that the next added print will go into. */
-  int col = 0;
+  private int col = 0;
 
   /**
-   * Construct a GridPrint with the given columns.
+   * Constructs a GridPrint with the given columns.
    * @param columns a comma-separated list of column specs.
    * @see GridColumn#parse(String)
    */
@@ -102,31 +110,53 @@ public class GridPrint implements Print {
   }
 
   /**
-   * Construct a GridPrint with the given columns and spacing.
+   * Constructs a GridPrint with the given columns and spacing.
+   * @param columns a comma-separated list of column specs.
+   * @param spacing the spacing (in points) between grid cells.
+   * @see #BORDER_OVERLAP
+   */
+  public GridPrint (String columns, int spacing) {
+    this (parseColumns (columns), spacing, spacing);
+  }
+
+  /**
+   * Constructs a GridPrint with the given columns and spacing.
    * @param columns a comma-separated list of column specs.
    * @param horizontalSpacing the horizontal spacing (in points) between grid
    *          cells.
    * @param verticalSpacing the vertical spacing (in points) between grid cells.
    * @see GridColumn#parse(String)
+   * @see #BORDER_OVERLAP
    */
   public GridPrint (String columns, int horizontalSpacing, int verticalSpacing) {
     this (parseColumns (columns), horizontalSpacing, verticalSpacing);
   }
 
   /**
-   * Construct a GridPrint with the given columns.
-   * @param columns the columns for the new Grid.
+   * Constructs a GridPrint with the given columns.
+   * @param columns the columns for the new grid.
    */
   public GridPrint (GridColumn... columns) {
     this (columns, BORDER_OVERLAP, BORDER_OVERLAP);
   }
 
   /**
+   * Constructs a GridPrint with the given columns and spacing.
+   * @param columns the columns for the new grid.
+   * @param spacing the spacing (in points) between grid cells.
+   * @see #BORDER_OVERLAP
+   */
+  public GridPrint (GridColumn[] columns, int spacing) {
+    this (columns, spacing, spacing);
+  }
+
+  /**
    * Construct a GridPrint with the given columns and spacing.
-   * @param columns the columns for the new Grid.
+   * @param columns the columns for the new grid.
    * @param horizontalSpacing the horizontal spacing (in points) between grid
    *          cells.
    * @param verticalSpacing the vertical spacing (in points) between grid cells.
+   * @see #BORDER_OVERLAP
    */
   public GridPrint (GridColumn[] columns,
                     int horizontalSpacing,
@@ -313,6 +343,42 @@ public class GridPrint implements Print {
 
   public PrintIterator iterator (Device device, GC gc) {
     return new GridIterator (this, device, gc);
+  }
+
+  /**
+   * Returns the horizontal spacing between grid cells.
+   * @return the horizontal spacing between grid cells.
+   */
+  public int getHorizontalSpacing () {
+    return horizontalSpacing;
+  }
+
+  /**
+   * Sets the horizontal spacing between grid cells.
+   * @param horizontalSpacing the new horizontal spacing.  A value of
+   *        {@link #BORDER_OVERLAP} indicates that the borders should be
+   *        overlapped instead of spaced.
+   */
+  public void setHorizontalSpacing (int horizontalSpacing) {
+    this.horizontalSpacing = horizontalSpacing;
+  }
+
+  /**
+   * Returns the vertical spacing between grid cells.
+   * @return the vertical spacing between grid cells.
+   */
+  public int getVerticalSpacing () {
+    return verticalSpacing;
+  }
+
+  /**
+   * Sets the vertical spacing between grid cells.
+   * @param verticalSpacing the new vertical spacing.  A value of
+   *        {@link #BORDER_OVERLAP} indicates that the borders should be
+   *        overlapped instead of spaced.
+   */
+  public void setVerticalSpacing (int verticalSpacing) {
+    this.verticalSpacing = verticalSpacing;
   }
 }
 
