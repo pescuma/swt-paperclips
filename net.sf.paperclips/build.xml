@@ -1,7 +1,7 @@
 <project name="Paperclips - printing support for SWT" default="build" basedir=".">
   <description>Paperclips - printing support for SWT</description>
 
-  <property name="version" value="0.4.3" />
+  <property name="version" value="0.4.4" />
 
   <property name="src"     location="src" />
   <property name="class"   location="class" />
