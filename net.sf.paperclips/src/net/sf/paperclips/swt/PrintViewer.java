@@ -19,11 +19,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * A JFace-style print preview manager which displays a Print in a scrollable
- * pane.
+ * A JFace-style {@link Print} viewer which displays a Print in a scrollable pane.
  * @author Matthew
  */
-public class PrintPreview {
+public class PrintViewer {
   ScrolledComposite sc;
   PrintPieceCanvas canvas;
   Print print;
@@ -35,7 +34,7 @@ public class PrintPreview {
    * @param parent the parent component of the scroll pane.
    * @param style the style of the scroll pane.
    */
-  public PrintPreview(Composite parent, int style) {
+  public PrintViewer(Composite parent, int style) {
     sc = new ScrolledComposite(parent, style | SWT.V_SCROLL | SWT.H_SCROLL);
     sc.setExpandHorizontal(true);
     sc.setExpandVertical(true);
