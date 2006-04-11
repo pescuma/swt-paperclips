@@ -1,7 +1,7 @@
 /*
  * Created on Sep 27, 2005
  */
-package net.sf.paperclips.preview;
+package net.sf.paperclips.swt;
 
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
@@ -22,9 +22,7 @@ import org.eclipse.swt.widgets.Control;
  * A JFace-style print preview manager which displays a Print in a scrollable
  * pane.
  * @author Matthew
- * @deprecated Use {@link net.sf.paperclips.swt.PrintViewer} instead.
  */
-@Deprecated
 public class PrintPreview {
   ScrolledComposite sc;
   PrintPieceCanvas canvas;

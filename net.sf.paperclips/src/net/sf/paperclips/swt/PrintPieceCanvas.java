@@ -8,7 +8,7 @@
  * Contributors:
  *     Woodcraft Mill & Cabinet Corporation - initial API and implementation
  *******************************************************************************/
-package net.sf.paperclips.preview;
+package net.sf.paperclips.swt;
 
 import net.sf.paperclips.PrintPiece;
 
@@ -22,9 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 /**
  * A canvas for displaying Print objects.
  * @author Matthew
- * @deprecated Use {@link net.sf.paperclips.swt.PrintPieceCanvas instead.}
  */
-@Deprecated
 public class PrintPieceCanvas extends Canvas {
   PrintPiece piece = null;
 
