@@ -15,7 +15,7 @@ import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.preview.PrintPreview;
+import net.sf.paperclips.swt.PrintViewer;
 
 /**
  * Example for the ColumnPrint class.
@@ -33,7 +33,7 @@ public class ColumnPrintExample extends FactoryPrint {
     shell.setLayout(new FillLayout());
     shell.setSize(600, 600);
 
-    final PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
+    final PrintViewer preview = new PrintViewer(shell, SWT.BORDER);
     preview.setPrint(new ColumnPrintExample());
 
     shell.open();

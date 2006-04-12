@@ -11,7 +11,7 @@ import net.sf.paperclips.LinePrint;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.preview.PrintPreview;
+import net.sf.paperclips.swt.PrintViewer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
@@ -36,7 +36,7 @@ public class GridPrintExample extends FactoryPrint {
     shell.setLayout(new FillLayout());
     shell.setSize(600, 600);
 
-    final PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
+    final PrintViewer preview = new PrintViewer(shell, SWT.BORDER);
     preview.setPrint(new GridPrintExample());
 
     shell.open();
