@@ -32,7 +32,7 @@ import net.sf.paperclips.TextPrint;
 
 /**
  * Prints the contents of a Table widget.
- * @author Administrator
+ * @author Matthew
  */
 public class Snippet1 implements Print {
   private final Table table;
