@@ -12,6 +12,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -88,7 +91,8 @@ public class Snippet1 implements Print {
    */
   public static void main(String[] args) {
     Display display = Display.getDefault ();
-    Shell shell = new Shell (display);
+    final Shell shell = new Shell (display);
+    shell.setText("Snippet1.java");
     shell.setBounds (100, 100, 640, 480);
     shell.setLayout (new GridLayout());
 
@@ -114,7 +118,14 @@ public class Snippet1 implements Print {
 
     button.addListener(SWT.Selection, new Listener() {
       public void handleEvent (Event event) {
-        PrintUtil.print ("Snippet1.java", new Snippet1(table));
+        PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
+        PrinterData printerData = dialog.open ();
+        if (printerData != null) {
+          Printer printer = new Printer(printerData);
+          Print print = new Snippet1(table);
+          PrintUtil.printTo ("Snippet1.java", printer, print, 72); // 72 = 72 points = 1" margins
+          printer.dispose();
+        }
       }
     });
 
