@@ -3,12 +3,15 @@
  */
 package net.sf.paperclips;
 
+import net.sf.paperclips.decorator.BorderDecorator;
+
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A decorator for displaying a border around a child print.
+ * A decorator that draws a border around the target print.
+ * @see BorderDecorator
  * @author Matthew
  */
 public class BorderPrint implements Print {

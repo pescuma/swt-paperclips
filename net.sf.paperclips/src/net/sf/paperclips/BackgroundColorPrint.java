@@ -13,7 +13,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * Wrapper print that paints a background color behind it's target.
+ * A decorator that paints a background color behind it's target.
  * @author Matthew
  */
 public class BackgroundColorPrint implements Print {
