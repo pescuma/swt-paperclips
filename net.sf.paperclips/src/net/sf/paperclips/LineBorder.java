@@ -94,13 +94,12 @@ public class LineBorder implements Border {
 }
 
 class LineBorderPainter extends AbstractBorderPainter {
-  final Device device;
+  private final Device device;
+  private final RGB rgb;
+  private final Point lineWidth;
+  private final Point borderWidth;
 
-  final RGB rgb;
-
-  final Point lineWidth;
-
-  final Point borderWidth;
+  private Color color;
 
   LineBorderPainter (LineBorder border, Device device, GC gc) {
     this.rgb = border.rgb;
@@ -136,6 +135,12 @@ class LineBorderPainter extends AbstractBorderPainter {
     return open ? 0 : borderWidth.y;
   }
 
+  private Color getColor() {
+    if (color == null)
+      color = new Color(device, rgb);
+    return color;
+  }
+
   @Override
   public void paint (GC gc,
                      int x,
@@ -145,10 +150,9 @@ class LineBorderPainter extends AbstractBorderPainter {
                      boolean topOpen,
                      boolean bottomOpen) {
     Color oldColor = gc.getBackground ();
-    Color color = new Color (device, rgb);
 
     try {
-      gc.setBackground (color);
+      gc.setBackground (getColor());
 
       // Left & right
       gc.fillRectangle (x, y, lineWidth.x, height);
@@ -160,11 +164,17 @@ class LineBorderPainter extends AbstractBorderPainter {
         gc.fillRectangle (x, y + height - lineWidth.y, width, lineWidth.y);
     } finally {
       gc.setBackground (oldColor);
-      color.dispose ();
     }
   }
 
   public Point getOverlap () {
     return new Point (lineWidth.x, lineWidth.y);
   }
+
+  public void dispose () {
+    if (color != null) {
+      color.dispose();
+      color = null;
+    }
+  }   
 }

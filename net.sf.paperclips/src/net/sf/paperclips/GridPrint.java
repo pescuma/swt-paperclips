@@ -1175,29 +1175,24 @@ class GridIterator implements PrintIterator {
 
 class BorderedPrintPiece implements PrintPiece {
   final Point size;
-
   final BorderPainter border;
-
   final boolean topOpen;
-
   final boolean bottomOpen;
-
   final int pieceOffset;
-
-  final PrintPiece piece;
+  final PrintPiece target;
 
   BorderedPrintPiece (Point size,
                       BorderPainter border,
                       boolean topOpen,
                       boolean bottomOpen,
                       int pieceOffset,
-                      PrintPiece piece) {
+                      PrintPiece target) {
     this.size = new Point (size.x, size.y);
     this.border = BeanUtils.checkNull (border);
     this.topOpen = topOpen;
     this.bottomOpen = bottomOpen;
     this.pieceOffset = pieceOffset;
-    this.piece = piece;
+    this.target = target;
   }
 
   public Point getSize () {
@@ -1206,12 +1201,14 @@ class BorderedPrintPiece implements PrintPiece {
 
   public void paint (GC gc, int x, int y) {
     border.paint (gc, x, y, size.x, size.y, topOpen, bottomOpen);
-    if (piece != null)
-      piece.paint (gc, x + border.getLeft () + pieceOffset, y
+    if (target != null)
+      target.paint (gc, x + border.getLeft () + pieceOffset, y
           + border.getTop (topOpen));
   }
 
   public void dispose () {
-    if (piece != null) piece.dispose ();
+    border.dispose ();
+    if (target != null)
+      target.dispose ();
   }
 }

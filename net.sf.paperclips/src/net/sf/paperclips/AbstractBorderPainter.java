@@ -64,10 +64,4 @@ public abstract class AbstractBorderPainter implements BorderPainter {
     return Math.max (getTop (false), getTop (true))
         + Math.max (getBottom (false), getBottom (true));
   }
-
-  /**
-   * Disposes all system resources allocated by this BorderPainter. This
-   * implementation does nothing.
-   */
-  public void dispose () {}
 }

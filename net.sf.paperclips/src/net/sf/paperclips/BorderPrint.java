@@ -16,7 +16,6 @@ import org.eclipse.swt.graphics.Point;
  */
 public class BorderPrint implements Print {
   final Print target;
-
   final Border border;
 
   /**
@@ -154,10 +153,6 @@ class BorderPiece implements PrintPiece {
         targetSize.y + border.getHeight (topOpen, bottomOpen));
   }
 
-  public void dispose () {
-    target.dispose ();
-  }
-
   public Point getSize () {
     return new Point (size.x, size.y);
   }
@@ -165,5 +160,10 @@ class BorderPiece implements PrintPiece {
   public void paint (GC gc, int x, int y) {
     border.paint (gc, x, y, size.x, size.y, topOpen, bottomOpen);
     target.paint (gc, x + border.getLeft (), y + border.getTop (topOpen));
+  }
+
+  public void dispose () {
+    border.dispose ();
+    target.dispose ();
   }
 }

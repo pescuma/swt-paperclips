@@ -65,16 +65,11 @@ public class GapBorder implements Border {
 
 class GapBorderPainter extends AbstractBorderPainter {
   final int top;
-
-  final int bottom;
-
-  final int left;
-
-  final int right;
-
   final int openTop;
-
+  final int bottom;
   final int openBottom;
+  final int left;
+  final int right;
 
   GapBorderPainter (GapBorder target, Device device) {
     Point dpi = device.getDPI ();
@@ -122,6 +117,10 @@ class GapBorderPainter extends AbstractBorderPainter {
     return open ? openTop : top;
   }
 
+  public Point getOverlap () {
+    return new Point (Math.min (left, right), Math.max (top, bottom));
+  }
+
   @Override
   public void paint (GC gc,
                      int x,
@@ -130,10 +129,10 @@ class GapBorderPainter extends AbstractBorderPainter {
                      int height,
                      boolean topOpen,
                      boolean bottomOpen) {
-  // Nothing to paint.
+    // Nothing to paint.
   }
 
-  public Point getOverlap () {
-    return new Point (Math.min (left, right), Math.max (top, bottom));
+  public void dispose () {
+    // Nothing to dispose
   }
 }

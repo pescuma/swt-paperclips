@@ -12,33 +12,6 @@ import org.eclipse.swt.graphics.Point;
  */
 public interface BorderPainter {
   /**
-   * Paints a border around the specified region. Depending on the type of
-   * border, the top and bottom of may be painted differently depending on the
-   * values of <code>topOpen</code> and <code>bottomOpen</code>.
-   * @param gc The graphics context to paint on.
-   * @param x The x coordinate of the top left corner of the border.
-   * @param y The y coordinate of the top left corner of the border.
-   * @param width The width of the border to paint
-   * @param height The height of the border to paint
-   * @param topOpen If true, the top border should be drawn "open," to indicate
-   *          that this is the continuation of a border in a previous iteration.
-   *          If false, the border should be drawn "closed" to indicate that
-   *          this is the first iteration on the BorderPrint's target.
-   * @param bottomOpen If true, the bottom border should be drawn "open," to
-   *          indicate that the BorderPrint's target was not consumed in this
-   *          iteration. If false, the bottom border should be drawn "closed,"
-   *          to indicate that the BorderPrint's target completed during this
-   *          iteration.
-   */
-  public void paint (GC gc,
-                     int x,
-                     int y,
-                     int width,
-                     int height,
-                     boolean topOpen,
-                     boolean bottomOpen);
-
-  /**
    * Returns the border inset, in pixels, from the left.
    * @return the border inset, in pixels, from the left.
    */
@@ -90,11 +63,46 @@ public interface BorderPainter {
 
   /**
    * Returns the x and y distance that two of the same BorderPainters would
-   * overlap to create the appearance of a single border between the two. This
+   * overlap to create the appearance of a single border between the two.  This
    * method is used by GridPrint whenever the horizontal and/or vertical spacing
    * fields are set to {@link GridPrint#BORDER_OVERLAP }.
    * @return the distance that this border painter would overlap an adjacent
    *         one.
    */
   public Point getOverlap ();
+
+  /**
+   * Paints a border around the specified region. Depending on the type of
+   * border, the top and bottom of may be painted differently depending on the
+   * values of <code>topOpen</code> and <code>bottomOpen</code>.
+   * @param gc The graphics context to paint on.
+   * @param x The x coordinate of the top left corner of the border.
+   * @param y The y coordinate of the top left corner of the border.
+   * @param width The width of the border to paint
+   * @param height The height of the border to paint
+   * @param topOpen If true, the top border should be drawn "open," to indicate
+   *          that this is the continuation of a border in a previous iteration.
+   *          If false, the border should be drawn "closed" to indicate that
+   *          this is the first iteration on the BorderPrint's target.
+   * @param bottomOpen If true, the bottom border should be drawn "open," to
+   *          indicate that the BorderPrint's target was not consumed in this
+   *          iteration. If false, the bottom border should be drawn "closed,"
+   *          to indicate that the BorderPrint's target completed during this
+   *          iteration.
+   */
+  public void paint (GC gc,
+                     int x,
+                     int y,
+                     int width,
+                     int height,
+                     boolean topOpen,
+                     boolean bottomOpen);
+
+  /**
+   * Disposes the system resources allocated by this BorderPainter.  The dispose method is
+   * <b>not</b>  a permanent disposal of a BorderPainter.  It is intended to reclaim system
+   * resources, however future calls to paint(GC,int,int) may require that the resources be
+   * allocated again.
+   */
+  public void dispose();
 }
