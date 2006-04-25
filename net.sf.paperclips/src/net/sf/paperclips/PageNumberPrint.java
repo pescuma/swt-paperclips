@@ -262,15 +262,14 @@ class PageNumberIterator extends AbstractIterator {
 }
 
 class PageNumberPiece extends AbstractPiece {
-  final PageNumber pageNumber;
+  private final PageNumber pageNumber;
+  private final FontData fontData;
+  private final int align;
+  private final PageNumberFormat format;
+  private final RGB rgb;
 
-  final FontData fontData;
-
-  final int align;
-
-  final PageNumberFormat format;
-
-  final RGB rgb;
+  private Font font;
+  private Color foreground;
 
   PageNumberPiece (PageNumberIterator iter) {
     super (iter, iter.size);
@@ -281,21 +280,27 @@ class PageNumberPiece extends AbstractPiece {
     this.rgb = iter.rgb;
   }
 
+  private Font getFont() {
+    if (font == null)
+      font = new Font(device, fontData);
+    return font;
+  }
+
+  private Color getForeground() {
+    if (foreground == null)
+      foreground = new Color(device, rgb);
+    return foreground;
+  }
+
   public void paint (GC gc, int x, int y) {
     Font oldFont = gc.getFont ();
     Color oldForeground = gc.getForeground ();
 
-    Font font = null;
-    Color foreground = null;
-
     Point size = getSize ();
 
     try {
-      font = new Font (device, fontData);
-      foreground = new Color (device, rgb);
-
-      gc.setFont (font);
-      gc.setForeground (foreground);
+      gc.setFont (getFont());
+      gc.setForeground (getForeground());
 
       String text = format.format (pageNumber);
       Point textSize = gc.textExtent (text);
@@ -308,6 +313,8 @@ class PageNumberPiece extends AbstractPiece {
       case SWT.RIGHT:
         x = x + size.x - textSize.x;
         break;
+      default:
+        break;
       }
 
       // Draw the page number.
@@ -315,13 +322,17 @@ class PageNumberPiece extends AbstractPiece {
     } finally {
       gc.setFont (oldFont);
       gc.setForeground (oldForeground);
-
-      if (font != null) font.dispose ();
-      if (foreground != null) foreground.dispose ();
     }
   }
 
   public void dispose () {
-  // Nothing to dispose
+    if (font != null) {
+      font.dispose();
+      font = null;
+    }
+    if (foreground != null) {
+      foreground.dispose();
+      foreground = null;
+    }
   }
 }

@@ -33,7 +33,9 @@ public interface PrintPiece {
   public void paint (GC gc, int x, int y);
 
   /**
-   * Disposes the system resources allocated by this PrintPiece.
+   * Disposes the system resources allocated by this PrintPiece.  The dispose method is <b>not</b>
+   * a permanent disposal of a PrintPiece.  It is intended to reclaim system resources, however
+   * future calls to paint(GC,int,int) may require that the resources be allocated again.
    */
   public void dispose ();
 }

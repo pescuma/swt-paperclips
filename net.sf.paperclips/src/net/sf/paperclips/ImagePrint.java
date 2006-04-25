@@ -176,28 +176,45 @@ class ImageIterator implements PrintIterator {
 }
 
 class ImagePiece implements PrintPiece {
-  final Image image;
+  private final Device device;
+  private final ImageData imageData;
+  private final Point size;
 
-  final ImageData imageData;
-
-  final Point size;
+  private Image image;
 
   ImagePiece (Device device, ImageData imageData, Point size) {
+    this.device = BeanUtils.checkNull(device);
     this.imageData = BeanUtils.checkNull (imageData);
     this.size = BeanUtils.checkNull (size);
-    this.image = new Image (device, imageData);
   }
 
   public Point getSize () {
     return new Point (size.x, size.y);
   }
 
+  private Image getImage() {
+    if (image == null)
+      image = new Image(device, imageData);
+    return image;
+  }
+
   public void paint (GC gc, int x, int y) {
-    gc.drawImage (image, 0, 0, imageData.width, imageData.height, x, y, size.x,
+    gc.drawImage (
+        getImage(),
+        0,
+        0,
+        imageData.width,
+        imageData.height,
+        x,
+        y,
+        size.x,
         size.y);
   }
 
   public void dispose () {
-    image.dispose ();
+    if (image != null) {
+      image.dispose ();
+      image = null;
+    }
   }
 }

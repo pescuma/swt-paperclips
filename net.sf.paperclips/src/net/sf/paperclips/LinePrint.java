@@ -129,28 +129,36 @@ class LineIterator extends AbstractIterator {
 }
 
 class LinePiece extends AbstractPiece {
-  final RGB rgb;
+  private final RGB rgb;
+
+  private Color background;
 
   LinePiece (LineIterator iter, Point size) {
     super (iter, size);
     this.rgb = iter.rgb;
   }
 
+  private Color getBackground() {
+    if (background == null)
+      background = new Color(device, rgb);
+    return background;
+  }
+
   public void paint (GC gc, int x, int y) {
-    Color bg = null;
     Color bg_old = gc.getBackground ();
     Point size = getSize ();
     try {
-      bg = new Color (device, rgb);
-      gc.setBackground (bg);
+      gc.setBackground (getBackground());
       gc.fillRectangle (x, y, size.x, size.y);
     } finally {
-      if (bg != null) bg.dispose ();
       gc.setBackground (bg_old);
     }
   }
 
   public void dispose () {
-  // Nothing to dispose.
+    if (background != null) {
+      background.dispose();
+      background = null;
+    }
   }
 }

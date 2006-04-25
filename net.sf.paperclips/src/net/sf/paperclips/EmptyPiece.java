@@ -21,10 +21,10 @@ class EmptyPiece implements PrintPiece {
   }
 
   public void paint (GC gc, int x, int y) {
-  // Nothing to paint
+    // Nothing to paint
   }
 
   public void dispose () {
-  // Nothing to dispose
+    // Nothing to dispose
   }
 }

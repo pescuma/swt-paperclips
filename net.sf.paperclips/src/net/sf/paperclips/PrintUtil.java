@@ -157,6 +157,7 @@ public class PrintUtil {
         for (PrintPiece page : pages) {
           printer.startPage ();
           page.paint (gc, bounds.x, bounds.y);
+          page.dispose();
           printer.endPage ();
         }
 
@@ -166,8 +167,8 @@ public class PrintUtil {
           gc.dispose ();
         if (transform != null)
           transform.dispose();
-        for (PrintPiece page : pages)
-          page.dispose ();
+        //for (PrintPiece page : pages)
+          //page.dispose ();
       }
     }
   }

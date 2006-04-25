@@ -371,13 +371,13 @@ class TextIterator extends AbstractIterator {
 }
 
 class TextPiece extends AbstractPiece {
-  final String[] lines;
+  private final String[] lines;
+  private final FontData fontData;
+  private final int align;
+  private final RGB rgb;
 
-  final FontData fontData;
-
-  final int align;
-
-  final RGB rgb;
+  private Font font;
+  private Color foreground;
 
   TextPiece (Device device, Point size, TextIterator iter, String[] text) {
     super (iter, size);
@@ -387,18 +387,27 @@ class TextPiece extends AbstractPiece {
     this.rgb = iter.rgb;
   }
 
-  public void paint (GC gc, int x, int y) {
-    Font font = null;
-    Font font_old = gc.getFont ();
+  private Font getFont() {
+    if (font == null)
+      font = new Font(device, fontData);
+    return font;
+  }
 
-    Color fg = null;
-    Color fg_old = gc.getForeground ();
+  private Color getForeground() {
+    if (foreground == null)
+      foreground = new Color(device, rgb);
+    return foreground;
+  }
+
+  public void paint (GC gc, int x, int y) {
+    Font oldFont = gc.getFont ();
+    Color oldForeground = gc.getForeground ();
 
     Point size = getSize ();
 
     try {
-      gc.setFont (font = new Font (device, fontData));
-      gc.setForeground (fg = new Color (device, rgb));
+      gc.setFont (getFont());
+      gc.setForeground (getForeground ());
 
       final int lineHeight = gc.getFontMetrics ().getHeight ();
       int lineX = x;
@@ -416,10 +425,8 @@ class TextPiece extends AbstractPiece {
         gc.drawString (lines[i], lineX, y + lineHeight * i, true);
       }
     } finally {
-      gc.setFont (font_old);
-      gc.setForeground (fg_old);
-      if (font != null) font.dispose ();
-      if (fg != null) fg.dispose ();
+      gc.setFont (oldFont);
+      gc.setForeground (oldForeground);
     }
   }
 

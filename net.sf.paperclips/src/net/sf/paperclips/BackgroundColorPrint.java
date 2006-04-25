@@ -93,12 +93,21 @@ class BackgroundColorIterator implements PrintIterator {
 
 class BackgroundColorPiece implements PrintPiece {
   private final PrintPiece target;
+  private final Device device;
+  private final RGB background;
 
-  private Color color;
+  private Color backgroundColor;
 
   BackgroundColorPiece(PrintPiece target, RGB background, Device device) {
     this.target = BeanUtils.checkNull(target);
-    this.color = new Color(device, background);
+    this.device = BeanUtils.checkNull(device);
+    this.background = BeanUtils.checkNull(background);
+  }
+
+  private Color getBackgroundColor() {
+    if (backgroundColor == null)
+      this.backgroundColor = new Color(device, background);
+    return backgroundColor;
   }
 
   public Point getSize () {
@@ -110,7 +119,7 @@ class BackgroundColorPiece implements PrintPiece {
     Color old_bg = gc.getBackground();
 
     // Paint background
-    gc.setBackground(color);
+    gc.setBackground(getBackgroundColor());
     Point size = getSize();
     gc.fillRectangle (x, y, size.x, size.y);
 
@@ -122,6 +131,10 @@ class BackgroundColorPiece implements PrintPiece {
   }
 
   public void dispose () {
-    color.dispose();
+    if (backgroundColor != null) {
+      backgroundColor.dispose();
+      backgroundColor = null;
+    }
+    target.dispose();
   }
 }
