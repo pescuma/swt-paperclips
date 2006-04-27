@@ -72,10 +72,13 @@ class WideIterator implements PrintIterator {
 
   private int estimatePagesWide(int width) {
     // Pretend the pages are 1px narrower, in case some idiot is embedding this in a ColumnPrint.
-    width--; 
+    width--;
 
     Point pref = target.preferredSize ();
-    return (pref.x + width - 1) / width; 
+    int prefPages = (pref.x + width - 1) / width; // Adding width-1 rounds up without fp op
+    Point min = target.minimumSize ();
+    int minPages = (min.x + width - 1) / width; // Adding width-1 round up without fp op
+    return (prefPages > minPages) ? prefPages - 1 : prefPages;
   }
 
   public PrintPiece next (int width, int height) {
