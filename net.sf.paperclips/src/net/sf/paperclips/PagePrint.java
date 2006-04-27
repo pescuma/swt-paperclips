@@ -11,8 +11,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A decorator Print which displays page headers an footers, with page numbering
- * capabilities.
+ * A decorator Print which displays page headers and footers, with page numbering capabilities.
  * @author Matthew
  */
 public class PagePrint implements Print {
@@ -64,7 +63,7 @@ public class PagePrint implements Print {
   /**
    * Sets the gap between the header and body to the argument, expressed in
    * points.
-   * @param points the new gap between the header and body.
+   * @param points the new gap between the header and body (if there is a header).
    */
   public void setHeaderGap (int points) {
     this.headerGap = checkGap (points);
@@ -81,7 +80,7 @@ public class PagePrint implements Print {
   /**
    * Sets the gap between the body and footer to the argument, expressed in
    * points.
-   * @param points the new gap between the body and footer.
+   * @param points the new gap between the body and footer (if there is a footer).
    */
   public void setFooterGap (int points) {
     this.footerGap = checkGap (points);
