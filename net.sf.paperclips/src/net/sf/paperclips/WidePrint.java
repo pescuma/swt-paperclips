@@ -75,10 +75,10 @@ class WideIterator implements PrintIterator {
     width--;
 
     Point pref = target.preferredSize ();
-    int prefPages = (pref.x + width - 1) / width; // Adding width-1 rounds up without fp op
+    int prefPages = pref.x / width;
     Point min = target.minimumSize ();
-    int minPages = (min.x + width - 1) / width; // Adding width-1 round up without fp op
-    return (prefPages > minPages) ? prefPages - 1 : prefPages;
+    int minPages = (min.x + width - 1) / width; // Adding width-1 rounds up without fp op
+    return (prefPages > minPages) ? prefPages : minPages;
   }
 
   public PrintPiece next (int width, int height) {
