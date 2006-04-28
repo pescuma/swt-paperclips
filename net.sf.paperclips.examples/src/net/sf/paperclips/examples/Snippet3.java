@@ -35,7 +35,7 @@ import net.sf.paperclips.swt.PrintViewer;
  */
 public class Snippet3 implements Print {
   private Print createPrint () {
-    GridPrint grid = new GridPrint("d, d, d, d, d, d, d, d, d, d");
+    GridPrint grid = new GridPrint("p, p, p, p, p, p, p, p, p, p");
     grid.setCellBorder(new LineBorder());
 
     for (int r = 0; r < 50; r++)
