@@ -35,6 +35,8 @@ import net.sf.paperclips.swt.PrintViewer;
  */
 public class Snippet3 implements Print {
   private Print createPrint () {
+    // Using "preferred" size columns, to force the document to be wider than the page. In most
+    // cases it is recommended to use "d" for "default" columns, which can shrink when needed.
     GridPrint grid = new GridPrint("p, p, p, p, p, p, p, p, p, p");
     grid.setCellBorder(new LineBorder());
 
