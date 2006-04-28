@@ -30,6 +30,23 @@ import org.eclipse.swt.graphics.Point;
  * widths. Only when one of the columns goes below its "absolute minimum" will
  * the grid fail to print ( {@link PrintIterator#next(int, int) } returns null).
  * <p>
+ * GridPrint offers three basic methods of specifying column size.
+ * <ol>
+ * <li>Default size.  The column will be somewhere between it's minimum and preferred width.
+ *     GridPrint will determine the optimum widths for all default size columns, using the modified
+ *     W3C recommendation described above.  This is the recommended option for most cases.
+ * <li>Preferred size.  The column will be sized to it's preferred width.  This option is sometimes
+ *     appropriate, for example when certain portions of text should not be allowed to line-wrap.
+ *     In cases where only a few cells in a column need to be prevented from line wrapping,
+ *     consider wrapping them in a NoBreakPrint instead.
+ * <li>Explicit size.  The column will be the size you specify, expressed in points.
+ *     72 points = 1".
+ * </ol>
+ * Example: GridPrint grid = new GridPrint("d, p, 72pts");
+ * <p>
+ * In addition, any column can be given a grow attribute.  In the event a grid is not as wide as
+ * the page, those columns with the grow attribute set will be widened to fill the extra space.
+ * <p>
  * Because GridPrint scales columns according to their minimum sizes in the
  * worst-case scenario, the absolute minimum size of a GridPrint is dependant on
  * its child prints and is not clearly defined.
@@ -87,15 +104,23 @@ public final class GridPrint implements Print {
   /** Array of column groups. */
   int[][] columnGroups = new int[0][];
 
-  /** The border used around each grid cell. */
+  /** The border used around each body cell. */
   Border cellBorder = new GapBorder (0);
 
   /**
-   * Two-dimensional list of all GridPrintEntrys. Each element of this list
-   * represents a row in the Grid. Each element in the rows represents a
-   * cellspan in the row.
+   * Two-dimension list of all header cells.  Each element of this list represents a row in the
+   * header.  Each element of a row represents a cellspan in that row.  
    */
-  final List <List <GridEntry>> rows = new ArrayList <List <GridEntry>> ();
+  final List <List <GridCell>> header = new ArrayList <List <GridCell>> ();
+
+  /** Column cursor - the column that the next added header cell will go into. */
+  private int headerCol = 0;
+
+  /**
+   * Two-dimensional list of all body cells. Each element of this list represents a row in the
+   * body.  Each element of a row represents a cellspan in that row.
+   */
+  final List <List <GridCell>> rows = new ArrayList <List <GridCell>> ();
 
   /** Column cursor - the column that the next added print will go into. */
   private int col = 0;
@@ -200,75 +225,113 @@ public final class GridPrint implements Print {
   }
 
   /**
-   * Adds the specified Print to this grid, using the default alignment and a
-   * colspan of 1.
-   * @param print the print to add to this grid.
+   * Adds the Print to the grid header, with the default alignment and a colspan of 1.
+   * @param print the print to add.
+   */
+  public void addHeader (Print print) {
+    headerCol = add (header, headerCol, print, 1, SWT.DEFAULT);
+  }
+
+  /**
+   * Adds the Print to the grid header, with the given colspan and the default alignment.
+   * @param print the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   */
+  public void addHeader (Print print, int colspan) {
+    headerCol = add (header, headerCol, print, colspan, SWT.DEFAULT);
+  }
+
+  /**
+   * Adds the Print to the grid header, using the given colspan and alignment.
+   * @param print the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   * @param alignment the alignment of the print within the grid cell. One of {@link SWT#LEFT },
+   *        {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   */
+  public void addHeader (Print print, int colspan, int alignment) {
+    headerCol = add (header, headerCol, print, colspan, alignment);
+  }
+
+  /**
+   * Adds the Print to the grid body, with the default alignment and a colspan of 1.
+   * @param print the print to add.
    */
   public void add (Print print) {
-    add (print, 1, SWT.DEFAULT);
+    col = add (rows, col, print, 1, SWT.DEFAULT);
   }
 
   /**
-   * Adds the specified Print to this grid, using the specified colspan and the
-   * default alignment.
-   * @param print the print to add to this grid.
-   * @param colspan the number of columns to span, or
-   *          {@link GridPrint#REMAINDER } to span the rest of the row.
+   * Adds the Print to the grid body, with the given colspan and the default alignment.
+   * @param print the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
    */
   public void add (Print print, int colspan) {
-    add (print, colspan, SWT.DEFAULT);
+    col = add (rows, col, print, colspan, SWT.DEFAULT);
   }
 
   /**
-   * Adds the specified Print to this grid, using the specified colspan and
-   * alignment.
-   * @param print the print to add to this grid.
-   * @param colspan the number of columns to span, or
-   *          {@link GridPrint#REMAINDER } to span the rest of the row.
-   * @param align the alignment of the print within the grid cell. One of
-   *          {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * Adds the Print to the grid body, using the given colspan and alignment.
+   * @param print the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   * @param alignment the alignment of the print within the grid cell. One of {@link SWT#LEFT },
+   *        {@link SWT#CENTER } or {@link SWT#RIGHT }.
    */
-  public void add (Print print, int colspan, int align) {
+  public void add (Print print, int colspan, int alignment) {
+    col = add (rows, col, print, colspan, alignment);
+  }
+
+  /* Returns the column number that we've advanced to, after adding the new cell. */
+  private int add (List<List<GridCell>> rows,
+                   int startColumn,
+                   Print print,
+                   int colspan,
+                   int alignment) {
     // Make sure the colspan would not exceed the number of columns
-    if (col + colspan > columns.length)
+    if (startColumn + colspan > columns.length)
       throw new IllegalArgumentException ("Colspan " + colspan
-          + " too wide at column " + col + " (" + columns.length
+          + " too wide at column " + startColumn + " (" + columns.length
           + " columns total)");
 
     // Start a new row if back at column 0.
-    if (col == 0) rows.add (new ArrayList <GridEntry> ());
+    if (startColumn == 0) rows.add (new ArrayList <GridCell> ());
 
     // Get the last row.
-    List <GridEntry> row = rows.get (rows.size () - 1);
+    List <GridCell> row = rows.get (rows.size () - 1);
 
     // Convert REMAINDER to the actual # of columns
-    if (colspan == REMAINDER) colspan = columns.length - col;
+    if (colspan == REMAINDER) colspan = columns.length - startColumn;
 
     // Add the new Print
-    GridEntry entry = new GridEntry (print, align, colspan);
+    GridCell entry = new GridCell (print, alignment, colspan);
     row.add (entry);
 
     // Adjust the column cursor by the span of the added Print
-    col += colspan;
+    startColumn += colspan;
 
     // If we've filled the row, the next add(...) should start a new row
-    if (col == columns.length) col = 0;
+    if (startColumn == columns.length) startColumn = 0;
 
     // Make sure column number is valid.
-    if (col > columns.length) {
+    if (startColumn > columns.length) {
       // THIS SHOULD NOT HAPPEN--ABOVE LOGIC SHOULD PREVENT THIS CASE
       // ..but just in case.
 
       // Roll back operation.
-      col -= colspan;
-      row.remove (entry);
+      startColumn -= colspan;
+      row.remove (row.size()-1);
       if (row.size () == 0) rows.remove (row);
 
       // Report error
       throw new IllegalArgumentException ("Colspan " + colspan
-          + " too wide at column " + col + " (" + columns.length
+          + " too wide at column " + startColumn + " (" + columns.length
           + " columns total)");
     }
+
+    return startColumn;
   }
 
   /**
@@ -300,7 +363,7 @@ public final class GridPrint implements Print {
    * <b>Note:</b> Column grouping is enforced <i>before</i> column weights.
    * Therefore, columns in the same group should be given the same weight to
    * ensure they are laid out at the same width.
-   * @param columnGroups
+   * @param columnGroups the new column groups.
    * @throws IndexOutOfBoundsException if any of the column indices are out of
    *           bounds [0 , columnCount-1].
    */
@@ -327,15 +390,15 @@ public final class GridPrint implements Print {
 
   /**
    * Sets the border around each of the grid's cells to the argument.
-   * @param border the new cell border.
+   * @param border the new body cell border.
    */
   public void setCellBorder (Border border) {
     this.cellBorder = BeanUtils.checkNull (border);
   }
 
   /**
-   * Returns the border used around each grid cell.
-   * @return the border used around each grid cell.
+   * Returns the border used around each cell.
+   * @return the border used around each cell.
    */
   public Border getCellBorder () {
     return cellBorder;
@@ -382,17 +445,13 @@ public final class GridPrint implements Print {
   }
 }
 
-class GridEntry {
-  final Print print;
-
+class GridCell {
+  final Print target;
   final int align;
-
   final int colspan;
 
-  PrintIterator iterator;
-
-  GridEntry (Print print, int align, int colspan) {
-    this.print = BeanUtils.checkNull (print);
+  GridCell (Print target, int align, int colspan) {
+    this.target = BeanUtils.checkNull (target);
     this.align = checkAlign (align);
     this.colspan = checkColspan (colspan);
   }
@@ -418,69 +477,88 @@ class GridEntry {
           "Align must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT");
   }
 
-  GridEntry copy () {
-    return new GridEntry (print, align, colspan);
+  GridCellIterator iterator (Device device, GC gc) {
+    return new GridCellIterator(this, device, gc);
+  }
+}
+
+class GridCellIterator {
+  final PrintIterator target;
+  final int align;
+  final int colspan;
+
+  GridCellIterator(GridCell cell, Device device, GC gc) {
+    this.target = cell.target.iterator (device, gc);
+    this.align = cell.align;
+    this.colspan = cell.colspan;
+  }
+
+  GridCellIterator(GridCellIterator that) {
+    this.target = that.target.copy();
+    this.align = that.align;
+    this.colspan = that.colspan;
+  }
+
+  GridCellIterator copy() {
+    return new GridCellIterator(this);
   }
 }
 
 class GridIterator implements PrintIterator {
-  static GridEntry[][] cloneRows (GridEntry[][] rows) {
-    GridEntry[][] result = rows.clone ();
+  static GridCellIterator[][] cloneRows (GridCellIterator[][] rows) {
+    GridCellIterator[][] result = rows.clone ();
     for (int i = 0; i < result.length; i++)
       result[i] = cloneRow (result[i]);
     return result;
   }
 
-  static GridEntry[] cloneRow (GridEntry[] row) {
-    GridEntry[] result = row.clone ();
-    for (int i = 0; i < result.length; i++) {
-      GridEntry entry = result[i];
-      result[i] = entry.copy ();
-      result[i].iterator = entry.iterator.copy ();
-    }
+  static GridCellIterator[] cloneRow (GridCellIterator[] row) {
+    GridCellIterator[] result = row.clone ();
+    for (int i = 0; i < result.length; i++)
+      result[i] = result[i].copy ();
     return result;
   }
 
   final GridColumn[] columns;
-
   final int[][] columnGroups;
 
-  final GridEntry[][] rows;
-
+  final GridCellIterator[][] header;
+  final GridCellIterator[][] rows;
   final BorderPainter cellBorder;
 
   final Point dpi; // PIXELS
-
   final Point spacing; // PIXELS
 
   final int[] minimumColSizes; // PIXELS
-
   final int[] preferredColSizes; // PIXELS
 
   final Point minimumSize; // PIXELS
-
   final Point preferredSize; // PIXELS
 
   // This is the cursor!
   private int row;
-
-  // Determines whether top edge of cell border is drawn open or closed.
+  // Determines whether top edge of cell border is drawn open or closed for current row.
   private boolean rowStarted;
 
   GridIterator (GridPrint grid, Device device, GC gc) {
     this.columns = grid.columns;
     this.columnGroups = grid.getColumnGroups ();
 
-    this.rows = new GridEntry[grid.rows.size ()][];
-    for (int i = 0; i < rows.length; i++) {
-      GridEntry[] row = rows[i] = grid.rows.get (i).toArray (
-          new GridEntry[grid.rows.get (i).size ()]);
+    this.header = new GridCellIterator[grid.header.size ()][];
+    for (int i = 0; i < header.length; i++) {
+      List<GridCell> row = grid.header.get(i);
+      header[i] = new GridCellIterator[row.size()];
+      for (int j = 0; j < row.size(); j++)
+        header[i][j] = row.get(j).iterator(device, gc);
+    }
 
-      for (int j = 0; j < row.length; j++) {
-        GridEntry entry = row[j].copy ();
-        entry.iterator = entry.print.iterator (device, gc);
-        row[j] = entry;
-      }
+    this.rows = new GridCellIterator[grid.rows.size ()][];
+    for (int i = 0; i < rows.length; i++) {
+      List<GridCell> row = grid.rows.get(i);
+
+      rows[i] = new GridCellIterator[row.size()];
+      for (int j = 0; j < row.size(); j++)
+        rows[i][j] = row.get(j).iterator(device, gc);
     }
 
     cellBorder = grid.cellBorder.createPainter (device, gc);
@@ -519,13 +597,15 @@ class GridIterator implements PrintIterator {
     this.columns = that.columns;
     this.columnGroups = that.columnGroups;
 
+    this.header = cloneRows(that.header);
     this.rows = cloneRows (that.rows);
+    this.cellBorder = that.cellBorder;
+
     this.dpi = that.dpi;
     this.spacing = that.spacing;
+
     this.minimumColSizes = that.minimumColSizes;
     this.preferredColSizes = that.preferredColSizes;
-
-    this.cellBorder = that.cellBorder;
 
     this.minimumSize = that.minimumSize;
     this.preferredSize = that.preferredSize;
@@ -537,14 +617,14 @@ class GridIterator implements PrintIterator {
   /**
    * Compute the size of a column, respecting the constraints of the GridColumn.
    */
-  int computeColumnSize (GridEntry entry,
+  int computeColumnSize (GridCellIterator entry,
                          GridColumn col,
                          PrintSizeStrategy strategy,
                          GC gc) {
     if (col.size == SWT.DEFAULT)
-      return strategy.computeSize (entry.iterator).x;
+      return strategy.computeSize (entry.target).x;
     if (col.size == GridPrint.PREFERRED)
-      return entry.iterator.preferredSize ().x;
+      return entry.target.preferredSize ().x;
     return Math.round (col.size * dpi.x / 72f);
   }
 
@@ -579,6 +659,10 @@ class GridIterator implements PrintIterator {
   }
 
   int[] computeColumnSizes (PrintSizeStrategy strategy, GC gc) {
+    GridCellIterator[][] rows = new GridCellIterator[this.rows.length + this.header.length][];
+    System.arraycopy(this.rows, 0, rows, 0, this.rows.length);
+    System.arraycopy(this.header, 0, rows, this.rows.length, this.header.length);
+      
     int[] colSizes = new int[columns.length];
 
     // First pass - find widths for all explicitly sized columns.
@@ -588,9 +672,9 @@ class GridIterator implements PrintIterator {
 
     // Second pass - find the column widths for all cells that span a single
     // column. (Skip explicitly sized columns)
-    for (GridEntry[] row : rows) {
+    for (GridCellIterator[] row : rows) {
       int col = 0;
-      for (GridEntry entry : row) {
+      for (GridCellIterator entry : row) {
         // ignore explicitly sized cols
         if (entry.colspan == 1 && !isExplicitSize (columns[col])) { 
           colSizes[col] = Math.max (
@@ -613,9 +697,9 @@ class GridIterator implements PrintIterator {
     // there are columns with a width attribute of GridPrint.PREFERRED, they
     // will be expanded. Otherwise, as a last resort, the columns with
     // specific point sizes will be expanded.
-    for (GridEntry[] row : rows) {
+    for (GridCellIterator[] row : rows) {
       int col = 0;
-      for (GridEntry entry : row) {
+      for (GridCellIterator entry : row) {
         if (entry.colspan > 1) {
           // Calculate the current total width of column span.
           int currentSpanWidth = 0; // neglect column spacing
@@ -623,7 +707,7 @@ class GridIterator implements PrintIterator {
             currentSpanWidth += colSizes[i];
 
           // Calculate the minimum width of the print in this cell.
-          int minimumSpanWidth = strategy.computeSize (entry.iterator).x
+          int minimumSpanWidth = strategy.computeSize (entry.target).x
               - spacing.x * (entry.colspan - 1); // subtract column spacing
 
           // Note that we omitted column spacing so the weighted distribution
@@ -650,17 +734,13 @@ class GridIterator implements PrintIterator {
                 // expansion.
                 new ColumnFilter () {
                   @Override
-                  boolean accept (int col) {
-                    return !isGrouped (col) && columns[col].weight > 0;
-                  }
+                  boolean accept (int col) { return !isGrouped (col) && columns[col].weight > 0; }
                 },
 
                 // Grouped columns with nonzero weight are next choice
                 new ColumnFilter () {
                   @Override
-                  boolean accept (int col) {
-                    return isGrouped (col) && columns[col].weight > 0;
-                  }
+                  boolean accept (int col) { return isGrouped (col) && columns[col].weight > 0; }
                 },
 
                 // Ungrouped columns with GridPrint.PREFERRED size are next
@@ -668,8 +748,7 @@ class GridIterator implements PrintIterator {
                 new ColumnFilter () {
                   @Override
                   boolean accept (int col) {
-                    return !isGrouped (col)
-                        && columns[col].size == GridPrint.PREFERRED;
+                    return !isGrouped (col) && columns[col].size == GridPrint.PREFERRED;
                   }
                 },
 
@@ -678,8 +757,7 @@ class GridIterator implements PrintIterator {
                 new ColumnFilter () {
                   @Override
                   boolean accept (int col) {
-                    return isGrouped (col)
-                        && columns[col].size == GridPrint.PREFERRED;
+                    return isGrouped (col) && columns[col].size == GridPrint.PREFERRED;
                   }
                 },
 
@@ -760,9 +838,9 @@ class GridIterator implements PrintIterator {
       width += col;
 
     int height = 0;
-    for (GridEntry[] row : rows) {
+    for (GridCellIterator[] row : rows) {
       int col = 0;
-      for (GridEntry entry : row) {
+      for (GridCellIterator entry : row) {
         // Determine cell width for this entry's cell span.
         int cellWidth = spacing.x * (entry.colspan - 1); // spacing between
                                                           // columns
@@ -771,7 +849,7 @@ class GridIterator implements PrintIterator {
           cellWidth += colSizes[i];
 
         // Find the greatest height of all cells' calculated sizes.
-        height = Math.max (height, strategy.computeSize (entry.iterator).y);
+        height = Math.max (height, strategy.computeSize (entry.target).y);
       }
     }
 
@@ -949,27 +1027,11 @@ class GridIterator implements PrintIterator {
     }
 
     throw new RuntimeException (
-        "GridPrintIterator.adjustColumnSizes(...) logic is flawed.");
+        "GridPrintIterator.computeAdjustedColumnSizes(..) logic is flawed.");
   }
 
   public boolean hasNext () {
     return row < rows.length;
-  }
-
-  static class ByRef <T> {
-    T value;
-
-    ByRef (T value) {
-      set (value);
-    }
-
-    void set (T value) {
-      this.value = value;
-    }
-
-    T get () {
-      return value;
-    }
   }
 
   /**
@@ -983,7 +1045,7 @@ class GridIterator implements PrintIterator {
    * @param bottomOpen whether the cell border is open at the bottom. If false,
    *          this method must return null if one or more cells cannot consume
    *          all its content in this iteration.
-   * @param rowHeight a ByRef parameter for reporting the height of the row back
+   * @param rowHeight an int array of length 1 for reporting the height of the row back
    *          to the caller.
    * @param hasNext a ByRef parameter for reporting back to the caller whether
    *          any of the cells have more content.
@@ -991,33 +1053,35 @@ class GridIterator implements PrintIterator {
    *         if the iteration failed. This happens if bottomOpen is false and
    *         one or more cells could not be consume within the available area.
    */
-  CompositeEntry[] iterateRow (int width,
+  CompositeEntry[] iterateRow (GridCellIterator[] row,
+                               int rowIndex,
+                               int width,
                                int height,
                                int[] colSizes,
                                int yOffset,
                                boolean topOpen,
                                boolean bottomOpen,
-                               final ByRef <Integer> rowHeight,
-                               final ByRef <Boolean> hasNext) {
+                               int[] rowHeight,
+                               boolean[] hasNext) {
 
-    GridEntry[] rowEntries = cloneRow (rows[row]);
+    GridCellIterator[] rowIterators = cloneRow (row);
 
-    int[] cellOffsets = new int[rowEntries.length];
-    int[] pieceOffsets = new int[rowEntries.length];
-    int[] widths = new int[rowEntries.length];
-    PrintPiece[] rowPieces = new PrintPiece[rowEntries.length];
+    int[] cellOffsets = new int[rowIterators.length];
+    int[] pieceOffsets = new int[rowIterators.length];
+    int[] widths = new int[rowIterators.length];
+    PrintPiece[] rowPieces = new PrintPiece[rowIterators.length];
 
     int x = 0;
     int col = 0;
-    rowHeight.set (0);
-    hasNext.set (false);
+    rowHeight[0] = 0;
+    hasNext[0] = false;
     boolean hasPieces = false;
 
-    for (int i = 0; i < rowEntries.length; i++) {
+    for (int i = 0; i < rowIterators.length; i++) {
       cellOffsets[i] = x;
 
-      GridEntry entry = rowEntries[i];
-      PrintIterator iter = rowEntries[i].iterator;
+      GridCellIterator entry = rowIterators[i];
+      PrintIterator iter = rowIterators[i].target;
 
       // Determine width of the cell span, including spacing between cells.
       int cellspanWidth = (entry.colspan - 1) * spacing.x;
@@ -1048,7 +1112,7 @@ class GridIterator implements PrintIterator {
       }
 
       // Update hasNext for this cell's iterator.
-      if (iter.hasNext ()) hasNext.set (true);
+      if (iter.hasNext ()) hasNext[0] = true;
 
       // Update hasPieces for this cell's print piece.
       hasPieces = hasPieces || piece != null;
@@ -1068,7 +1132,7 @@ class GridIterator implements PrintIterator {
         pieceOffsets[i] = offset;
 
         // Update the row height
-        rowHeight.set (Math.max (rowHeight.get (), piece.getSize ().y));
+        rowHeight[0] = Math.max (rowHeight[0], piece.getSize ().y);
       }
 
       // Adjust x offset and column number.
@@ -1078,7 +1142,7 @@ class GridIterator implements PrintIterator {
 
     // If the row was not consumed and no print pieces were created, iteration
     // fails.
-    if (hasNext.get () && !hasPieces) {
+    if (hasNext[0] && !hasPieces) {
       for (PrintPiece piece : rowPieces)
         if (piece != null) piece.dispose ();
       return null;
@@ -1092,14 +1156,14 @@ class GridIterator implements PrintIterator {
     // rowEntries contains the most recent iterators for the current state.
     // Replace the row in the original array with the updated row from our
     // iteration.
-    rows[row] = rowEntries;
+    if (rowIndex != -1)
+      this.rows[rowIndex] = rowIterators;
 
     // Construct and return the result.
-    CompositeEntry[] result = new CompositeEntry[rowEntries.length];
+    CompositeEntry[] result = new CompositeEntry[rowIterators.length];
     for (int i = 0; i < result.length; i++) {
-      Point size = new Point (widths[i] + cellBorder.getWidth (), rowHeight
-          .get ()
-          + cellBorder.getHeight (topOpen, bottomOpen));
+      Point size = new Point (widths[i] + cellBorder.getWidth (),
+          rowHeight[0] + cellBorder.getHeight (topOpen, bottomOpen));
       Point offset = new Point (cellOffsets[i], yOffset);
 
       result[i] = new CompositeEntry (new BorderedPrintPiece (size, cellBorder,
@@ -1118,21 +1182,45 @@ class GridIterator implements PrintIterator {
 
     int y = 0;
 
+    for (GridCellIterator[] row : header) {
+      boolean[] rowHasNext = new boolean[] { false };
+      int[] rowHeight = new int[] { 0 };
+
+      CompositeEntry[] rowEntries = iterateRow(
+          row, -1,
+          width, height - y,
+          colSizes, y,
+          false, false,
+          rowHeight, rowHasNext);
+
+      if (rowEntries == null || rowHasNext[0]) {
+        for (CompositeEntry entry : pieces)
+          entry.piece.dispose ();
+        pieces.clear();
+        return null;
+      }
+
+      for (CompositeEntry entry : rowEntries)
+        pieces.add (entry);
+
+      y += rowHeight[0] + spacing.y;
+    }
+
     while (hasNext ()) {
-      ByRef <Boolean> rowHasNext = new ByRef <Boolean> (false);
-      ByRef <Integer> rowHeight = new ByRef <Integer> (0);
+      boolean[] rowHasNext = new boolean[] { false };
+      int[] rowHeight = new int[] { 0 };
 
       // First attempt to iterate the row with a closed bottom border.
-      CompositeEntry[] rowEntries = iterateRow (width, height - y, colSizes, y,
+      CompositeEntry[] rowEntries = iterateRow (rows[row], row, width, height - y, colSizes, y,
           rowStarted, false, rowHeight, rowHasNext);
 
       // If the iteration failed, or the row has more content (which it
       // shouldn't when the bottom border is closed) then try the iteration
       // again with an the bottom border open.
       if (rowEntries == null) {
-        rowHeight.set (0);
-        rowHasNext.set (false);
-        rowEntries = iterateRow (width, height - y, colSizes, y, rowStarted,
+        rowHeight[0] = 0;
+        rowHasNext[0] = false;
+        rowEntries = iterateRow (rows[row], row, width, height - y, colSizes, y, rowStarted,
             true, rowHeight, rowHasNext);
       }
 
@@ -1144,12 +1232,12 @@ class GridIterator implements PrintIterator {
       for (CompositeEntry entry : rowEntries)
         pieces.add (entry);
 
-      y += rowHeight.get () + spacing.y;
+      y += rowHeight[0] + spacing.y;
 
       // If the row we just iterated has more content, then this iteration
       // is complete. Set the rowStarted flag so the next iteration shows
       // an open top border in the cells.
-      if (rowHasNext.get ()) {
+      if (rowHasNext[0]) {
         rowStarted = true;
         break;
       }
