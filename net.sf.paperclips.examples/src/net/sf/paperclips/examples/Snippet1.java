@@ -61,7 +61,7 @@ public class Snippet1 implements Print {
 
     // Add header row
     for (TableColumn col : table.getColumns ())
-      grid.add(createCell(col.getImage (), col.getText()));
+      grid.addHeader(createCell(col.getImage (), col.getText()));
 
     // Add content rows
     for (TableItem item : table.getItems())
@@ -106,7 +106,7 @@ public class Snippet1 implements Print {
     for (int i = 0; i < 5; i++)
       new TableColumn (table, SWT.LEFT).setText ("Column " + i);
 
-    for (int row = 0; row < 10; row++) {
+    for (int row = 0; row < 100; row++) {
       TableItem item = new TableItem(table, SWT.NONE);
       for (int col = 0; col < 5; col++)
         item.setText (col, "Cell ["+col+", "+row+"]");
