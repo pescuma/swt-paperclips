@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * A Print which arranges child prints into a grid. A grid is initialized with a
@@ -112,6 +114,9 @@ public final class GridPrint implements Print {
    * header.  Each element of a row represents a cellspan in that row.  
    */
   final List <List <GridCell>> header = new ArrayList <List <GridCell>> ();
+
+  /** The background color of the header cells. */
+  private RGB headerBackgroundColor; // ignored if null
 
   /** Column cursor - the column that the next added header cell will go into. */
   private int headerCol = 0;
@@ -255,6 +260,22 @@ public final class GridPrint implements Print {
   }
 
   /**
+   * Returns the background color of the header cells (no background color if null).
+   * @return the background color of the header cells (no background color if null).
+   */
+  public RGB getHeaderBackgroundColor() {
+    return headerBackgroundColor;
+  }
+
+  /**
+   * Sets the background color of the header cells.
+   * @param backgroundColor the new background color (no background is drawn if null).
+   */
+  public void setHeaderBackgroundColor(RGB backgroundColor) {
+    this.headerBackgroundColor = backgroundColor;
+  }
+
+  /**
    * Adds the Print to the grid body, with the default alignment and a colspan of 1.
    * @param print the print to add.
    */
@@ -335,10 +356,11 @@ public final class GridPrint implements Print {
   }
 
   /**
-   * Returns the current column groups.  The returned array may be modified
+   * Returns current column groups.  The returned array may be modified
    * without affecting this GridPrint.
+   * @return the column groups.
    */
-  int[][] getColumnGroups () {
+  public int[][] getColumnGroups () {
     return cloneColumnGroups (columnGroups);
   }
 
@@ -519,10 +541,12 @@ class GridIterator implements PrintIterator {
     return result;
   }
 
+  final Device device;
   final GridColumn[] columns;
   final int[][] columnGroups;
 
   final GridCellIterator[][] header;
+  final RGB headerBackgroundColor;
   final GridCellIterator[][] rows;
   final BorderPainter cellBorder;
 
@@ -541,6 +565,8 @@ class GridIterator implements PrintIterator {
   private boolean rowStarted;
 
   GridIterator (GridPrint grid, Device device, GC gc) {
+    this.device = BeanUtils.checkNull(device);
+
     this.columns = grid.columns;
     this.columnGroups = grid.getColumnGroups ();
 
@@ -551,6 +577,7 @@ class GridIterator implements PrintIterator {
       for (int j = 0; j < row.size(); j++)
         header[i][j] = row.get(j).iterator(device, gc);
     }
+    this.headerBackgroundColor = grid.getHeaderBackgroundColor ();
 
     this.rows = new GridCellIterator[grid.rows.size ()][];
     for (int i = 0; i < rows.length; i++) {
@@ -594,10 +621,12 @@ class GridIterator implements PrintIterator {
 
   /** Copy constructor (used by copy() only) */
   GridIterator (GridIterator that) {
+    this.device = that.device;
     this.columns = that.columns;
     this.columnGroups = that.columnGroups;
 
     this.header = cloneRows(that.header);
+    this.headerBackgroundColor = that.headerBackgroundColor;
     this.rows = cloneRows (that.rows);
     this.cellBorder = that.cellBorder;
 
@@ -1166,7 +1195,8 @@ class GridIterator implements PrintIterator {
           rowHeight[0] + cellBorder.getHeight (topOpen, bottomOpen));
       Point offset = new Point (cellOffsets[i], yOffset);
 
-      result[i] = new CompositeEntry (new BorderedPrintPiece (size, cellBorder,
+      result[i] = new CompositeEntry (new BorderedPrintPiece (device, size, cellBorder,
+          rowIndex == -1 ? headerBackgroundColor : null, 
           topOpen, bottomOpen, pieceOffsets[i], rowPieces[i]), offset);
     }
     return result;
@@ -1262,21 +1292,29 @@ class GridIterator implements PrintIterator {
 }
 
 class BorderedPrintPiece implements PrintPiece {
-  final Point size;
-  final BorderPainter border;
-  final boolean topOpen;
-  final boolean bottomOpen;
-  final int pieceOffset;
-  final PrintPiece target;
+  private final Device device;
+  private final Point size;
+  private final BorderPainter border;
+  private final RGB backgroundColor;
+  private final boolean topOpen;
+  private final boolean bottomOpen;
+  private final int pieceOffset;
+  private final PrintPiece target;
 
-  BorderedPrintPiece (Point size,
+  private Color background;
+
+  BorderedPrintPiece (Device device,
+                      Point size,
                       BorderPainter border,
+                      RGB backgroundColor,
                       boolean topOpen,
                       boolean bottomOpen,
                       int pieceOffset,
                       PrintPiece target) {
+    this.device = BeanUtils.checkNull(device);
     this.size = new Point (size.x, size.y);
     this.border = BeanUtils.checkNull (border);
+    this.backgroundColor = backgroundColor; // may be null
     this.topOpen = topOpen;
     this.bottomOpen = bottomOpen;
     this.pieceOffset = pieceOffset;
@@ -1287,14 +1325,35 @@ class BorderedPrintPiece implements PrintPiece {
     return size;
   }
 
+  private Color getBackground() {
+    if (background == null && backgroundColor != null)
+      background = new Color(device, backgroundColor);
+    return background;
+  }
+
   public void paint (GC gc, int x, int y) {
+    // Background color
+    Color background = getBackground();
+    if (background != null) {
+      Color oldBackground = gc.getBackground ();
+      gc.setBackground(background);
+      gc.fillRectangle (x, y, size.x, size.y);
+      gc.setBackground(oldBackground);
+    }
+
+    // Border
     border.paint (gc, x, y, size.x, size.y, topOpen, bottomOpen);
+
+    // Target
     if (target != null)
-      target.paint (gc, x + border.getLeft () + pieceOffset, y
-          + border.getTop (topOpen));
+      target.paint (gc, x + border.getLeft () + pieceOffset, y + border.getTop (topOpen));
   }
 
   public void dispose () {
+    if (background != null) {
+      background.dispose();
+      background = null;
+    }
     border.dispose ();
     if (target != null)
       target.dispose ();
