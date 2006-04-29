@@ -60,6 +60,8 @@ public class Snippet1 implements Print {
     grid.setCellBorder (new LineBorder());
 
     // Add header row
+    grid.setHeaderBackgroundColor (
+        table.getDisplay ().getSystemColor (SWT.COLOR_WIDGET_BACKGROUND).getRGB());
     for (TableColumn col : table.getColumns ())
       grid.addHeader(createCell(col.getImage (), col.getText()));
 
