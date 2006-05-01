@@ -15,15 +15,15 @@ import net.sf.paperclips.TextPrint;
 public class TutorialExample1 {
 
   /**
-   * Prints the words, "My first PaperClips print job." 
-   * @param args
+   * Prints the words, "Hello PaperClips!" 
+   * @param args command-line arguments.
    */
   public static void main (String[] args) {
     // Create the document
-    TextPrint text = new TextPrint("My first PaperClips print job.");
+    TextPrint text = new TextPrint("Hello PaperClips!");
 
     // Print it to the default printer (no prompt).  The print job
-    // name in the printer status window will be "Simple Example".
+    // name in the printer status window will be "TutorialExample1".
     PrintUtil.print("TutorialExample1", text);
   }
 }
