@@ -1100,11 +1100,11 @@ class GridIterator implements PrintIterator {
     int[] widths = new int[rowIterators.length];
     PrintPiece[] rowPieces = new PrintPiece[rowIterators.length];
 
+    RGB backgroundColor = rowIndex == -1 ? headerBackgroundColor : null;
     int x = 0;
     int col = 0;
     rowHeight[0] = 0;
     hasNext[0] = false;
-    boolean hasPieces = false;
 
     for (int i = 0; i < rowIterators.length; i++) {
       cellOffsets[i] = x;
@@ -1130,11 +1130,15 @@ class GridIterator implements PrintIterator {
       PrintPiece piece = rowPieces[i] = iter.next (cellspanWidth,
           height - cellBorder.getHeight (topOpen, bottomOpen));
 
-      // If bottomOpen is false, then all of the row's content must be
-      // consumed in this iteration. Therefore if the iterator has more
-      // content, this iteration fails. Dispose any print pieces from
-      // previous loops and return null.
-      if (!bottomOpen && iter.hasNext ()) {
+      // Two conditions that cause iteration to fail:
+      // 1) piece is null.  All unconsumed cells should iterate or the whole row should wait until
+      //    the next page.  Bugfix 1480013
+      // 2) bottomOpen is false, and iter.hasNext().  A false value for bottomOpen means that we're
+      //    drawing a closed border around the bottom.  This is visually incorrect if the iterator
+      //    has more content.
+      // If either case is true, dispose any print pieces from previous loops and return null.
+      if ((piece == null) ||                   // case 1
+          (!bottomOpen && iter.hasNext ()) ) { // case 2
         for (int j = 0; j <= i; j++)
           if (rowPieces[j] != null) rowPieces[j].dispose ();
         return null;
@@ -1143,43 +1147,25 @@ class GridIterator implements PrintIterator {
       // Update hasNext for this cell's iterator.
       if (iter.hasNext ()) hasNext[0] = true;
 
-      // Update hasPieces for this cell's print piece.
-      hasPieces = hasPieces || piece != null;
-
       // Determine the alignment for this cell.
       int align = entry.align;
       if (align == SWT.DEFAULT) align = columns[col].align;
 
-      if (piece != null) {
-        // Calculate the X offset of the PrintPiece within the cellspan,
-        // according to the alignment.
-        int offset = 0;
-        if (align == SWT.CENTER)
-          offset = (cellspanWidth - piece.getSize ().x) / 2;
-        else if (align == SWT.RIGHT)
-          offset = cellspanWidth - piece.getSize ().x;
-        pieceOffsets[i] = offset;
+      // Calculate the X offset of the PrintPiece within the cellspan, according to the alignment.
+      int offset = 0;
+      if (align == SWT.CENTER)
+        offset = (cellspanWidth - piece.getSize ().x) / 2;
+      else if (align == SWT.RIGHT)
+        offset = cellspanWidth - piece.getSize ().x;
+      pieceOffsets[i] = offset;
 
-        // Update the row height
-        rowHeight[0] = Math.max (rowHeight[0], piece.getSize ().y);
-      }
+      // Update the row height
+      rowHeight[0] = Math.max (rowHeight[0], piece.getSize ().y);
 
       // Adjust x offset and column number.
       x = x + cellspanWidth + spacing.x;
       col += entry.colspan;
     }
-
-    // If the row was not consumed and no print pieces were created, iteration
-    // fails.
-    if (hasNext[0] && !hasPieces) {
-      for (PrintPiece piece : rowPieces)
-        if (piece != null) piece.dispose ();
-      return null;
-    }
-
-    // If the row WAS consumed, then it doesn't matter if no print pieces were
-    // created. In this case the cells from this iteration are simply drawn
-    // as an empty cell with a bottom border around it.
 
     // Now that we've successfully iterated through the row, and now
     // rowEntries contains the most recent iterators for the current state.
@@ -1195,9 +1181,11 @@ class GridIterator implements PrintIterator {
           rowHeight[0] + cellBorder.getHeight (topOpen, bottomOpen));
       Point offset = new Point (cellOffsets[i], yOffset);
 
-      result[i] = new CompositeEntry (new BorderedPrintPiece (device, size, cellBorder,
-          rowIndex == -1 ? headerBackgroundColor : null, 
-          topOpen, bottomOpen, pieceOffsets[i], rowPieces[i]), offset);
+      result[i] = new CompositeEntry (
+          new BorderedPrintPiece (
+              device, size, cellBorder, backgroundColor, topOpen, bottomOpen, pieceOffsets[i],
+              rowPieces[i]),
+          offset);
     }
     return result;
   }
@@ -1254,15 +1242,16 @@ class GridIterator implements PrintIterator {
             true, rowHeight, rowHasNext);
       }
 
-      // If both attempts failed on the current row, terminate iteration.
-      // (Break instead of return, because there may be previous rows in this
-      // that should be returned.)
+      // If both attempts failed on the current row, halt (but not abort) iteration.  (Break
+      // instead of return, because there may be previous rows in this that should be returned.)
       if (rowEntries == null) break;
 
       for (CompositeEntry entry : rowEntries)
         pieces.add (entry);
 
       y += rowHeight[0] + spacing.y;
+      if (rowStarted) // Adjust y for the difference between an open and closed top border
+        y += (cellBorder.getTop(true) - cellBorder.getTop (false));
 
       // If the row we just iterated has more content, then this iteration
       // is complete. Set the rowStarted flag so the next iteration shows
