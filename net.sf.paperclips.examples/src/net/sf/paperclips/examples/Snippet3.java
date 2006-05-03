@@ -26,7 +26,7 @@ import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
 import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.WidePrint;
+import net.sf.paperclips.BigPrint;
 import net.sf.paperclips.swt.PrintViewer;
 
 /**
@@ -45,7 +45,7 @@ public class Snippet3 implements Print {
         grid.add(new TextPrint ("Row "+r+" Col "+c));
 
     // Give entire grid a light green background.
-    return new WidePrint(grid);
+    return new BigPrint(grid);
   }
 
   public PrintIterator iterator (Device device, GC gc) {

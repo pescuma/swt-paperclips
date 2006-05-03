@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import net.sf.paperclips.BackgroundColorPrint;
+import net.sf.paperclips.BackgroundPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.Print;
@@ -42,7 +42,7 @@ public class Snippet2 implements Print {
     // Light gray background on header
     for (int i = 0; i < 4; i++)
       grid.add(
-          new BackgroundColorPrint(
+          new BackgroundPrint(
               new TextPrint("Column "+i),
               new RGB (200, 200, 200)));
 
@@ -52,12 +52,12 @@ public class Snippet2 implements Print {
     for (int r = 0; r < 20; r++)
       for (int c = 0; c < 4; c++)
         grid.add(
-            new BackgroundColorPrint(
+            new BackgroundPrint(
                 new TextPrint ("Row "+r+" Col "+c),
                 (r % 2 == 0) ? evenRows : oddRows));
 
     // Give entire grid a light green background.
-    return new BackgroundColorPrint(grid, new RGB(200, 255, 200));
+    return new BackgroundPrint(grid, new RGB(200, 255, 200));
   }
 
   public PrintIterator iterator (Device device, GC gc) {
