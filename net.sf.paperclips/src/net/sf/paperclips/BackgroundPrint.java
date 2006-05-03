@@ -16,16 +16,16 @@ import org.eclipse.swt.graphics.RGB;
  * A decorator that paints a background color behind it's target.
  * @author Matthew
  */
-public class BackgroundColorPrint implements Print {
+public class BackgroundPrint implements Print {
   Print target;
   RGB background;
 
   /**
-   * Constructs a BackgroundColorPrint with the given target and background color.
+   * Constructs a BackgroundPrint with the given target and background color.
    * @param target the 
    * @param background
    */
-  public BackgroundColorPrint(Print target, RGB background) {
+  public BackgroundPrint(Print target, RGB background) {
     this.target = BeanUtils.checkNull(target);
     this.background = BeanUtils.checkNull(background);
   }
@@ -47,22 +47,22 @@ public class BackgroundColorPrint implements Print {
   }
 
   public PrintIterator iterator (Device device, GC gc) {
-    return new BackgroundColorIterator(this, device, gc);
+    return new BackgroundIterator(this, device, gc);
   }
 }
 
-class BackgroundColorIterator implements PrintIterator {
+class BackgroundIterator implements PrintIterator {
   private final PrintIterator target;
   private final RGB background;
   private final Device device;
 
-  BackgroundColorIterator(BackgroundColorPrint print, Device device, GC gc) {
+  BackgroundIterator(BackgroundPrint print, Device device, GC gc) {
     this.device = BeanUtils.checkNull(device);
     this.target = print.target.iterator (device, gc);
     this.background = print.background;
   }
 
-  BackgroundColorIterator(BackgroundColorIterator that) {
+  BackgroundIterator(BackgroundIterator that) {
     this.target = that.target.copy();
     this.background = that.background;
     this.device = that.device;
@@ -83,22 +83,22 @@ class BackgroundColorIterator implements PrintIterator {
   public PrintPiece next (int width, int height) {
     PrintPiece targetPiece = target.next(width, height);
     if (targetPiece == null) return null;
-    return new BackgroundColorPiece(targetPiece, background, device);
+    return new BackgroundPiece(targetPiece, background, device);
   }
 
   public PrintIterator copy () {
-    return new BackgroundColorIterator(this);
+    return new BackgroundIterator(this);
   }
 }
 
-class BackgroundColorPiece implements PrintPiece {
+class BackgroundPiece implements PrintPiece {
   private final PrintPiece target;
   private final Device device;
   private final RGB background;
 
   private Color backgroundColor;
 
-  BackgroundColorPiece(PrintPiece target, RGB background, Device device) {
+  BackgroundPiece(PrintPiece target, RGB background, Device device) {
     this.target = BeanUtils.checkNull(target);
     this.device = BeanUtils.checkNull(device);
     this.background = BeanUtils.checkNull(background);
