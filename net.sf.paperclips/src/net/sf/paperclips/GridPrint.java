@@ -116,7 +116,7 @@ public final class GridPrint implements Print {
   final List <List <GridCell>> header = new ArrayList <List <GridCell>> ();
 
   /** The background color of the header cells. */
-  private RGB headerBackgroundColor; // ignored if null
+  private RGB headerBackground; // ignored if null
 
   /** Column cursor - the column that the next added header cell will go into. */
   private int headerCol = 0;
@@ -263,16 +263,16 @@ public final class GridPrint implements Print {
    * Returns the background color of the header cells (no background color if null).
    * @return the background color of the header cells (no background color if null).
    */
-  public RGB getHeaderBackgroundColor() {
-    return headerBackgroundColor;
+  public RGB getHeaderBackground() {
+    return headerBackground;
   }
 
   /**
    * Sets the background color of the header cells.
-   * @param backgroundColor the new background color (no background is drawn if null).
+   * @param headerBackground the new background color (no background is drawn if null).
    */
-  public void setHeaderBackgroundColor(RGB backgroundColor) {
-    this.headerBackgroundColor = backgroundColor;
+  public void setHeaderBackground(RGB headerBackground) {
+    this.headerBackground = headerBackground;
   }
 
   /**
@@ -546,7 +546,7 @@ class GridIterator implements PrintIterator {
   final int[][] columnGroups;
 
   final GridCellIterator[][] header;
-  final RGB headerBackgroundColor;
+  final RGB headerBackground;
   final GridCellIterator[][] rows;
   final BorderPainter cellBorder;
 
@@ -577,7 +577,7 @@ class GridIterator implements PrintIterator {
       for (int j = 0; j < row.size(); j++)
         header[i][j] = row.get(j).iterator(device, gc);
     }
-    this.headerBackgroundColor = grid.getHeaderBackgroundColor ();
+    this.headerBackground = grid.getHeaderBackground();
 
     this.rows = new GridCellIterator[grid.rows.size ()][];
     for (int i = 0; i < rows.length; i++) {
@@ -626,7 +626,7 @@ class GridIterator implements PrintIterator {
     this.columnGroups = that.columnGroups;
 
     this.header = cloneRows(that.header);
-    this.headerBackgroundColor = that.headerBackgroundColor;
+    this.headerBackground = that.headerBackground;
     this.rows = cloneRows (that.rows);
     this.cellBorder = that.cellBorder;
 
@@ -759,52 +759,50 @@ class GridIterator implements PrintIterator {
             }
 
             ColumnFilter[] filters = {
-                // Ungrouped columns with nonzero weight are first choice for
-                // expansion.
-                new ColumnFilter () {
-                  @Override
-                  boolean accept (int col) { return !isGrouped (col) && columns[col].weight > 0; }
-                },
+              // Ungrouped columns with nonzero weight are first choice for expansion.
+              new ColumnFilter () {
+                @Override
+                boolean accept (int col) { return !isGrouped (col) && columns[col].weight > 0; }
+              },
 
-                // Grouped columns with nonzero weight are next choice
-                new ColumnFilter () {
-                  @Override
-                  boolean accept (int col) { return isGrouped (col) && columns[col].weight > 0; }
-                },
+              // Grouped columns with nonzero weight are next choice
+              new ColumnFilter () {
+                @Override
+                boolean accept (int col) { return isGrouped (col) && columns[col].weight > 0; }
+              },
 
-                // Ungrouped columns with GridPrint.PREFERRED size are next
-                // choice.
-                new ColumnFilter () {
-                  @Override
-                  boolean accept (int col) {
-                    return !isGrouped (col) && columns[col].size == GridPrint.PREFERRED;
-                  }
-                },
+              // Ungrouped columns with GridPrint.PREFERRED size are next choice.
+              new ColumnFilter () {
+                @Override
+                boolean accept (int col) {
+                  return !isGrouped (col) && columns[col].size == GridPrint.PREFERRED;
+                }
+              },
 
-                // Grouped columns with GridPrint.PREFERRED size are next
-                // choice.
-                new ColumnFilter () {
-                  @Override
-                  boolean accept (int col) {
-                    return isGrouped (col) && columns[col].size == GridPrint.PREFERRED;
-                  }
-                },
+              // Grouped columns with GridPrint.PREFERRED size are next choice.
+              new ColumnFilter () {
+                @Override
+                boolean accept (int col) {
+                  return isGrouped (col) && columns[col].size == GridPrint.PREFERRED;
+                }
+              },
 
-                // Ungrouped columns with SWT.DEFAULT size are last choice.
-                new ColumnFilter () {
-                  @Override
-                  boolean accept (int col) {
-                    return !isGrouped (col) && columns[col].size == SWT.DEFAULT;
-                  }
-                },
+              // Ungrouped columns with SWT.DEFAULT size are last choice.
+              new ColumnFilter () {
+                @Override
+                boolean accept (int col) {
+                  return !isGrouped (col) && columns[col].size == SWT.DEFAULT;
+                }
+              },
 
-                // Grouped columns with SWT.DEFAULT size are last choice.
-                new ColumnFilter () {
-                  @Override
-                  boolean accept (int col) {
-                    return isGrouped (col) && columns[col].size == SWT.DEFAULT;
-                  }
-                } };
+              // Grouped columns with SWT.DEFAULT size are last choice.
+              new ColumnFilter () {
+                @Override
+                boolean accept (int col) {
+                  return isGrouped (col) && columns[col].size == SWT.DEFAULT;
+                }
+              }
+            };
 
             // Use column filters to determine which columns should be expanded.
             for (ColumnFilter filter : filters) {
@@ -829,6 +827,7 @@ class GridIterator implements PrintIterator {
                 expandableCols--;
               }
             }
+
             // Otherwise expand them proportionately.
             else {
               for (int i : expandableColumns) {
@@ -1100,7 +1099,7 @@ class GridIterator implements PrintIterator {
     int[] widths = new int[rowIterators.length];
     PrintPiece[] rowPieces = new PrintPiece[rowIterators.length];
 
-    RGB backgroundColor = rowIndex == -1 ? headerBackgroundColor : null;
+    RGB backgroundColor = rowIndex == -1 ? headerBackground : null;
     int x = 0;
     int col = 0;
     rowHeight[0] = 0;
@@ -1284,18 +1283,18 @@ class BorderedPrintPiece implements PrintPiece {
   private final Device device;
   private final Point size;
   private final BorderPainter border;
-  private final RGB backgroundColor;
+  private final RGB background;
   private final boolean topOpen;
   private final boolean bottomOpen;
   private final int pieceOffset;
   private final PrintPiece target;
 
-  private Color background;
+  private Color backgroundColor;
 
   BorderedPrintPiece (Device device,
                       Point size,
                       BorderPainter border,
-                      RGB backgroundColor,
+                      RGB background,
                       boolean topOpen,
                       boolean bottomOpen,
                       int pieceOffset,
@@ -1303,7 +1302,7 @@ class BorderedPrintPiece implements PrintPiece {
     this.device = BeanUtils.checkNull(device);
     this.size = new Point (size.x, size.y);
     this.border = BeanUtils.checkNull (border);
-    this.backgroundColor = backgroundColor; // may be null
+    this.background = background; // may be null
     this.topOpen = topOpen;
     this.bottomOpen = bottomOpen;
     this.pieceOffset = pieceOffset;
@@ -1314,15 +1313,15 @@ class BorderedPrintPiece implements PrintPiece {
     return size;
   }
 
-  private Color getBackground() {
-    if (background == null && backgroundColor != null)
-      background = new Color(device, backgroundColor);
-    return background;
+  private Color getBackgroundColor() {
+    if (backgroundColor == null && background != null)
+      backgroundColor = new Color(device, background);
+    return backgroundColor;
   }
 
   public void paint (GC gc, int x, int y) {
     // Background color
-    Color background = getBackground();
+    Color background = getBackgroundColor();
     if (background != null) {
       Color oldBackground = gc.getBackground ();
       gc.setBackground(background);
@@ -1339,9 +1338,9 @@ class BorderedPrintPiece implements PrintPiece {
   }
 
   public void dispose () {
-    if (background != null) {
-      background.dispose();
-      background = null;
+    if (backgroundColor != null) {
+      backgroundColor.dispose();
+      backgroundColor = null;
     }
     border.dispose ();
     if (target != null)
