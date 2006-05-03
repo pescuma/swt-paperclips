@@ -1,12 +1,12 @@
 ==================================
-PaperClips 0.1
+PaperClips 0.5.0
 http://paperclips.sourceforge.net/
 ==================================
 
-Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation and others.
-All rights reserved. This program and the accompanying materials
-are made available under the terms of the Eclipse Public License v1.0
-which accompanies this distribution, and is available at
+Copyright (c) 2005-2006 Woodcraft Mill & Cabinet Corporation and others.  All
+rights reserved. This program and the accompanying materials are made available
+under the terms of the Eclipse Public License v1.0 which accompanies this
+distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
 
 A copy is found in the file epl-v10.html distributed in this package.
@@ -20,37 +20,32 @@ This copyright notice MUST APPEAR in all copies of the file!
 Introduction
 ------------
 
-PaperClips is a printing abstraction layer written in Java, using SWT as the
-graphic library.  PaperClips simplifies the task of printing complex documents
-by encapsulating common document elements (such as text and images) into a
-light-weight API, allowing you to focus on the content and organization of
-your documents.  The underlying mechanics of printing your document are
-handled internally.
+Welcome to PaperClips: a simple, light weight, extensible Java printing
+library for SWT. PaperClips hides the complexity of laying out and rendering
+documents on the printer, helping you focus on what you want to print instead
+of how you're going to print it.
 
-See the API javadocs in doc/api/index.html.
+In a nutshell, PaperClips provides an assortment of document "building
+blocks", which you can tweak and combine to form a document. The assembled
+document is then sent to PaperClips for printing. PaperClips includes support
+for printing text, images, borders, headers and footers, column layouts and
+grid layouts. PaperClips can be extended with your own printable objects.
 
-Sample programs are provided in the doc/examples folder.
+With PaperClips you do not have to track cursors, calculate line breaking,
+fool around with font metrics, or manage system resources--it's all handled
+internally. And unlike report-generation tools, you are not constrained to a
+predefined document structure.
 
-System Requirements
--------------------
-
-* Java 2 Runtime Environment 1.5 or higher
-* Eclipse SWT 3.1 (earlier releases may be compatible)
+Requirements:
+* Java 5.0 (code named "Tiger") or later.
+* SWT 3.0 or later. SWT may be downloaded at http://www.eclipse.org/swt/.
+  PaperClips may work on earlier versions of SWT but I have not tested this.
 
 Installation
 ------------
 
-Put the paperclips_{version}.jar file in your project classpath.
-
-SWT must be installed on your system, and the Jar file must be available to
-PaperClips in your project classpath.
-SWT may be downloaded at http://www.eclipse.org/swt/
-
-Compiling the Source Code
--------------------------
-
-A build.xml file is in the install directory. If you have installed ANT
-(http://ant.apache.org) go to the install directory und run "ant".
+The PaperClips binary build jar can be used as a regular jar, or as an Eclipse plugin.  If used as
+a regular jar, the SWT classes must be available in the classpath.
 
 Credits
 -------

@@ -1,0 +1,61 @@
+Version 0.5.0
+* BackgroundPrint - wrapper print that draws a background color behind it's
+  target.
+* net.sf.paperclips.decorator package - for defining and applying decorations
+  without having to directly reference a constructor.
+* WidePrint - wrapper print that allows prints too wide to fit on a page to be
+  broken across several pages.
+* Updated semantics of PrintPiece.dispose() to allow PrintPiece and
+  BorderPainter re-use.  Anybody who writes their own Print classes should
+  check out the javadocs for this method and update their code.
+* GridPrint can now be configured with a column header that repeats on each
+  page.  See the addHeader(...) methods.  The background color in column
+  headers can be set using the setHeaderBackground(RGB) method.
+* Fixed bug 1480013: illogical layout of grid rows when they are broken across
+  pages.  Sometimes some content would be on the end of one page and the other
+  content would be at the beginning of the next page.  This led to sometimes
+  confusing printouts.  This fix essentially "glues" the row together so it
+  doesn't get separated like this any more.
+
+Version 0.4.3
+* Bugfix: Whenever the print space available to a GridPrint was smaller than
+  it's calculated minimum size, the grid would print larger than the available
+  space, in certain cases. 
+
+Version 0.4.2
+* NoBreakPrint is a wrapper which prevents it's target print from being broken
+  up between pages (or columns). 
+* BreakPrint adds a page break or column break. 
+* PaperClips sources are now version controlled through Subversion (finally!).
+
+Version 0.4.1
+* Bugfix: if a GridPrint is configured with a cell border and added to a
+  ColumnPrint, an infinite loop will occur when attempting to print. 
+
+Version 0.4.0
+* All public API are documented in javadocs. 
+* Custom cell borders in GridPrint - uses the same Border interface as
+  BorderPrint.
+
+Version 0.3 beta
+* AlignPrint - vertical and horizontal alignment of a child print.
+* ColumnPrint - lays out a child print into multiple columns.
+* GapBorder - a blank border with configurable margin size (see API docs for
+  BorderPrint)
+
+Version 0.2 alpha
+* PagePrint - page headers and footers (including page numbering)
+* BorderPrint - decorating document elements with borders.
+* LayerPrint - a layout element which renders document elements one above the
+  other.
+
+Version 0.1 alpha
+Basic document elements:
+* TextPrint - for printing text
+* ImagePrint - for printing images
+* LinePrint - for printing horizontal and (sometimes) vertical rules.
+* GridPrint - arranges it's child prints into a grid.
+* LayerPrint - displays it's child prints on top of eachother.
+* SeriesPrint - displays multiple prints, one after another, with only one to
+  a page.
+* FactoryPrint - aids in composition of Prints.
