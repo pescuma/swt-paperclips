@@ -125,7 +125,10 @@ public final class GridPrint implements Print {
    * Two-dimensional list of all body cells. Each element of this list represents a row in the
    * body.  Each element of a row represents a cellspan in that row.
    */
-  final List <List <GridCell>> rows = new ArrayList <List <GridCell>> ();
+  final List <List <GridCell>> body = new ArrayList <List <GridCell>> ();
+
+  /** The background color of the body cells. */
+  private RGB bodyBackground; // ignored if null
 
   /** Column cursor - the column that the next added print will go into. */
   private int col = 0;
@@ -260,8 +263,8 @@ public final class GridPrint implements Print {
   }
 
   /**
-   * Returns the background color of the header cells (no background color if null).
-   * @return the background color of the header cells (no background color if null).
+   * Returns the background color of the header cells (defaults to the body background if null).  
+   * @return the background color of the header cells (defaults to the body background if null).
    */
   public RGB getHeaderBackground() {
     return headerBackground;
@@ -269,7 +272,7 @@ public final class GridPrint implements Print {
 
   /**
    * Sets the background color of the header cells.
-   * @param headerBackground the new background color (no background is drawn if null).
+   * @param headerBackground the new background color (defaults to the body background if null).
    */
   public void setHeaderBackground(RGB headerBackground) {
     this.headerBackground = headerBackground;
@@ -280,7 +283,7 @@ public final class GridPrint implements Print {
    * @param print the print to add.
    */
   public void add (Print print) {
-    col = add (rows, col, print, 1, SWT.DEFAULT);
+    col = add (body, col, print, 1, SWT.DEFAULT);
   }
 
   /**
@@ -290,7 +293,7 @@ public final class GridPrint implements Print {
    *        of the row.
    */
   public void add (Print print, int colspan) {
-    col = add (rows, col, print, colspan, SWT.DEFAULT);
+    col = add (body, col, print, colspan, SWT.DEFAULT);
   }
 
   /**
@@ -302,7 +305,7 @@ public final class GridPrint implements Print {
    *        {@link SWT#CENTER } or {@link SWT#RIGHT }.
    */
   public void add (Print print, int colspan, int alignment) {
-    col = add (rows, col, print, colspan, alignment);
+    col = add (body, col, print, colspan, alignment);
   }
 
   /* Returns the column number that we've advanced to, after adding the new cell. */
@@ -353,6 +356,22 @@ public final class GridPrint implements Print {
     }
 
     return startColumn;
+  }
+
+  /**
+   * Returns the background color of the body cells (no background color if null).
+   * @return the background color of the body cells (no background color if null).
+   */
+  public RGB getBodyBackground() {
+    return bodyBackground;
+  }
+
+  /**
+   * Sets the background color of the body cells.
+   * @param bodyBackground the new background color (no background is drawn if null).
+   */
+  public void setBodyBackground(RGB bodyBackground) {
+    this.bodyBackground = bodyBackground;
   }
 
   /**
@@ -547,7 +566,10 @@ class GridIterator implements PrintIterator {
 
   final GridCellIterator[][] header;
   final RGB headerBackground;
-  final GridCellIterator[][] rows;
+
+  final GridCellIterator[][] body;
+  final RGB bodyBackground;
+  
   final BorderPainter cellBorder;
 
   final Point dpi; // PIXELS
@@ -577,16 +599,17 @@ class GridIterator implements PrintIterator {
       for (int j = 0; j < row.size(); j++)
         header[i][j] = row.get(j).iterator(device, gc);
     }
-    this.headerBackground = grid.getHeaderBackground();
+    this.headerBackground = grid.getHeaderBackground() == null ?
+        grid.getBodyBackground() : grid.getHeaderBackground();
 
-    this.rows = new GridCellIterator[grid.rows.size ()][];
-    for (int i = 0; i < rows.length; i++) {
-      List<GridCell> row = grid.rows.get(i);
-
-      rows[i] = new GridCellIterator[row.size()];
+    this.body = new GridCellIterator[grid.body.size ()][];
+    for (int i = 0; i < body.length; i++) {
+      List<GridCell> row = grid.body.get(i);
+      body[i] = new GridCellIterator[row.size()];
       for (int j = 0; j < row.size(); j++)
-        rows[i][j] = row.get(j).iterator(device, gc);
+        body[i][j] = row.get(j).iterator(device, gc);
     }
+    this.bodyBackground = grid.getBodyBackground();
 
     cellBorder = grid.cellBorder.createPainter (device, gc);
 
@@ -627,7 +650,10 @@ class GridIterator implements PrintIterator {
 
     this.header = cloneRows(that.header);
     this.headerBackground = that.headerBackground;
-    this.rows = cloneRows (that.rows);
+
+    this.body = cloneRows (that.body);
+    this.bodyBackground = that.bodyBackground;
+
     this.cellBorder = that.cellBorder;
 
     this.dpi = that.dpi;
@@ -688,9 +714,9 @@ class GridIterator implements PrintIterator {
   }
 
   int[] computeColumnSizes (PrintSizeStrategy strategy, GC gc) {
-    GridCellIterator[][] rows = new GridCellIterator[this.rows.length + this.header.length][];
-    System.arraycopy(this.rows, 0, rows, 0, this.rows.length);
-    System.arraycopy(this.header, 0, rows, this.rows.length, this.header.length);
+    GridCellIterator[][] rows = new GridCellIterator[this.body.length + this.header.length][];
+    System.arraycopy(this.body, 0, rows, 0, this.body.length);
+    System.arraycopy(this.header, 0, rows, this.body.length, this.header.length);
       
     int[] colSizes = new int[columns.length];
 
@@ -866,7 +892,7 @@ class GridIterator implements PrintIterator {
       width += col;
 
     int height = 0;
-    for (GridCellIterator[] row : rows) {
+    for (GridCellIterator[] row : body) {
       int col = 0;
       for (GridCellIterator entry : row) {
         // Determine cell width for this entry's cell span.
@@ -1059,7 +1085,7 @@ class GridIterator implements PrintIterator {
   }
 
   public boolean hasNext () {
-    return row < rows.length;
+    return row < body.length;
   }
 
   /**
@@ -1099,7 +1125,7 @@ class GridIterator implements PrintIterator {
     int[] widths = new int[rowIterators.length];
     PrintPiece[] rowPieces = new PrintPiece[rowIterators.length];
 
-    RGB backgroundColor = rowIndex == -1 ? headerBackground : null;
+    RGB backgroundColor = rowIndex == -1 ? headerBackground : bodyBackground;
     int x = 0;
     int col = 0;
     rowHeight[0] = 0;
@@ -1171,7 +1197,7 @@ class GridIterator implements PrintIterator {
     // Replace the row in the original array with the updated row from our
     // iteration.
     if (rowIndex != -1)
-      this.rows[rowIndex] = rowIterators;
+      this.body[rowIndex] = rowIterators;
 
     // Construct and return the result.
     CompositeEntry[] result = new CompositeEntry[rowIterators.length];
@@ -1228,7 +1254,7 @@ class GridIterator implements PrintIterator {
       int[] rowHeight = new int[] { 0 };
 
       // First attempt to iterate the row with a closed bottom border.
-      CompositeEntry[] rowEntries = iterateRow (rows[row], row, width, height - y, colSizes, y,
+      CompositeEntry[] rowEntries = iterateRow (body[row], row, width, height - y, colSizes, y,
           rowStarted, false, rowHeight, rowHasNext);
 
       // If the iteration failed, or the row has more content (which it
@@ -1237,7 +1263,7 @@ class GridIterator implements PrintIterator {
       if (rowEntries == null) {
         rowHeight[0] = 0;
         rowHasNext[0] = false;
-        rowEntries = iterateRow (rows[row], row, width, height - y, colSizes, y, rowStarted,
+        rowEntries = iterateRow (body[row], row, width, height - y, colSizes, y, rowStarted,
             true, rowHeight, rowHasNext);
       }
 
