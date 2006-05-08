@@ -13,6 +13,10 @@ import org.eclipse.swt.graphics.Transform;
 
 /**
  * A decorator print that scales it's target larger or smaller.
+ * <p><em>Note</em>: On Windows, this class depends on a bugfix available as of Eclipse build 3.2,
+ * release candidate 3 (2006-04-28).  Prior to this release, using ScalePrint triggers the bug,
+ * causing the document to scale very large on paper.  This bug manifests itself only on paper, not
+ * with on-screen viewing.  
  * @author Matthew
  */
 public class ScalePrint implements Print {

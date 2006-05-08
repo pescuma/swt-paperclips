@@ -12,8 +12,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Transform;
 
 /**
- * A decorator that rotates it's target by increments of 90 degrees.
- * @see RotateDecorator
+ * A decorator print that rotates it's target by increments of 90 degrees.
+ * <p><em>Note</em>: On Windows, this class depends on a bugfix available as of Eclipse build 3.2,
+ * release candidate 3 (2006-04-28).  Prior to this release, using RotatePrint triggers the bug,
+ * causing the document to scale very large on paper.  This bug only manifests itself on paper, not
+ * with on-screen viewing.  
  * @author Matthew
  */
 public final class RotatePrint implements Print {
