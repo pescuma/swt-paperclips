@@ -29,9 +29,8 @@ public class TextPrint implements Print {
   /** The default text for a TextPrint. Value is "". */
   public static final String DEFAULT_TEXT = "";
 
-  /** The default font data for a TextPrint. Value is Times 10-point normal. */
-  public static final FontData DEFAULT_FONT_DATA = new FontData ("Times", 10,
-      SWT.NORMAL);
+  /** The default font data for a TextPrint.  Value is system dependent. */
+  public static final FontData DEFAULT_FONT_DATA = new FontData ();
 
   /** The default alignment for TextPrint. Value is SWT.LEFT. */
   public static final int DEFAULT_ALIGN = SWT.LEFT;
