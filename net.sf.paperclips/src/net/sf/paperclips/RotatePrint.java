@@ -142,6 +142,9 @@ final class RotatePiece implements PrintPiece {
   private final int angle;
   private final Point size;
 
+  private Transform oldTransform;
+  private Transform transform;
+
   RotatePiece(Device device, PrintPiece target, int angle, Point size) {
     this.device = BeanUtils.checkNull (device);
     this.target = BeanUtils.checkNull(target);
@@ -153,57 +156,58 @@ final class RotatePiece implements PrintPiece {
     return new Point(size.x, size.y);
   }
 
-  public void paint (GC gc, int x, int y) {
-    Transform oldTransform = null;
-    if (gc.getAdvanced ()) {
-      // Remember old transform so it can be restored after painting.
+  private Transform getOldTransform() {
+    if (oldTransform == null)
       oldTransform = new Transform(device);
-      gc.getTransform (oldTransform);
-    } else {
-      gc.setAdvanced(true);
+    return oldTransform;
+  }
+
+  private Transform getTransform() {
+    if (transform == null)
+      transform = new Transform (device);
+    return transform;
+  }
+
+  public void paint (GC gc, int x, int y) {
+    // Remember old transform so it can be restored after painting.
+    Transform oldTransform = getOldTransform();
+    gc.getTransform (oldTransform);
+
+    // Get current transform
+    Transform transform = getTransform();
+    gc.getTransform (transform);
+
+    // Prep the transform
+    transform.translate(x, y);
+    switch (angle) {
+    case 90:
+      transform.translate(0, size.y);
+      break;
+    case 180:
+      transform.translate(size.x, size.y);
+      break;
+    case 270:
+      transform.translate(size.x, 0);
+      break;
+    default:
+      throw new IllegalStateException("Illegal degrees value of "+angle);
     }
+    transform.rotate (-angle); // reverse the angle since Transform.rotate goes clockwise
 
-    Transform transform = null;
-    try {
-      // Get current transform
-      transform = new Transform(device);
-      gc.getTransform (transform);
-
-      // Prep the transform
-      transform.translate(x, y);
-      switch (angle) {
-      case 90:
-        transform.translate(0, size.y);
-        break;
-      case 180:
-        transform.translate(size.x, size.y);
-        break;
-      case 270:
-        transform.translate(size.x, 0);
-        break;
-      default:
-        throw new IllegalStateException("Illegal degrees value of "+angle);
-      }
-      transform.rotate (-angle); // reverse the angle since Transform.rotate goes clockwise
-      gc.setTransform (transform);
-
-      target.paint (gc, 0, 0);
-
-      if (oldTransform != null) {
-        gc.setTransform(oldTransform);
-      }
-    } finally {
-      if (oldTransform != null)
-        oldTransform.dispose();
-      else
-        gc.setAdvanced(false);
-
-      if (transform != null)
-        transform.dispose();
-    }
+    gc.setTransform (transform);
+    target.paint (gc, 0, 0);
+    gc.setTransform(oldTransform);
   }
 
   public void dispose () {
+    if (oldTransform != null) {
+      oldTransform.dispose();
+      oldTransform = null;
+    }
+    if (transform != null) {
+      transform.dispose();
+      transform = null;
+    }
     target.dispose();
   }
 }
