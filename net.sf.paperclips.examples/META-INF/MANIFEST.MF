@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.sf.paperclips.examples
 Bundle-Version: 0.5.0
 Bundle-Vendor: Woodcraft Mill & Cabinet and others
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: net.sf.paperclips,
  org.eclipse.swt
 Export-Package: net.sf.paperclips.examples
