@@ -38,14 +38,28 @@ predefined document structure.
 
 Requirements:
 * Java 5.0 (code named "Tiger") or later.
-* SWT 3.0 or later. SWT may be downloaded at http://www.eclipse.org/swt/.
-  PaperClips may work on earlier versions of SWT but I have not tested this.
+* SWT 3.0 or later.  SWT 3.2M3 or later is required if you use the ScalePrint
+  or RotatePrint classes.  PaperClips may work on earlier versions of SWT but
+  I have not tested this. SWT may be downloaded at http://www.eclipse.org/swt/.
 
 Installation
 ------------
 
-The PaperClips binary build jar can be used as a regular jar, or as an Eclipse plugin.  If used as
-a regular jar, the SWT classes must be available in the classpath.
+The PaperClips binary build jar can be used as a regular jar, or as an Eclipse
+plugin.  If used as a regular jar, the SWT classes must be available in the
+classpath.
+
+To use PaperClips as a binary plugin, simply save the jar into the plugins
+folder of your target platform.
+
+If you are extending PaperClips (or you want the latest bleeding edge
+features), your best bet is to checkout the project as a plugin project from
+Subversion.
+
+Use this URL to checkout PaperClips through Subversion.
+https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
+
+See http://subversion.tigris.org/ for information about Subversion.
 
 Credits
 -------
