@@ -10,6 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -34,7 +35,8 @@ import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 
 /**
- * Prints the contents of a Table widget.
+ * Demonstrates how to print the contents of a Table widget.  This snippet uses the GridPrint,
+ * TextPrint, and ImagePrint classes.
  * @author Matthew
  */
 public class Snippet1 implements Print {
@@ -59,11 +61,16 @@ public class Snippet1 implements Print {
     GridPrint grid = new GridPrint(cols);
     grid.setCellBorder (new LineBorder());
 
-    // Add header row
-    grid.setHeaderBackground (
-        table.getDisplay ().getSystemColor (SWT.COLOR_WIDGET_BACKGROUND).getRGB());
-    for (TableColumn col : table.getColumns ())
-      grid.addHeader(createCell(col.getImage (), col.getText()));
+    // Add header and footer to match table column names.
+    RGB background = table.getDisplay ().getSystemColor (SWT.COLOR_WIDGET_BACKGROUND).getRGB();
+    grid.setHeaderBackground (background);
+    grid.setFooterBackground (background);
+
+    for (TableColumn col : table.getColumns ()) {
+      Print cell = createCell(col.getImage(), col.getText());
+      grid.addHeader(cell);
+      grid.addFooter(cell);
+    }
 
     // Add content rows
     for (TableItem item : table.getItems())
@@ -105,6 +112,7 @@ public class Snippet1 implements Print {
     final Table table = new Table (shell, SWT.BORDER);
     table.setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true));
 
+    // Set up Table widget with dummy data.
     for (int i = 0; i < 5; i++)
       new TableColumn (table, SWT.LEFT).setText ("Column " + i);
 
