@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -78,27 +77,9 @@ public final class GridPrint implements Print {
    */
   public static final int BORDER_OVERLAP = -1;
 
-  /**
-   * The horizontal spacing between adjacent cells, in points. 72 points = 1".
-   * The default value is BORDER_OVERLAP.
-   * @see #BORDER_OVERLAP
-   * @deprecated use {@link #setHorizontalSpacing(int)} and
-   *             {@link #getHorizontalSpacing()} instead.  This field will be
-   *             made private in a future release.
-   */
-  @Deprecated
-  public int horizontalSpacing;
+  private final DefaultGridLook defaultLook;
 
-  /**
-   * The vertical spacing between adjacent cells, in points. 72 points = 1". The
-   * default value is BORDER_OVERLAP.
-   * @see #BORDER_OVERLAP
-   * @deprecated use {@link #setVerticalSpacing(int)} and
-   *             {@link #getVerticalSpacing()} instead.  This field will be
-   *             made private in a future release.
-   */
-  @Deprecated
-  public int verticalSpacing;
+  private GridLook look;
 
   /** The columns for this grid. */
   final GridColumn[] columns;
@@ -106,17 +87,11 @@ public final class GridPrint implements Print {
   /** Array of column groups. */
   int[][] columnGroups = new int[0][];
 
-  /** The border used around each body cell. */
-  Border cellBorder = new GapBorder (0);
-
   /**
    * Two-dimension list of all header cells.  Each element of this list represents a row in the
    * header.  Each element of a row represents a cellspan in that row.  
    */
   final List <List <GridCell>> header = new ArrayList <List <GridCell>> ();
-
-  /** The background color of the header cells. */
-  private RGB headerBackground; // ignored if null
 
   /** Column cursor - the column that the next added header cell will go into. */
   private int headerCol = 0;
@@ -127,9 +102,6 @@ public final class GridPrint implements Print {
    */
   final List <List <GridCell>> body = new ArrayList <List <GridCell>> ();
 
-  /** The background color of the body cells. */
-  private RGB bodyBackground; // ignored if null
-
   /** Column cursor - the column that the next added print will go into. */
   private int bodyCol = 0;
 
@@ -139,15 +111,12 @@ public final class GridPrint implements Print {
    */
   final List <List <GridCell>> footer = new ArrayList <List <GridCell>> ();
 
-  /** The background color of the header cells. */
-  private RGB footerBackground; // ignored if null
-
   /** Column cursor - the column that the next added footer cell will go into. */
   private int footerCol = 0;
 
   /**
-   * Constructs a GridPrint with the given columns.
-   * @param columns a comma-separated list of column specs.
+   * Constructs a GridPrint with the given columns and a default look.
+   * @param columns a comma-separated list of parseable column specs.
    * @see GridColumn#parse(String)
    */
   public GridPrint (String columns) {
@@ -155,11 +124,24 @@ public final class GridPrint implements Print {
   }
 
   /**
+   * Constructs a GridPrint with the given columns and look.
+   * @param columns a comma-separated list of parseable column specs.
+   * @param look the look to apply to the constructed grid.
+   * @see GridColumn#parse(String)
+   */
+  public GridPrint(String columns, GridLook look) {
+    this(parseColumns (columns), look);
+  }
+
+  /**
    * Constructs a GridPrint with the given columns and spacing.
    * @param columns a comma-separated list of column specs.
    * @param spacing the spacing (in points) between grid cells.
    * @see #BORDER_OVERLAP
+   * @deprecated use GridPrint(String) instead, then set a DefaultGridLook on the grid with the
+   *             desired cell spacing.
    */
+  @Deprecated
   public GridPrint (String columns, int spacing) {
     this (parseColumns (columns), spacing, spacing);
   }
@@ -172,17 +154,36 @@ public final class GridPrint implements Print {
    * @param verticalSpacing the vertical spacing (in points) between grid cells.
    * @see GridColumn#parse(String)
    * @see #BORDER_OVERLAP
+   * @deprecated use GridPrint(String) instead, then set a DefaultGridLook on the grid with the
+   *             desired cell spacing.
    */
+  @Deprecated
   public GridPrint (String columns, int horizontalSpacing, int verticalSpacing) {
     this (parseColumns (columns), horizontalSpacing, verticalSpacing);
   }
 
   /**
-   * Constructs a GridPrint with the given columns.
+   * Constructs a GridPrint with the given columns and a default look.
    * @param columns the columns for the new grid.
    */
   public GridPrint (GridColumn... columns) {
-    this (columns, BORDER_OVERLAP, BORDER_OVERLAP);
+    this.columns = BeanUtils.checkNull (columns);
+    for (GridColumn col : columns)
+      BeanUtils.checkNull (col);
+    if (columns.length == 0)
+      throw new IllegalArgumentException ("Must specify at least one column.");
+
+    this.look = defaultLook = new DefaultGridLook();
+  }
+
+  /**
+   * Constructs a GridPrint with the given columns and look.
+   * @param columns the columns for the new grid.
+   * @param look the look to apply to the constructed grid.
+   */
+  public GridPrint (GridColumn[] columns, GridLook look) {
+    this(columns);
+    setLook(look);
   }
 
   /**
@@ -190,7 +191,10 @@ public final class GridPrint implements Print {
    * @param columns the columns for the new grid.
    * @param spacing the spacing (in points) between grid cells.
    * @see #BORDER_OVERLAP
+   * @deprecated use GridPrint(GridColumn[]) instead, then set a DefaultGridLook on the grid with
+   *             the desired cell spacing.
    */
+  @Deprecated
   public GridPrint (GridColumn[] columns, int spacing) {
     this (columns, spacing, spacing);
   }
@@ -202,19 +206,13 @@ public final class GridPrint implements Print {
    *          cells.
    * @param verticalSpacing the vertical spacing (in points) between grid cells.
    * @see #BORDER_OVERLAP
+   * @deprecated use GridPrint(GridColumn[]) instead, then set a DefaultGridLook on the grid with
+   *             the desired cell spacing.
    */
-  public GridPrint (GridColumn[] columns,
-                    int horizontalSpacing,
-                    int verticalSpacing) {
-
-    this.columns = BeanUtils.checkNull (columns);
-    for (GridColumn col : columns)
-      BeanUtils.checkNull (col);
-    if (columns.length == 0)
-      throw new IllegalArgumentException ("Must specify at least one column.");
-
-    this.horizontalSpacing = checkSpacing (horizontalSpacing);
-    this.verticalSpacing = checkSpacing (verticalSpacing);
+  @Deprecated
+  public GridPrint (GridColumn[] columns, int horizontalSpacing, int verticalSpacing) {
+    this(columns);
+    defaultLook.setCellSpacing(horizontalSpacing, verticalSpacing);
   }
 
   /**
@@ -231,17 +229,6 @@ public final class GridPrint implements Print {
       result[i] = GridColumn.parse (cols[i]);
 
     return result;
-  }
-
-  /**
-   * Returns the spacing if is it valid, or throws an exception not.
-   */
-  static int checkSpacing (int spacing) {
-    if (spacing < 0 && spacing != BORDER_OVERLAP)
-      throw new IllegalArgumentException (
-          "Spacing must be a non-negative value or equal to BORDER_OVERLAP.");
-
-    return spacing;
   }
 
   /**
@@ -277,17 +264,22 @@ public final class GridPrint implements Print {
   /**
    * Returns the background color of the header cells (defaults to the body background if null).  
    * @return the background color of the header cells (defaults to the body background if null).
+   * @deprecated this functionality has been moved to DefaultGridLook.
    */
+  @Deprecated
   public RGB getHeaderBackground() {
-    return headerBackground;
+    return defaultLook.getHeaderBackground();
   }
 
   /**
    * Sets the background color of the header cells.
    * @param headerBackground the new background color (defaults to the body background if null).
+   * @deprecated this functionality has been moved to DefaultGridLook.  Set a DefaultGridLook on
+   *             the grid, then call setHeaderBackground on the grid look.
    */
+  @Deprecated
   public void setHeaderBackground(RGB headerBackground) {
-    this.headerBackground = headerBackground;
+    defaultLook.setHeaderBackground(headerBackground);
   }
 
   /**
@@ -323,17 +315,22 @@ public final class GridPrint implements Print {
   /**
    * Returns the background color of the body cells (no background color if null).
    * @return the background color of the body cells (no background color if null).
+   * @deprecated this functionality has been moved to DefaultGridLook.
    */
+  @Deprecated
   public RGB getBodyBackground() {
-    return bodyBackground;
+    return defaultLook.getBodyBackground();
   }
 
   /**
    * Sets the background color of the body cells.
    * @param bodyBackground the new background color (no background is drawn if null).
+   * @deprecated this functionality has been moved to DefaultGridLook.  Set a DefaultGridLook on
+   *             the grid, then call setBodyBackground on the grid look.
    */
+  @Deprecated
   public void setBodyBackground(RGB bodyBackground) {
-    this.bodyBackground = bodyBackground;
+    defaultLook.setBodyBackground(bodyBackground);
   }
 
   /**
@@ -369,17 +366,22 @@ public final class GridPrint implements Print {
   /**
    * Returns the background color of the footer cells.
    * @return the background color of the footer cells (defaults to body background if null).
+   * @deprecated this functionality has been moved to DefualtGridLook.
    */
+  @Deprecated
   public RGB getFooterBackground() {
-    return footerBackground;
+    return defaultLook.getFooterBackground();
   }
 
   /**
    * Sets the background color of the footer cells.
    * @param footerBackground the new background color (defaults to body background if null).
+   * @deprecated this functionality has been moved to DefaultGridLook.  Set a DefaultGridLook on
+   *             the grid, then call setFooterBackground on the grid look.
    */
+  @Deprecated
   public void setFooterBackground(RGB footerBackground) {
-    this.footerBackground = footerBackground;
+    defaultLook.setBodyBackground(footerBackground);
   }
 
   /* Returns the column number that we've advanced to, after adding the new cell. */
@@ -488,31 +490,34 @@ public final class GridPrint implements Print {
   }
 
   /**
-   * Sets the border around each of the grid's cells to the argument.
-   * @param border the new body cell border.
+   * Returns the border used around each cell.
+   * @return the border used around each cell.
+   * @deprecated this functionality has been moved to DefaultGridLook.
    */
-  public void setCellBorder (Border border) {
-    this.cellBorder = BeanUtils.checkNull (border);
+  @Deprecated
+  public Border getCellBorder () {
+    return defaultLook.getCellBorder();
   }
 
   /**
-   * Returns the border used around each cell.
-   * @return the border used around each cell.
+   * Sets the border around each of the grid's cells to the argument.
+   * @param border the new body cell border.
+   * @deprecated this functionality has been moved to DefaultGridLook.  Set a DefaultGridLook on
+   *             the grid, then call setCellBorder on the grid look.
    */
-  public Border getCellBorder () {
-    return cellBorder;
-  }
-
-  public PrintIterator iterator (Device device, GC gc) {
-    return new GridIterator (this, device, gc);
+  @Deprecated
+  public void setCellBorder (Border border) {
+    defaultLook.setCellBorder(border);
   }
 
   /**
    * Returns the horizontal spacing between grid cells.
    * @return the horizontal spacing between grid cells.
+   * @deprecated this functionality has been moved to DefaultGridLook.
    */
+  @Deprecated
   public int getHorizontalSpacing () {
-    return horizontalSpacing;
+    return defaultLook.getCellSpacing().x;
   }
 
   /**
@@ -520,17 +525,22 @@ public final class GridPrint implements Print {
    * @param horizontalSpacing the new horizontal spacing.  A value of
    *        {@link #BORDER_OVERLAP} indicates that the borders should be
    *        overlapped instead of spaced.
+   * @deprecated this functionality has been moved to DefaultGridLook.  Set a DefaultGridLook on
+   *             the grid, then call setCellSpacing(Point) on the grid look.
    */
+  @Deprecated
   public void setHorizontalSpacing (int horizontalSpacing) {
-    this.horizontalSpacing = horizontalSpacing;
+    defaultLook.setCellSpacing(horizontalSpacing, defaultLook.getCellSpacing().y);
   }
 
   /**
    * Returns the vertical spacing between grid cells.
    * @return the vertical spacing between grid cells.
+   * @deprecated this functionality has been moved to DefaultGridLook.
    */
+  @Deprecated
   public int getVerticalSpacing () {
-    return verticalSpacing;
+    return defaultLook.getCellSpacing().y;
   }
 
   /**
@@ -538,9 +548,34 @@ public final class GridPrint implements Print {
    * @param verticalSpacing the new vertical spacing.  A value of
    *        {@link #BORDER_OVERLAP} indicates that the borders should be
    *        overlapped instead of spaced.
+   * @deprecated this functionality has been moved to DefaultGridLook.  Set a DefaultGridLook on
+   *             the grid, then call setCellSpacing(Point) on the grid look.
    */
+  @Deprecated
   public void setVerticalSpacing (int verticalSpacing) {
-    this.verticalSpacing = verticalSpacing;
+    defaultLook.setCellSpacing(defaultLook.getCellSpacing().x, verticalSpacing);
+  }
+
+  /**
+   * Returns the grid's look.  A GridLook determines what decorations will appear around the grid's
+   * contents.  Default is a DefaultGridLook with no cell spacing, no cell borders, and no
+   * background colors.
+   * @return the look of this grid.
+   */
+  public GridLook getLook() {
+    return look;
+  }
+
+  /**
+   * Sets the grid's look.
+   * @param look the new look.
+   */
+  public void setLook(GridLook look) {
+    this.look = look;
+  }
+
+  public PrintIterator iterator (Device device, GC gc) {
+    return new GridIterator (this, device, gc);
   }
 }
 
@@ -550,8 +585,8 @@ class GridCell {
   final int colspan;
 
   GridCell (Print target, int align, int colspan) {
-    this.target = BeanUtils.checkNull (target);
-    this.align = checkAlign (align);
+    this.target  = BeanUtils.checkNull (target);
+    this.align   = checkAlign (align);
     this.colspan = checkColspan (colspan);
   }
 
@@ -587,14 +622,14 @@ class GridCellIterator {
   final int colspan;
 
   GridCellIterator(GridCell cell, Device device, GC gc) {
-    this.target = cell.target.iterator (device, gc);
-    this.align = cell.align;
+    this.target  = cell.target.iterator (device, gc);
+    this.align   = cell.align;
     this.colspan = cell.colspan;
   }
 
   GridCellIterator(GridCellIterator that) {
-    this.target = that.target.copy();
-    this.align = that.align;
+    this.target  = that.target.copy();
+    this.align   = that.align;
     this.colspan = that.colspan;
   }
 
@@ -619,38 +654,34 @@ class GridIterator implements PrintIterator {
   }
 
   final Device device;
+  final Point  dpi;
+
   final GridColumn[] columns;
-  final int[][] columnGroups;
+  final int[][]      columnGroups;
+
+  final GridLookPainter look;
 
   final GridCellIterator[][] header;
-  final RGB headerBackground;
-
   final GridCellIterator[][] body;
-  final RGB bodyBackground;
-
   final GridCellIterator[][] footer;
-  final RGB footerBackground;
-  
-  final BorderPainter cellBorder;
 
-  final Point dpi; // PIXELS
-  final Point spacing; // PIXELS
-
-  final int[] minimumColSizes; // PIXELS
+  final int[] minimumColSizes;   // PIXELS
   final int[] preferredColSizes; // PIXELS
 
-  final Point minimumSize; // PIXELS
+  final Point minimumSize;   // PIXELS
   final Point preferredSize; // PIXELS
 
   // This is the cursor!
   private int row;
+
   // Determines whether top edge of cell border is drawn open or closed for current row.
   private boolean rowStarted;
 
   GridIterator (GridPrint grid, Device device, GC gc) {
     this.device = BeanUtils.checkNull(device);
+    this.dpi    = device.getDPI();
 
-    this.columns = grid.columns;
+    this.columns      = grid.columns;
     this.columnGroups = grid.getColumnGroups ();
 
     this.header = new GridCellIterator[grid.header.size ()][];
@@ -660,8 +691,6 @@ class GridIterator implements PrintIterator {
       for (int j = 0; j < row.size(); j++)
         header[i][j] = row.get(j).iterator(device, gc);
     }
-    this.headerBackground = grid.getHeaderBackground() == null ?
-        grid.getBodyBackground() : grid.getHeaderBackground();
 
     this.body = new GridCellIterator[grid.body.size ()][];
     for (int i = 0; i < body.length; i++) {
@@ -670,7 +699,6 @@ class GridIterator implements PrintIterator {
       for (int j = 0; j < row.size(); j++)
         body[i][j] = row.get(j).iterator(device, gc);
     }
-    this.bodyBackground = grid.getBodyBackground();
 
     this.footer = new GridCellIterator[grid.footer.size ()][];
     for (int i = 0; i < footer.length; i++) {
@@ -679,34 +707,13 @@ class GridIterator implements PrintIterator {
       for (int j = 0; j < row.size(); j++)
         footer[i][j] = row.get(j).iterator (device, gc);
     }
-    this.footerBackground = grid.getFooterBackground() == null ?
-        grid.getBodyBackground() : grid.getFooterBackground();
 
-    cellBorder = grid.cellBorder.createPainter (device, gc);
+    look = grid.getLook().getPainter(device, gc);
 
-    // Double-check these values -- they are public fields and may have been
-    // set to an invalid value.
-    int hSpacing = GridPrint.checkSpacing (grid.horizontalSpacing);
-    int vSpacing = GridPrint.checkSpacing (grid.verticalSpacing);
-
-    // Compute all the variables we need to perform layout.
-    BeanUtils.checkNull (device);
-    this.dpi = device.getDPI ();
-    // Note that the cell border is INCLUDED in cell spacing!
-    this.spacing = new Point (Math.round (hSpacing * dpi.x / 72f)
-        + cellBorder.getWidth (), Math.round (vSpacing * dpi.y / 72f)
-        + cellBorder.getHeight (false, false));
-
-    Point overlap = cellBorder.getOverlap ();
-    if (hSpacing == GridPrint.BORDER_OVERLAP)
-      spacing.x = cellBorder.getWidth () - overlap.x;
-    if (vSpacing == GridPrint.BORDER_OVERLAP)
-      spacing.y = cellBorder.getHeight (false, false) - overlap.y;
-
-    this.minimumColSizes = computeColumnSizes (PrintSizeStrategy.MINIMUM, gc);
+    this.minimumColSizes   = computeColumnSizes (PrintSizeStrategy.MINIMUM, gc);
     this.preferredColSizes = computeColumnSizes (PrintSizeStrategy.PREFERRED, gc);
 
-    this.minimumSize = computeSize (PrintSizeStrategy.MINIMUM, minimumColSizes);
+    this.minimumSize   = computeSize (PrintSizeStrategy.MINIMUM,   minimumColSizes);
     this.preferredSize = computeSize (PrintSizeStrategy.PREFERRED, preferredColSizes);
 
     row = 0;
@@ -716,37 +723,28 @@ class GridIterator implements PrintIterator {
   /** Copy constructor (used by copy() only) */
   GridIterator (GridIterator that) {
     this.device = that.device;
-    this.columns = that.columns;
+    this.dpi    = that.dpi;
+
+    this.columns      = that.columns;
     this.columnGroups = that.columnGroups;
 
-    this.header = that.header; // never directly modified, does not need to be cloned
-    this.headerBackground = that.headerBackground;
+    this.header = that.header;                     // never directly modified, clone not necessary
+    this.body   = cloneRows (that.body, that.row); // Only need to deep copy the unconsumed rows.
+    this.footer = that.footer;                     // never directly modified, clone not necessary
 
-    // Only need to deep copy the unconsumed rows.
-    this.body = cloneRows (that.body, that.row);
-    this.bodyBackground = that.bodyBackground;
+    this.look = that.look;
 
-    this.footer = that.footer; // never directly modified, does not need to be cloned
-    this.footerBackground = that.footerBackground;
-
-    this.cellBorder = that.cellBorder;
-
-    this.dpi = that.dpi;
-    this.spacing = that.spacing;
-
-    this.minimumColSizes = that.minimumColSizes;
+    this.minimumColSizes   = that.minimumColSizes;
     this.preferredColSizes = that.preferredColSizes;
 
-    this.minimumSize = that.minimumSize;
+    this.minimumSize   = that.minimumSize;
     this.preferredSize = that.preferredSize;
 
-    this.row = that.row;
+    this.row        = that.row;
     this.rowStarted = that.rowStarted;
   }
 
-  /**
-   * Compute the size of a column, respecting the constraints of the GridColumn.
-   */
+  /** Compute the size of a column, respecting the constraints of the GridColumn. */
   int computeColumnSize (GridCellIterator entry,
                          GridColumn col,
                          PrintSizeStrategy strategy,
@@ -755,7 +753,7 @@ class GridIterator implements PrintIterator {
       return strategy.computeSize (entry.target).x;
     if (col.size == GridPrint.PREFERRED)
       return entry.target.preferredSize ().x;
-    return Math.round (col.size * dpi.x / 72f);
+    return Math.round (col.size * device.getDPI().x / 72f);
   }
 
   static boolean isExplicitSize (GridColumn col) {
@@ -765,10 +763,10 @@ class GridIterator implements PrintIterator {
   void groupColumns (int[] columnSizes) {
     for (int[] group : columnGroups) {
       int maxSize = 0;
-      for (int col : group)
+      for (int col : group) // find max column width in group
         maxSize = Math.max (maxSize, columnSizes[col]);
 
-      for (int col : group)
+      for (int col : group) // grow all columns to max column width.
         columnSizes[col] = maxSize;
     }
   }
@@ -799,6 +797,8 @@ class GridIterator implements PrintIterator {
     System.arraycopy(this.footer, 0, rows, offset, this.footer.length);
 
     int[] colSizes = new int[columns.length];
+
+    final int horizontalSpacing = look.getMargins().getHorizontalSpacing();
 
     // First pass - find widths for all explicitly sized columns.
     for (int i = 0; i < columns.length; i++)
@@ -843,7 +843,7 @@ class GridIterator implements PrintIterator {
 
           // Calculate the minimum width of the print in this cell.
           int minimumSpanWidth = strategy.computeSize (entry.target).x
-              - spacing.x * (entry.colspan - 1); // subtract column spacing
+              - horizontalSpacing * (entry.colspan - 1); // subtract column spacing
 
           // Note that we omitted column spacing so the weighted distribution
           // of any extra width doesn't get thrown off.
@@ -964,32 +964,75 @@ class GridIterator implements PrintIterator {
   }
 
   private Point computeSize (PrintSizeStrategy strategy, int[] colSizes) {
+    final GridMargins margins = look.getMargins();
+
     // Calculate width from column sizes and spacing.
-    int width = spacing.x * (colSizes.length - 1);
-    // Add width of cell border at far left and far right.
-    width += cellBorder.getWidth ();
+    int width =
+      margins.getLeft() +
+      (colSizes.length - 1) * margins.getHorizontalSpacing() +
+      margins.getRight();
     for (int col : colSizes)
       width += col;
 
-    // FIXME computed size should include header and footer heights.
-    int height = 0;
+    int height;
+
+    // This algorithm is not strictly accurate but probably good enough.  The header and footer row
+    // heights are being calculated using getMinimumSize() and getPreferredSize(), which do not
+    // necessarily return the total content height.
+
+    // HEADER
+    if (header.length > 0) {
+      height =
+        margins.getHeaderTop() +
+        margins.getHeaderVerticalSpacing() * (header.length - 1) +
+        Math.max(margins.getBodyTop(true, true), margins.getBodyTop(true, false));
+      for (GridCellIterator[] row : header) {
+        int col = 0;
+        int rowHeight = 0;
+        for (GridCellIterator entry : row) {
+          // Find tallest cell in row.
+          rowHeight = Math.max(rowHeight, strategy.computeSize(entry.target).y);
+          col += entry.colspan;
+        }
+        height += rowHeight;
+      }
+    } else {
+      height = Math.max(margins.getBodyTop(false, true), margins.getBodyTop(false, false));
+    }
+
+    // BODY
+    int maxBodyRowHeight = 0;
     for (GridCellIterator[] row : body) {
       int col = 0;
       for (GridCellIterator entry : row) {
-        // Determine cell width for this entry's cell span.
-        int cellWidth = spacing.x * (entry.colspan - 1); // spacing between
-                                                         // columns
-        for (int i = col; i < col + entry.colspan; i++)
-          // add size of each column.
-          cellWidth += colSizes[i];
-
         // Find the greatest height of all cells' calculated sizes.
-        height = Math.max (height, strategy.computeSize (entry.target).y);
+        maxBodyRowHeight = Math.max (maxBodyRowHeight, strategy.computeSize (entry.target).y);
+        col += entry.colspan;
       }
     }
+    height += maxBodyRowHeight;
 
-    // Add height of tallest possible cell borders.
-    return new Point (width, height + cellBorder.getMaxHeight ());
+    // FOOTER
+    if (footer.length > 0) {
+      height +=
+        Math.max(margins.getBodyBottom(true, false), margins.getBodyBottom(true, true)) +
+        margins.getFooterVerticalSpacing() * (footer.length - 1) +
+        margins.getFooterBottom();
+      for (GridCellIterator[] row : footer) {
+        int col = 0;
+        int rowHeight = 0;
+        for (GridCellIterator entry : row) {
+          // Find tallest cell in row.
+          rowHeight = Math.max(rowHeight, strategy.computeSize(entry.target).y);
+          col += entry.colspan;
+        }
+        height += rowHeight;
+      }
+    } else {
+      height += Math.max(margins.getBodyBottom(false, false), margins.getBodyBottom(false, true));
+    }
+
+    return new Point (width, height);
   }
 
   public Point minimumSize () {
@@ -1036,12 +1079,13 @@ class GridIterator implements PrintIterator {
   }
 
   private int[] computeAdjustedColumnSizes (int width) {
-    // Remove column spacing from equation first off
-    width = width - spacing.x * (columns.length - 1);
+    GridMargins margins = look.getMargins();
 
-    // Remove width of far left and far right border (all other
-    // borders were included for in the cell spacing).
-    width -= cellBorder.getWidth ();
+    // Remove margins from width first off
+    width = width -
+      margins.getLeft() -
+      margins.getHorizontalSpacing() * (columns.length - 1) -
+      margins.getRight();
 
     int minimumWidth = 0;
     int preferredWidth = 0;
@@ -1156,73 +1200,64 @@ class GridIterator implements PrintIterator {
   }
 
   /**
-   * Iterates through the current row and returns a CompositeEntry array of the
-   * PrintPieces generated .
+   * Iterates through the current row and returns a CompositeEntry array of the PrintPieces
+   * generated.  This method modifies the contents of the row argument, so backup copies should be
+   * made of each cell iterator before passing a row into this method.
    * @param row an array of GridCellIterators that make up the row.
-   * @param backgroundColor the background color of the cells on the row.
-   * @param width the available width on the print device.
-   * @param height the available height on the print device.
    * @param colSizes the width of the grid columns.
-   * @param yOffset the y offset to give the PrintPieces.
-   * @param topOpen whether the cell border is open at the top.
-   * @param bottomOpen whether the cell border is open at the bottom. If false,
-   *          this method must return null if one or more cells cannot consume
-   *          all its content in this iteration.
-   * @param rowHeight an int array 1 element long for reporting the height of
-   *          the row back to the caller.
-   * @param hasNext a boolean array 1 element long for reporting back to the
-   *          caller whether any of the cells have more content.
-   * @return A CompositeEntry array resulting from the iteration. Returns null
-   *         if the iteration failed. This happens if bottomOpen is false and
-   *         one or more cells could not be consume within the available area.
+   * @param height the available height on the print device.
+   * @param y the y offset to give the PrintPieces.
+   * @param bottomOpen whether the cell border is open at the bottom. If false, this method must
+   *        return null if one or more cells cannot consume all its content in this iteration.
+   * @param rowHeight an int array 1 element long for reporting the height of the row back to the
+   *        caller.
+   * @param hasNext a boolean array 1 element long for reporting whether the cells in the row have
+   *        more content to display.
+   * @return A CompositeEntry array resulting from the iteration. Returns null if the iteration
+   *         failed. This happens if bottomOpen is false and one or more cells could not be consume
+   *         within the available area.
    */
   CompositeEntry[] iterateRow (final GridCellIterator[] row,
-                               final RGB backgroundColor,
-                               final int rowIndex,
-                               final int width,
-                               final int height,
                                final int[] colSizes,
-                               final int yOffset,
-                               final boolean topOpen,
+                               final int height,
+                               final int y,
                                final boolean bottomOpen,
                                final int[] rowHeight,
                                final boolean[] hasNext) {
 
-    GridCellIterator[] rowIterators = cloneRow (row);
+    final GridMargins margins = look.getMargins();
 
-    int[] cellOffsets = new int[rowIterators.length];
-    int[] pieceOffsets = new int[rowIterators.length];
-    int[] widths = new int[rowIterators.length];
-    PrintPiece[] rowPieces = new PrintPiece[rowIterators.length];
+    int[] xOffsets = new int[row.length];
+    int[] widths = new int[row.length];
+    PrintPiece[] rowPieces = new PrintPiece[row.length];
 
-    int x = 0;
+    int x = margins.getLeft();
     int col = 0;
     rowHeight[0] = 0;
     hasNext[0] = false;
 
-    for (int i = 0; i < rowIterators.length; i++) {
-      cellOffsets[i] = x;
+    for (int i = 0; i < row.length; i++) {
+      xOffsets[i] = x;
 
-      GridCellIterator entry = rowIterators[i];
-      PrintIterator iter = rowIterators[i].target;
+      GridCellIterator entry = row[i];
+      PrintIterator iter = row[i].target;
 
       // Determine width of the cell span, including spacing between cells.
-      int cellspanWidth = (entry.colspan - 1) * spacing.x;
-      for (int j = col; j < col + entry.colspan; j++)
-        cellspanWidth += colSizes[j];
+      int cellspanWidth = (entry.colspan - 1) * margins.getHorizontalSpacing();
+      for (int j = 0; j < entry.colspan; j++)
+        cellspanWidth += colSizes[col+j];
       widths[i] = cellspanWidth;
 
       // Skip this cell if is already consumed.
       if (!iter.hasNext ()) {
         // But advance the column cursor
-        x = x + cellspanWidth + spacing.x;
+        x += cellspanWidth + margins.getHorizontalSpacing();
         col += entry.colspan;
         continue;
       }
 
       // Iterate the current cell.
-      PrintPiece piece = rowPieces[i] = iter.next (cellspanWidth,
-          height - cellBorder.getHeight (topOpen, bottomOpen));
+      PrintPiece piece = rowPieces[i] = iter.next (cellspanWidth, height);
 
       // Two conditions that cause iteration to fail:
       // 1) piece is null.  All unconsumed cells should iterate or the whole row should wait until
@@ -1233,13 +1268,16 @@ class GridIterator implements PrintIterator {
       // If either case is true, dispose any print pieces from previous loops and return null.
       if ((piece == null) ||                   // case 1
           (!bottomOpen && iter.hasNext ()) ) { // case 2
+        if (piece != null)
+          piece.dispose();
         for (int j = 0; j <= i; j++)
-          if (rowPieces[j] != null) rowPieces[j].dispose ();
+          if (rowPieces[j] != null)
+            rowPieces[j].dispose ();
         return null;
       }
 
-      // Update hasNext for this cell's iterator.
-      if (iter.hasNext ()) hasNext[0] = true;
+      // If bottomOpen is true, update hasNext argument if necessary.
+      hasNext[0] = hasNext[0] || iter.hasNext();
 
       // Determine the alignment for this cell.
       int align = entry.align;
@@ -1251,36 +1289,21 @@ class GridIterator implements PrintIterator {
         offset = (cellspanWidth - piece.getSize ().x) / 2;
       else if (align == SWT.RIGHT)
         offset = cellspanWidth - piece.getSize ().x;
-      pieceOffsets[i] = offset;
+      xOffsets[i] += offset;
 
       // Update the row height
       rowHeight[0] = Math.max (rowHeight[0], piece.getSize ().y);
 
       // Adjust x offset and column number.
-      x = x + cellspanWidth + spacing.x;
+      x += cellspanWidth + margins.getHorizontalSpacing();
       col += entry.colspan;
     }
 
-    // Now that we've successfully iterated through the row, and now
-    // rowEntries contains the most recent iterators for the current state.
-    // Replace the row in the original array with the updated row from our
-    // iteration.
-    if (rowIndex != -1)
-      this.body[rowIndex] = rowIterators;
-
     // Construct and return the result.
-    CompositeEntry[] result = new CompositeEntry[rowIterators.length];
-    for (int i = 0; i < result.length; i++) {
-      Point size = new Point (widths[i] + cellBorder.getWidth (),
-          rowHeight[0] + cellBorder.getHeight (topOpen, bottomOpen));
-      Point offset = new Point (cellOffsets[i], yOffset);
+    CompositeEntry[] result = new CompositeEntry[row.length];
+    for (int i = 0; i < result.length; i++)
+      result[i] = new CompositeEntry ( rowPieces[i], new Point (xOffsets[i], y));
 
-      result[i] = new CompositeEntry (
-          new BorderedPrintPiece (
-              device, size, cellBorder, backgroundColor, topOpen, bottomOpen, pieceOffsets[i],
-              rowPieces[i]),
-          offset);
-    }
     return result;
   }
 
@@ -1295,107 +1318,187 @@ class GridIterator implements PrintIterator {
     // Compute column sizes for the available width.
     int[] colSizes = computeAdjustedColumnSizes (width);
 
+    final GridMargins margins = look.getMargins();
+
+    boolean headerPresent = header.length > 0;
+    boolean footerPresent = footer.length > 0;
+
     int y = 0;
 
+    // Adjust the height ahead of time for all spacing that we can know about now:
+    //   Header top, header vertical, body top, footer vertical, and footer bottom.
+    // The body vertical and body bottom spacing will be determined by the content as we iterate
+    // through it.
+    if (headerPresent)
+      height = height -
+          margins.getHeaderTop() -
+          margins.getHeaderVerticalSpacing() * (header.length - 1);
+
+    if (footerPresent)
+      height = height -
+          margins.getFooterVerticalSpacing() * (footer.length - 1) -
+          margins.getFooterBottom();
+
     // HEADER
+    final int[] headerHeights = new int[header.length];
+    final int[][] headerColSpans = new int[header.length][];
     List <CompositeEntry> headerCells = new ArrayList <CompositeEntry> ();
-    for (GridCellIterator[] row : header) {
-      boolean[] rowHasNext = new boolean[] { false };
-      int[] rowHeight = new int[] { 0 };
+    if (headerPresent) {
+      y += margins.getHeaderTop();
+      for (int i = 0; i < header.length; i++) {
+        GridCellIterator[] row = cloneRow(header[i]);
 
-      CompositeEntry[] rowEntries = iterateRow(
-          row, headerBackground, -1,
-          width, height - y,
-          colSizes, y,
-          false, false,
-          rowHeight, rowHasNext);
+        // Track column spans for grid look.
+        headerColSpans[i] = new int[row.length];
+        for (int j = 0; j < row.length; j++)
+          headerColSpans[i][j] = row[j].colspan;
 
-      // Header must iterate completely!
-      if (rowEntries == null || rowHasNext[0]) {
-        nuke(headerCells);
-        return null;
+        int[] rowHeight = new int[] { 0 };
+        boolean[] hasNext = new boolean[] { false };
+
+        CompositeEntry[] rowEntries =
+          iterateRow(row, colSizes, height, y, false, rowHeight, hasNext);
+
+        // Header must always iterate completely
+        if (rowEntries == null || hasNext[0]) {
+          if (hasNext[0])
+            for (CompositeEntry entry : rowEntries)
+              entry.piece.dispose();
+          nuke(headerCells);
+          return null;
+        }
+
+        // Track header row heights for grid look.
+        headerHeights[i] = rowHeight[0];
+
+        for (CompositeEntry entry : rowEntries)
+          headerCells.add (entry);
+
+        y += rowHeight[0] + margins.getHeaderVerticalSpacing();
+        height -= rowHeight[0];
       }
-
-      for (CompositeEntry entry : rowEntries)
-        headerCells.add (entry);
-
-      y += rowHeight[0] + spacing.y;
+      // Back off the header vertical spacing after the last row.
+      y -= margins.getHeaderVerticalSpacing();
     }
 
     // FOOTER
+    final int[] footerHeights = new int[footer.length];
+    final int[][] footerColSpans = new int[footer.length][];
     List <CompositeEntry> footerCells = new ArrayList <CompositeEntry> ();
-    int footerY = 0;
-    for (GridCellIterator[] row : footer) {
-      boolean[] rowHasNext = new boolean[] { false };
-      int[] rowHeight = new int[] { 0 };
+    if (footerPresent) {
+      int footerY = 0;
+      for (int i = 0; i < footer.length; i++) {
+        GridCellIterator[] row = cloneRow(footer[i]);
 
-      CompositeEntry[] rowEntries = iterateRow(
-          row, footerBackground, -1,
-          width, height - y - footerY,
-          colSizes, footerY,
-          false, false,
-          rowHeight, rowHasNext);
+        // Track column spans for grid look.
+        footerColSpans[i] = new int[row.length];
+        for (int j = 0; j < row.length; j++)
+          footerColSpans[i][j] = row[j].colspan;
 
-      // Footer must iterate completely! 
-      if (rowEntries == null || rowHasNext[0]) {
-        nuke (headerCells);
-        nuke (footerCells);
-        return null;
+        int[] rowHeight = new int[] { 0 };
+        boolean[] hasNext = new boolean[] { false };
+
+        row = cloneRow(row);
+        CompositeEntry[] rowEntries =
+          iterateRow(row, colSizes, height, footerY, false, rowHeight, hasNext);
+
+        // Footer must iterate completely! 
+        if (rowEntries == null || hasNext[0]) {
+          if (hasNext[0])
+            for (CompositeEntry entry : rowEntries)
+              entry.piece.dispose();
+          nuke (headerCells);
+          nuke (footerCells);
+          return null;
+        }
+
+        // Track footer row heights for grid look.
+        footerHeights[i] = rowHeight[0];
+
+        for (CompositeEntry entry : rowEntries)
+          footerCells.add (entry);
+
+        footerY += rowHeight[0] + margins.getFooterVerticalSpacing();
+        height -= rowHeight[0];
       }
-
-      for (CompositeEntry entry : rowEntries)
-        footerCells.add (entry);
-
-      footerY += rowHeight[0] + spacing.y;
     }
-    int footerHeight = footerY > 0 ? footerY - cellBorder.getOverlap ().y : 0;
 
     // BODY
+    final boolean topOpen = rowStarted;
+    final int bodyTopSpacing          = margins.getBodyTop   (headerPresent, topOpen);
+    final int bodyBottomSpacingOpen   = margins.getBodyBottom(footerPresent, true);
+    final int bodyBottomSpacingClosed = margins.getBodyBottom(footerPresent, false);
+    boolean bottomOpen = false;
+
+    y += bodyTopSpacing;
+    height -= bodyTopSpacing;
+
+    final List<Integer> bodyHeights = new ArrayList<Integer>();
+    final List<int[]> bodyColSpans = new ArrayList<int[]>();
     List <CompositeEntry> bodyCells = new ArrayList <CompositeEntry> ();
     while (hasNext ()) {
-      boolean[] rowHasNext = new boolean[] { false };
       int[] rowHeight = new int[] { 0 };
+      boolean[] hasNext = new boolean[] { false };
 
       // First attempt to iterate the row with a closed bottom border.
+      GridCellIterator[] thisRow = cloneRow(body[row]);
+
+      // Track colspans for grid look.
+      final int[] colspans = new int[thisRow.length];
+      for (int i = 0; i < colspans.length; i++)
+        colspans[i] = thisRow[i].colspan;
+
       CompositeEntry[] rowEntries = iterateRow (
-          body[row], bodyBackground, row,
-          width, height - footerHeight - y,
-          colSizes, y,
-          rowStarted, false,
-          rowHeight, rowHasNext);
+          thisRow, colSizes, height - bodyBottomSpacingClosed, y, false, rowHeight, hasNext);
 
       // If the iteration failed, or the row has more content (which it
       // shouldn't when the bottom border is closed) then try the iteration
       // again with an the bottom border open.
-      if (rowEntries == null) {
-        rowHeight[0] = 0; 
-        rowHasNext[0] = false;
+      if (rowEntries == null || hasNext[0]) {
+        rowHeight[0] = 0;
+        hasNext[0] = false;
+        thisRow = cloneRow(body[row]);
         rowEntries = iterateRow (
-            body[row], bodyBackground, row,
-            width, height - footerHeight - y,
-            colSizes, y,
-            rowStarted, true,
-            rowHeight, rowHasNext);
+            thisRow, colSizes, height - bodyBottomSpacingOpen, y, true, rowHeight, hasNext);
       }
 
       // If both attempts failed on the current row, halt (but not abort) iteration.  (Break, don't
       // return, because there may be previous rows in this iteration that should be returned.)
-      if (rowEntries == null) break;
+      if (rowEntries == null) {
+        // Back off body vertical spacing from the last iteration and add in bottom spacing for a
+        // closed border.  This positions y where the footer should start (if any).
+        y = y - margins.getBodyVerticalSpacing() + bodyBottomSpacingClosed;
+        bottomOpen = false;
+        break;
+      }
 
+      // Iteration succeeded.  Add the cells from this row to the body cells array.
       for (CompositeEntry entry : rowEntries)
         bodyCells.add (entry);
+      body[row] = thisRow; // replace row iterators with the ones that just got consumed.
 
-      y += rowHeight[0] + spacing.y;
-      if (rowStarted) // Adjust y for the difference between an open and closed top border
-        y += (cellBorder.getTop(true) - cellBorder.getTop (false));
+      // Track row height and colspans for grid look.
+      bodyColSpans.add(colspans);
+      bodyHeights.add(rowHeight[0]);
+
+      // Adjust cursors for row height.
+      y += rowHeight[0];
+      height -= rowHeight[0];
 
       // If the row we just iterated has more content, then this iteration
       // is complete. Set the rowStarted flag so the next iteration shows
-      // an open top border in the cells.
-      if (rowHasNext[0]) {
+      // an open top border in the cells.  
+      if (hasNext[0]) {
         rowStarted = true;
+        // Add the bottom spacing for an open border.  This positions y where the footer should
+        // start (if any).
+        y += bodyBottomSpacingOpen;
+        bottomOpen = true;
         break;
       }
+
+      y += margins.getBodyVerticalSpacing();
+      height -= margins.getBodyVerticalSpacing();
 
       // If we get to here then the row completed. Clear the rowStarted flag
       // and advance to the next row.
@@ -1406,10 +1509,8 @@ class GridIterator implements PrintIterator {
     // If no body content was generated, iteration fails.  Dispose any entries from header and
     // footer cells.
     if (bodyCells.size () == 0) {
-      for (CompositeEntry entry : headerCells)
-        entry.piece.dispose ();
-      for (CompositeEntry entry : footerCells)
-        entry.piece.dispose ();
+      nuke(headerCells);
+      nuke(footerCells);
       return null;
     }
 
@@ -1418,10 +1519,30 @@ class GridIterator implements PrintIterator {
       bodyCells.add(new CompositeEntry(new CompositePiece(footerCells), new Point(0, y)));
     }
 
-    Point size = new Point ((colSizes.length - 1) * spacing.x, 0);
+    final int[] bodyRows = new int[bodyHeights.size()];
+    for (int i = 0; i < bodyRows.length; i++) bodyRows[i] = bodyHeights.get(i);
+    final int[][] bodySpans = new int[bodyColSpans.size()][];
+    for (int i = 0; i < bodySpans.length; i++) bodySpans[i] = bodyColSpans.get(i);
+
+    // Add the print piece for the grid look at the beginning so background colors and such don't
+    // clobber the cell contents.
+    bodyCells.add(0, new CompositeEntry(
+        new GridLookPainterPiece(
+            look,
+            colSizes,
+            headerHeights, headerColSpans,
+            topOpen, bodyRows, bodySpans, bottomOpen,
+            footerHeights, footerColSpans),
+        new Point(0, 0)));
+
+    Point size = new Point (
+        margins.getLeft() +
+        margins.getHorizontalSpacing() * (colSizes.length - 1) +
+        margins.getRight(),
+        0);
     for (int col : colSizes)
       size.x += col;
-    return new CompositePiece (bodyCells, size);
+    return new CompositePiece (bodyCells);
   }
 
   public PrintIterator copy () {
@@ -1429,71 +1550,99 @@ class GridIterator implements PrintIterator {
   }
 }
 
-class BorderedPrintPiece implements PrintPiece {
-  private final Device device;
-  private final Point size;
-  private final BorderPainter border;
-  private final RGB background;
-  private final boolean topOpen;
-  private final boolean bottomOpen;
-  private final int pieceOffset;
-  private final PrintPiece target;
+class GridLookPainterPiece implements PrintPiece {
+  final GridLookPainter look;
 
-  private Color backgroundColor;
+  final int[]   columns;
+  final int[]   headerRows;
+  final int[][] headerCellSpans;
+  final boolean topOpen;
+  final int[]   bodyRows;
+  final int[][] bodyCellSpans;
+  final boolean bottomOpen;
+  final int[]   footerRows;
+  final int[][] footerCellSpans;
 
-  BorderedPrintPiece (Device device,
-                      Point size,
-                      BorderPainter border,
-                      RGB background,
-                      boolean topOpen,
-                      boolean bottomOpen,
-                      int pieceOffset,
-                      PrintPiece target) {
-    this.device = BeanUtils.checkNull(device);
-    this.size = new Point (size.x, size.y);
-    this.border = BeanUtils.checkNull (border);
-    this.background = background; // may be null
-    this.topOpen = topOpen;
-    this.bottomOpen = bottomOpen;
-    this.pieceOffset = pieceOffset;
-    this.target = target;
+  final Point size;
+
+  GridLookPainterPiece(GridLookPainter look,
+                       int[]   colSizes,
+                       int[]   headerRows,
+                       int[][] headerCellSpans,
+                       boolean topOpen,
+                       int[]   bodyRows,
+                       int[][] bodyCellSpans,
+                       boolean bottomOpen,
+                       int[]   footerRows,
+                       int[][] footerCellSpans) {
+    this.look = look;
+    this.columns         = colSizes.clone();
+    this.headerRows      = headerRows.clone();
+    this.headerCellSpans = headerCellSpans.clone();
+    this.topOpen         = topOpen;
+    this.bodyRows        = bodyRows.clone();
+    this.bodyCellSpans   = bodyCellSpans.clone();
+    this.bottomOpen      = bottomOpen;
+    this.footerRows      = footerRows.clone();
+    this.footerCellSpans = footerCellSpans.clone();
+
+    for (int i = 0; i < headerCellSpans.length; i++)
+      headerCellSpans[i] = headerCellSpans[i].clone();
+    for (int i = 0; i < bodyCellSpans.length; i++)
+      bodyCellSpans  [i] = bodyCellSpans  [i].clone();
+    for (int i = 0; i < footerCellSpans.length; i++)
+      footerCellSpans[i] = footerCellSpans[i].clone();
+
+    GridMargins margins = look.getMargins();
+
+    final boolean headerPresent = headerRows.length > 0;
+    final boolean footerPresent = footerRows.length > 0;
+
+    this.size = new Point(
+        margins.getLeft() +
+        margins.getHorizontalSpacing() * (colSizes.length - 1) +
+        margins.getRight(),
+        (headerPresent ?
+            margins.getHeaderTop() +
+            margins.getHeaderVerticalSpacing() * (headerRows.length - 1) :
+            0) +
+        margins.getBodyTop(headerPresent, topOpen) +
+        margins.getBodyVerticalSpacing() * (bodyRows.length - 1) +
+        margins.getBodyBottom(footerPresent, bottomOpen) +
+        (footerPresent ?
+            margins.getFooterVerticalSpacing() * (footerRows.length - 1) +
+            margins.getFooterBottom() :
+            0) );
+    for (int column : columns)
+      size.x += column;
+    for (int row : headerRows)
+      size.y += row;
+    for (int row : bodyRows)
+      size.y += row;
+    for (int row : footerRows)
+      size.y += row;
   }
 
-  public Point getSize () {
-    return size;
+  public void dispose() {
+    look.dispose();
   }
 
-  private Color getBackgroundColor() {
-    if (backgroundColor == null && background != null)
-      backgroundColor = new Color(device, background);
-    return backgroundColor;
+  public Point getSize() {
+    return new Point(size.x, size.y);
   }
 
-  public void paint (GC gc, int x, int y) {
-    // Background color
-    Color background = getBackgroundColor();
-    if (background != null) {
-      Color oldBackground = gc.getBackground ();
-      gc.setBackground(background);
-      gc.fillRectangle (x, y, size.x, size.y);
-      gc.setBackground(oldBackground);
-    }
-
-    // Border
-    border.paint (gc, x, y, size.x, size.y, topOpen, bottomOpen);
-
-    // Target
-    if (target != null)
-      target.paint (gc, x + border.getLeft () + pieceOffset, y + border.getTop (topOpen));
-  }
-
-  public void dispose () {
-    if (backgroundColor != null) {
-      backgroundColor.dispose();
-      backgroundColor = null;
-    }
-    border.dispose ();
-    if (target != null)
-      target.dispose ();
+  public void paint(GC gc, int x, int y) {
+    look.paint(gc,
+               x,
+               y,
+               columns,
+               headerRows,
+               headerCellSpans,
+               topOpen,
+               bodyRows,
+               bodyCellSpans,
+               bottomOpen,
+               footerRows,
+               footerCellSpans);
   }
 }

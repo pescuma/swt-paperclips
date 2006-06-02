@@ -268,7 +268,9 @@ public abstract class FactoryPrint implements Print {
    * @see GridColumn#parse(String)
    */
   protected GridPrint grid (String columns, int spacing) {
-    return new GridPrint (columns, spacing, spacing);
+    GridPrint grid = new GridPrint(columns);
+    grid.setLook(new DefaultGridLook(spacing, spacing));
+    return grid;
   }
 
   /**
