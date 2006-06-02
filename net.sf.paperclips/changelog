@@ -1,21 +1,39 @@
 Version 0.5.0
-* BackgroundPrint - wrapper print that draws a background color behind it's
-  target.
-* net.sf.paperclips.decorator package - for defining and applying decorations
-  without having to directly reference a constructor.
-* WidePrint - wrapper print that allows prints too wide to fit on a page to be
-  broken across several pages.
+* ScalePrint - wrapper that scales a print down to fit on the page, or scales
+  larger or smaller depending on a scaling factor.  Requires SWT 3.2M3 or
+  later.
+* RotatePrint - wrapper that rotates the target by 90, 180, or 270 degrees.
+  Since SWT doesn't provide API for setting the page orientation, this will be
+  very useful for landscape layouts.  Requires SWT 3.2M3 or later.
+* BackgroundPrint - wrapper that draws a background color behind it's target.
+* BigPrint - wrapper that splits it's target across multiple pages if it's too
+  large to fit on one.  Use this if you have a document that's too big to
+  print (i.e. a GridPrint with too many columns).
+* Decorator package (net.sf.paperclips.decorator) allows you to create
+  decorator factories which can apply decorations to prints without explicitly
+  calling the decorator print's constructor.  Provided you use the decorator
+  uniformly throughout your document, the style of the document can be changed
+  by substituting another decorator.
+* TextPrint default font is the system default font instead of hard-coded
+  "Times" font.
 * Updated semantics of PrintPiece.dispose() to allow PrintPiece and
   BorderPainter re-use.  Anybody who writes their own Print classes should
-  check out the javadocs for this method and update their code.
-* GridPrint can now be configured with a column header that repeats on each
-  page.  See the addHeader(...) methods.  The background color in column
-  headers can be set using the setHeaderBackground(RGB) method.
-* Fixed bug 1480013: illogical layout of grid rows when they are broken across
-  pages.  Sometimes some content would be on the end of one page and the other
-  content would be at the beginning of the next page.  This led to sometimes
-  confusing printouts.  This fix essentially "glues" the row together so it
-  doesn't get separated like this any more.
+  check out the javadocs for this method and update their code to comply with
+  the new semantics.
+* GridPrint got a massive overhaul:
+  * Can now add headers and footers that repeat on every page through the
+    addHeader(...) and addFooter(...) methods (they work just like the
+    add(...) methods).
+  * Configure the appearance of your GridPrint using the GridLook interface.
+    A default look, DefaultGridLook, lets you configure the cell spacing, cell
+    border, and background color of grid cells (separate color for header,
+    body, and footer cells).
+  * Public fields horizontalSpacing and verticalSpacing were deprecated.
+  * Fixed bug 1480013: illogical layout of grid rows when they are broken
+    across pages.  Sometimes some content would be on the end of one page and
+    the other content would be at the beginning of the next page.  This led to
+    sometimes confusing printouts.  This fix essentially "glues" the row
+    together so it doesn't get separated like this any more.
 
 Version 0.4.3
 * Bugfix: Whenever the print space available to a GridPrint was smaller than
