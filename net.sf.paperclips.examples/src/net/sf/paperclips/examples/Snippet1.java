@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridColumn;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.ImagePrint;
@@ -58,14 +59,16 @@ public class Snippet1 implements Print {
     final GridColumn defaultColumn = GridColumn.parse("d");
     for (int i = 0; i < cols.length; i++)
       cols[i] = defaultColumn;
-    GridPrint grid = new GridPrint(cols);
-    grid.setCellBorder (new LineBorder());
+
+    DefaultGridLook look = new DefaultGridLook();
+    look.setCellBorder(new LineBorder());
+    RGB background = table.getDisplay ().getSystemColor (SWT.COLOR_WIDGET_BACKGROUND).getRGB();
+    look.setHeaderBackground (background);
+    look.setFooterBackground (background);
+
+    GridPrint grid = new GridPrint(cols, look);
 
     // Add header and footer to match table column names.
-    RGB background = table.getDisplay ().getSystemColor (SWT.COLOR_WIDGET_BACKGROUND).getRGB();
-    grid.setHeaderBackground (background);
-    grid.setFooterBackground (background);
-
     for (TableColumn col : table.getColumns ()) {
       Print cell = createCell(col.getImage(), col.getText());
       grid.addHeader(cell);

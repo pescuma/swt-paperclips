@@ -7,6 +7,7 @@
 package net.sf.paperclips.examples;
 
 import net.sf.paperclips.ColumnPrint;
+import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
@@ -16,17 +17,17 @@ import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 
 /**
- * Prints "The quick brown fox jumps over the lazy dog." in increasingly
- * large blocks, using a NoBreakPrint to prevent each block from being broken
- * up across page or across columns.
+ * Prints "The quick brown fox jumps over the lazy dog." in increasingly large blocks, using a
+ * NoBreakPrint to prevent each block from being broken up across page or across columns.
  *
  * @author Matthew
  */
 public class NoBreakPrintExample extends FactoryPrint {
   @Override
   protected Print createPrint () {
-    GridPrint grid = new GridPrint("d:g", 10, 10);
-    grid.setCellBorder(new LineBorder());
+    DefaultGridLook look = new DefaultGridLook(10, 10);
+    look.setCellBorder(new LineBorder());
+    GridPrint grid = new GridPrint("d:g", look);
 
     String text = "The quick brown fox jumps over the lazy dog.";
     String printText = text;

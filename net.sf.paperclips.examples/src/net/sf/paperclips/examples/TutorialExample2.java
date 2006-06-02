@@ -7,9 +7,16 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
+import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LinePrint;
+import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 
@@ -17,18 +24,13 @@ import net.sf.paperclips.TextPrint;
  * First example in the PaperClips online tutorial.
  */
 public class TutorialExample2 {
-
-  /**
-   * Prints the words, "My first PaperClips print job." 
-   * @param args
-   */
-  public static void main (String[] args) {
+  private static Print createPrint() {
     // Create a grid with the following columns:
     // Column 1: preferred width
     // Column 2: preferred width, grows to fill excess width
     // (The 5 is the grid spacing, in points.  72 points = 1".)
 
-    GridPrint grid = new GridPrint("p, p:g", 5, 5);
+    GridPrint grid = new GridPrint("p, d:g", new DefaultGridLook(5, 5));
 
     // Now populate the grid with the text and lines
     grid.add(new TextPrint("VITAL STATISTICS"), GridPrint.REMAINDER, SWT.CENTER);
@@ -43,6 +45,28 @@ public class TutorialExample2 {
 
     grid.add(new LinePrint(SWT.HORIZONTAL), GridPrint.REMAINDER);
 
-    PrintUtil.print("TutorialExample2", grid);
+    return grid;
+  }
+
+  /**
+   * Prints a table of vital (haha) statistics about Matthew Hall.
+   * @param args command-line parameters
+   */
+  public static void main (String[] args) {
+    // Show the print dialog
+    Display display = new Display();
+    Shell shell = new Shell(display);
+    PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
+    PrinterData printerData = dialog.open ();
+    shell.dispose();
+    display.dispose();
+
+    // Print the document to the printer the user selected.
+    if (printerData != null) {
+      Printer printer = new Printer(printerData);
+      PrintUtil.printTo (
+          "TutorialExample2.java", printer, createPrint(), 72); // 72 = 72 points = 1" margin
+      printer.dispose();
+    }
   }
 }

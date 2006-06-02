@@ -4,6 +4,7 @@
 
 package net.sf.paperclips.examples;
 
+import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.ImagePrint;
@@ -50,8 +51,7 @@ public class GridPrintExample extends FactoryPrint {
 
   @Override
   protected Print createPrint() {
-    GridPrint grid = new GridPrint(
-        "r:72, p, d, r:d:g(3), r:d:g", 5, 5);
+    GridPrint grid = new GridPrint("r:72, p, d, r:d:g(3), r:d:g", new DefaultGridLook(5, 5));
 
     ImageData imageData = new ImageData(
         GridPrintExample.class.getResourceAsStream("logo.png"));
@@ -70,7 +70,7 @@ public class GridPrintExample extends FactoryPrint {
     grid.add(new LinePrint(), GridPrint.REMAINDER);
     grid.add(new TextPrint("LOTS AND LOTS AND LOTS AND LOTS AND LOTS OF TEXT", fontData, SWT.CENTER), GridPrint.REMAINDER, SWT.CENTER);
 
-    GridPrint child = new GridPrint("d:g, d:g", 10, 10);
+    GridPrint child = new GridPrint("d:g, d:g", new DefaultGridLook(10, 10));
     child.add(new TextPrint("This is a line with some text.", fontData));
     child.add(new TextPrint("This is a line with lots of text.  Where is all this text coming from??", fontData));
 

@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import net.sf.paperclips.BackgroundPrint;
+import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.Print;
@@ -36,8 +37,9 @@ import net.sf.paperclips.swt.PrintViewer;
  */
 public class Snippet2 implements Print {
   private Print createPrint () {
-    GridPrint grid = new GridPrint("d, d, d, d");
-    grid.setCellBorder(new LineBorder());
+    DefaultGridLook look = new DefaultGridLook();
+    look.setCellBorder(new LineBorder());
+    GridPrint grid = new GridPrint("d, d, d, d", look);
 
     // Light gray background on header
     for (int i = 0; i < 4; i++)

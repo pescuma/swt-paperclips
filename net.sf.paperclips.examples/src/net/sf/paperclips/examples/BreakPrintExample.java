@@ -9,6 +9,7 @@ package net.sf.paperclips.examples;
 import net.sf.paperclips.BorderPrint;
 import net.sf.paperclips.BreakPrint;
 import net.sf.paperclips.ColumnPrint;
+import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
@@ -26,7 +27,7 @@ import net.sf.paperclips.TextPrint;
 public class BreakPrintExample extends FactoryPrint {
   @Override
   protected Print createPrint () {
-    GridPrint grid = new GridPrint("d:g", 10, 10);
+    GridPrint grid = new GridPrint("d:g", new DefaultGridLook(10, 10));
 
     String text = "The quick brown fox jumps over the lazy dog.";
     String printText = text;

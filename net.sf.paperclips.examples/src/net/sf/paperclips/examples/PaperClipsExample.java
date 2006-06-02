@@ -19,7 +19,7 @@ public class PaperClipsExample {
    * @param args the command line arguments.
    */
   public static void main(String[] args) {
-    GridPrint grid = new GridPrint("p, d, c:d:g, 72", 5, 5);
+    GridPrint grid = new GridPrint("p, d, c:d:g, 72", new DefaultGridLook(5, 5));
 
     //  Now add some items to the grid
     grid.add(new ImagePrint(new ImageData(
