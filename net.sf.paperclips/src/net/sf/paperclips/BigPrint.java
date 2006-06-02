@@ -16,10 +16,10 @@ import org.eclipse.swt.graphics.Region;
  * is divided across multiple pages like a spreadsheet.  Pages are printed in order left-to-right,
  * then top-to-bottom.
  * <p>
- * Note that this print lays out content under the assumption that every page will have the same
- * pixel width and height.  If a BigPrint is wrapped in a print that violates this expectation, it
- * is likely that the output will skip and/or repeat certain portions of the target's content.
- * Some examples of this behavior:
+ * <em>Note that this print lays out content under the assumption that every page will have the same
+ * pixel width and height.</em>  If a BigPrint is wrapped in a print that violates this
+ * expectation, it is likely that the output will skip and/or repeat certain portions of the
+ * target's content.  Some examples of this behavior:
  * <ul>
  * <li>BorderPrint changes the available page height of the target, depending on whether the top
  * and bottom borders are open or closed.
@@ -41,7 +41,7 @@ public final class BigPrint implements Print {
   }
 
   public PrintIterator iterator (Device device, GC gc) {
-    return new BigIterator(device, gc, target);
+    return new BigIterator(target, device, gc);
   }
 }
 
@@ -53,7 +53,7 @@ class BigIterator implements PrintIterator {
   private int xOffset;
   private int yOffset;
 
-  BigIterator(Device device, GC gc, Print target) {
+  BigIterator(Print target, Device device, GC gc) {
     if (device == null || gc == null || target == null)
       throw new NullPointerException();
     this.target = target.iterator(device, gc);
@@ -94,8 +94,8 @@ class BigIterator implements PrintIterator {
 
     Point min = target.minimumSize ();
     Point minPages = new Point(
-        (min.x + width -1) / width, // Adding width-1 rounds up page count w/out floating point op
-        (min.y + height-1) / height); // same for adding height-1
+        Math.max((min.x + width -1) / width, 1), // Adding width-1 rounds up page count w/out floating point op
+        Math.max((min.y + height-1) / height, 1)); // same for adding height-1
 
     return new Point(
         Math.max (prefPages.x, minPages.x),
