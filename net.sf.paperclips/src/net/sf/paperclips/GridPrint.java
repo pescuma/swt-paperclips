@@ -1300,11 +1300,12 @@ class GridIterator implements PrintIterator {
     }
 
     // Construct and return the result.
-    CompositeEntry[] result = new CompositeEntry[row.length];
-    for (int i = 0; i < result.length; i++)
-      result[i] = new CompositeEntry ( rowPieces[i], new Point (xOffsets[i], y));
+    List<CompositeEntry> result = new ArrayList<CompositeEntry>();
+    for (int i = 0; i < rowPieces.length; i++)
+      if (rowPieces[i] != null)
+        result.add(new CompositeEntry ( rowPieces[i], new Point (xOffsets[i], y)));
 
-    return result;
+    return result.toArray(new CompositeEntry[result.size()]);
   }
 
   private static void nuke (List<CompositeEntry> list) {
