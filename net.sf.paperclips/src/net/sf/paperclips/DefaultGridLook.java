@@ -6,6 +6,9 @@
  */
 package net.sf.paperclips;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
@@ -14,7 +17,7 @@ import org.eclipse.swt.graphics.RGB;
 
 /**
  * A GridLook which draws a border around grid cells, with configurable background colors for body,
- * header, and footer cells. 
+ * header, and footer cells.
  * @author Matthew Hall
  */
 public class DefaultGridLook implements GridLook {
@@ -30,14 +33,25 @@ public class DefaultGridLook implements GridLook {
 
   Border cellBorder = new GapBorder();
 
-  RGB headerBackground = null; // defaults to body background when null
-  RGB bodyBackground   = null;
-  RGB footerBackground = null; // defaults to body background when null
+  DefaultCellBackgroundProvider defaultBodyBackgroundProvider;
+  DefaultCellBackgroundProvider defaultHeaderBackgroundProvider;
+  DefaultCellBackgroundProvider defaultFooterBackgroundProvider;
+
+  CellBackgroundProvider bodyBackgroundProvider;
+  CellBackgroundProvider headerBackgroundProvider;
+  CellBackgroundProvider footerBackgroundProvider;
 
   /**
    * Constructs a DefaultGridLook with no border, no cell spacing, and no background colors.
    */
-  public DefaultGridLook() {}
+  public DefaultGridLook() {
+    this.bodyBackgroundProvider = defaultBodyBackgroundProvider =
+      new DefaultCellBackgroundProvider();
+    this.headerBackgroundProvider = defaultHeaderBackgroundProvider =
+      new DefaultCellBackgroundProvider(bodyBackgroundProvider);
+    this.footerBackgroundProvider = defaultFooterBackgroundProvider =
+      new DefaultCellBackgroundProvider(bodyBackgroundProvider);
+  }
 
   /**
    * Constructs a DefaultGridLook with the given cell spacing, and no border or background colors.
@@ -107,16 +121,37 @@ public class DefaultGridLook implements GridLook {
    * @return the header background color.
    */
   public RGB getHeaderBackground() {
-    return headerBackground;
+    return defaultHeaderBackgroundProvider.getBackground();
   }
 
   /**
-   * Sets the header background color.
+   * Sets the header background color.  Calls to this method override any previous calls to
+   * setHeaderBackgroundProvider(...). 
    * @param headerBackground the new background color.  If null, the body background color will be
    *        used.
    */
   public void setHeaderBackground(RGB headerBackground) {
-    this.headerBackground = headerBackground;
+    defaultHeaderBackgroundProvider.setBackground(headerBackground);
+    this.headerBackgroundProvider = defaultHeaderBackgroundProvider;
+  }
+
+  /**
+   * Returns the header background color provider.
+   * @return the header background color provider.
+   */
+  public CellBackgroundProvider getHeaderBackgroundProvider() {
+    return headerBackgroundProvider;
+  }
+
+  /**
+   * Sets the header background color provider.  Calls to this method override any previous calls
+   * to setHeaderBackground(RGB).  Setting this property to null restores the default background
+   * provider.
+   * @param headerBackgroundProvider the new background color provider.
+   */
+  public void setHeaderBackgroundProvider(CellBackgroundProvider headerBackgroundProvider) {
+    this.headerBackgroundProvider = headerBackgroundProvider == null ?
+        defaultHeaderBackgroundProvider : headerBackgroundProvider;
   }
 
   /**
@@ -142,15 +177,36 @@ public class DefaultGridLook implements GridLook {
    * @return the body background color.
    */
   public RGB getBodyBackground() {
-    return bodyBackground;
+    return defaultBodyBackgroundProvider.getBackground();
   }
 
   /**
-   * Sets the body background color.
+   * Sets the body background color.  Calls to this method override any previous calls to
+   * setBodyBackgroundProvider(...).
    * @param bodyBackground the new background color.
    */
   public void setBodyBackground(RGB bodyBackground) {
-    this.bodyBackground = bodyBackground;
+    defaultBodyBackgroundProvider.setBackground(bodyBackground);
+    this.bodyBackgroundProvider = defaultBodyBackgroundProvider;
+  }
+
+  /**
+   * Returns the body background color provider.
+   * @return the body background color provider.
+   */
+  public CellBackgroundProvider getBodyBackgroundProvider() {
+    return bodyBackgroundProvider;
+  }
+
+  /**
+   * Sets the body background color provider.  Calls to this method override any previous calls to
+   * setBodyBackground(RGB).  Setting this property to null restores the default background
+   * provider.
+   * @param bodyBackgroundProvider the new background color provider.
+   */
+  public void setBodyBackgroundProvider(CellBackgroundProvider bodyBackgroundProvider) {
+    this.bodyBackgroundProvider = bodyBackgroundProvider == null ?
+        defaultBodyBackgroundProvider : bodyBackgroundProvider;
   }
 
   /**
@@ -177,16 +233,37 @@ public class DefaultGridLook implements GridLook {
    * @return the footer background color.
    */
   public RGB getFooterBackground() {
-    return footerBackground;
+    return defaultFooterBackgroundProvider.getBackground();
   }
 
   /**
-   * Sets the footer background color.
+   * Sets the footer background color.  Calls to this method override any previous calls to
+   * setFooterBackgroundProvider(...).
    * @param footerBackground the new background color.  If null, the body background color will be
    *        used.
    */
   public void setFooterBackground(RGB footerBackground) {
-    this.footerBackground = footerBackground;
+    defaultFooterBackgroundProvider.setBackground(footerBackground);
+    this.footerBackgroundProvider = defaultFooterBackgroundProvider;
+  }
+
+  /**
+   * Returns the footer background color provider.
+   * @return the footer background color provider.
+   */
+  public CellBackgroundProvider getFooterBackgroundProvider() {
+    return footerBackgroundProvider;
+  }
+
+  /**
+   * Sets the footer background color provider.  Calls to this method override any previous calls
+   * to setFooterBackground(RGB).  Setting this property to null restores the default background
+   * provider.
+   * @param footerBackgroundProvider the new background color provider.
+   */
+  public void setFooterBackgroundProvider(CellBackgroundProvider footerBackgroundProvider) {
+    this.footerBackgroundProvider = footerBackgroundProvider == null ?
+        defaultFooterBackgroundProvider : footerBackgroundProvider;
   }
 
   public GridLookPainter getPainter (Device device, GC gc) {
@@ -199,9 +276,9 @@ class DefaultGridLookPainter implements GridLookPainter {
 
   private final BorderPainter border;
 
-  private final RGB headerBackground;
-  private final RGB bodyBackground;
-  private final RGB footerBackground;
+  private final CellBackgroundProvider headerBackground;
+  private final CellBackgroundProvider bodyBackground;
+  private final CellBackgroundProvider footerBackground;
 
   private final GridMargins margins;
 
@@ -238,13 +315,24 @@ class DefaultGridLookPainter implements GridLookPainter {
                                           headerSpacing,
                                           footerSpacing);
 
-    this.bodyBackground   = look.bodyBackground;
-    this.headerBackground = look.headerBackground;
-    this.footerBackground = look.footerBackground;
+    this.bodyBackground   = look.bodyBackgroundProvider;
+    this.headerBackground = look.headerBackgroundProvider;
+    this.footerBackground = look.footerBackgroundProvider;
   }
 
   public GridMargins getMargins () {
     return margins;
+  }
+
+  private Color getColor(HashMap<RGB, Color> colorMap, RGB rgb) {
+    if (rgb == null) return null;
+
+    Color result = colorMap.get(rgb);
+    if (result == null) {
+      result = new Color(device, rgb);
+      colorMap.put(rgb, result);
+    }
+    return result;
   }
 
   public void paint (final GC      gc,
@@ -253,6 +341,7 @@ class DefaultGridLookPainter implements GridLookPainter {
                      final int[]   columns,
                      final int[]   headerRows,
                      final int[][] headerCellSpans,
+                     final int     firstRowIndex,
                      final boolean topOpen,
                      final int[]   bodyRows,
                      final int[][] bodyCellSpans,
@@ -263,23 +352,7 @@ class DefaultGridLookPainter implements GridLookPainter {
     final boolean headerPresent = headerRows.length > 0;
     final boolean footerPresent = footerRows.length > 0;
 
-    final Color bodyBackground;
-    final Color headerBackground;
-    final Color footerBackground;
-
-    bodyBackground = this.bodyBackground == null ?
-        null :
-        new Color(device, this.bodyBackground);
-    headerBackground = headerPresent ? 
-        (this.headerBackground == null ?
-            bodyBackground :
-            new Color(device, this.headerBackground) ) :
-        null;
-    footerBackground = footerPresent ?
-        (this.footerBackground == null ?
-            bodyBackground :
-            new Color(device, this.footerBackground) ) :
-        null;
+    final HashMap<RGB, Color> colorMap = new HashMap<RGB, Color>();
 
     // Cursor variables
     int X;
@@ -305,9 +378,11 @@ class DefaultGridLookPainter implements GridLookPainter {
               W += columns[col+i];
 
             // Paint background
-            if (headerBackground != null) {
+            Color background =
+              getColor(colorMap, headerBackground.getCellBackground(row, col, cellSpan));
+            if (background != null) {
               Color oldBackground = gc.getBackground ();
-              gc.setBackground(headerBackground);
+              gc.setBackground(background);
               gc.fillRectangle (X-border.getLeft(),
                                 Y-border.getTop(false),
                                 W+border.getWidth(),
@@ -356,9 +431,11 @@ class DefaultGridLookPainter implements GridLookPainter {
             W += columns[col+i];
 
           // Paint background
-          if (bodyBackground != null) {
+          Color background = getColor(colorMap,
+              bodyBackground.getCellBackground(firstRowIndex + row, col, cellSpan));
+          if (background != null) {
             Color oldBackground = gc.getBackground ();
-            gc.setBackground(bodyBackground);
+            gc.setBackground(background);
             gc.fillRectangle (X-border.getLeft(),
                               Y-border.getTop(rowTopOpen),
                               W+border.getWidth(),
@@ -402,9 +479,11 @@ class DefaultGridLookPainter implements GridLookPainter {
               W += columns[col+i];
 
             // Paint background
-            if (footerBackground != null) {
+            Color background =
+              getColor(colorMap, footerBackground.getCellBackground(row, col, cellSpan));
+            if (background != null) {
               Color oldBackground = gc.getBackground ();
-              gc.setBackground(footerBackground);
+              gc.setBackground(background);
               gc.fillRectangle (X-border.getLeft(),
                                 Y-border.getTop(false),
                                 W+border.getWidth(),
@@ -431,12 +510,9 @@ class DefaultGridLookPainter implements GridLookPainter {
         }
       }
     } finally {
-      if (bodyBackground != null)
-        bodyBackground.dispose();
-      if (headerBackground != null && headerBackground != bodyBackground)
-        headerBackground.dispose();
-      if (footerBackground != null && footerBackground != bodyBackground)
-        footerBackground.dispose();
+      for (Map.Entry<RGB, Color> entry : colorMap.entrySet())
+        entry.getValue().dispose();
+      colorMap.clear();
     }
   }
 

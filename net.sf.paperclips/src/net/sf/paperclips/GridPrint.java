@@ -1319,6 +1319,7 @@ class GridIterator implements PrintIterator {
     // Compute column sizes for the available width.
     int[] colSizes = computeAdjustedColumnSizes (width);
 
+    final int firstRowIndex = row;
     final GridMargins margins = look.getMargins();
 
     boolean headerPresent = header.length > 0;
@@ -1532,7 +1533,7 @@ class GridIterator implements PrintIterator {
             look,
             colSizes,
             headerHeights, headerColSpans,
-            topOpen, bodyRows, bodySpans, bottomOpen,
+            firstRowIndex, topOpen, bodyRows, bodySpans, bottomOpen,
             footerHeights, footerColSpans),
         new Point(0, 0)));
 
@@ -1557,6 +1558,7 @@ class GridLookPainterPiece implements PrintPiece {
   final int[]   columns;
   final int[]   headerRows;
   final int[][] headerCellSpans;
+  final int     firstRowIndex;
   final boolean topOpen;
   final int[]   bodyRows;
   final int[][] bodyCellSpans;
@@ -1570,6 +1572,7 @@ class GridLookPainterPiece implements PrintPiece {
                        int[]   colSizes,
                        int[]   headerRows,
                        int[][] headerCellSpans,
+                       int     firstRowIndex,
                        boolean topOpen,
                        int[]   bodyRows,
                        int[][] bodyCellSpans,
@@ -1580,6 +1583,7 @@ class GridLookPainterPiece implements PrintPiece {
     this.columns         = colSizes.clone();
     this.headerRows      = headerRows.clone();
     this.headerCellSpans = headerCellSpans.clone();
+    this.firstRowIndex   = firstRowIndex;
     this.topOpen         = topOpen;
     this.bodyRows        = bodyRows.clone();
     this.bodyCellSpans   = bodyCellSpans.clone();
@@ -1639,6 +1643,7 @@ class GridLookPainterPiece implements PrintPiece {
                columns,
                headerRows,
                headerCellSpans,
+               firstRowIndex,
                topOpen,
                bodyRows,
                bodyCellSpans,

@@ -31,6 +31,7 @@ public interface GridLookPainter {
    * @param headerCellSpans a two-dimensional array of cell spans in the header.  Each element in
    *        the outer array is a header row.  Each element of an inner array is a cell, where the
    *        element value indicates how many columns the cell spans.
+   * @param firstRowIndex the zero-based index of the first row displayed on the page.
    * @param topOpen whether the top body row should be drawn with the top edge of the cell border
    *        "open."  An open top border is a visual indication that the top row is being continued
    *        from the previous page.
@@ -52,6 +53,7 @@ public interface GridLookPainter {
                     final int[]   columns,
                     final int[]   headerRows,
                     final int[][] headerCellSpans,
+                    final int     firstRowIndex,
                     final boolean topOpen,
                     final int[]   bodyRows,
                     final int[][] bodyCellSpans,
