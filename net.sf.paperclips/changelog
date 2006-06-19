@@ -1,3 +1,11 @@
+Version 0.5.2
+* CellBackgroundProvider interface - an interface for programmatic control of
+  the background color in each grid cell.  Default implementation is provided
+  in the DefaultBackgroundProvider class.
+* DefaultGridLook - now supports control of the header, body, and footer
+  background colors using either setHeaderBackground(RGB) or
+  setHeaderBackgroundProvider(CellBackgroundProvider).
+
 Version 0.5.1
 * GridPrint - fixed bug which caused a NullPointerException whenever the cells
   in a row are not all consumed (completely displayed) on the same page.
