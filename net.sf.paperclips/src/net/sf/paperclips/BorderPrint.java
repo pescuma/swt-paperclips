@@ -7,6 +7,8 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
+import net.sf.paperclips.decorator.BorderDecorator;
+
 /**
  * A decorator that draws a border around the target print.
  * @see BorderDecorator
