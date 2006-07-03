@@ -16,6 +16,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
 
 /**
  * A static class for printing Print objects.
@@ -89,11 +90,32 @@ public class PrintUtil {
    * @param margins the page margins, in points. 72 pts = 1".
    */
   public static void print (String jobName, Print print, int margins) {
-    Printer printer = new Printer ();
+    printTo (jobName, new PrinterData(), print, margins);
+  }
+
+  /**
+   * Prints the argument to the given printer, with 1" margins.
+   * @param jobName the print job name.
+   * @param printerData the printer to print to.
+   * @param print the item to print.
+   */
+  public static void printTo(String jobName, PrinterData printerData, Print print) {
+    printTo (jobName, printerData, print, 72);
+  }
+
+  /**
+   * Prints the argument to the given printer.
+   * @param jobName the print job name.
+   * @param printerData PrinterData of the printer to print to.
+   * @param print the item to print.
+   * @param margins the page margins, in points.  72 pts = 1".
+   */
+  public static void printTo(String jobName, PrinterData printerData, Print print, int margins) {
+    Printer printer = new Printer(printerData);
     try {
-      printTo (jobName, printer, print, margins);
+      printTo(jobName, printer, print, margins);
     } finally {
-      printer.dispose ();
+      printer.dispose();
     }
   }
 
@@ -118,6 +140,8 @@ public class PrintUtil {
                               Printer printer,
                               Print print,
                               int margins) {
+    final PrinterData printerData = printer.getPrinterData();
+
     if (printer.startJob (jobName)) {
       GC gc = null;
       Transform transform = null;
@@ -143,13 +167,33 @@ public class PrintUtil {
           pages.add (page);
         }
 
-        for (PrintPiece page : pages) {
+        // Determine the page range to print based on PrinterData.scope
+        final int startPage;
+        final int endPage;
+        if (printerData.scope == PrinterData.PAGE_RANGE) {
+          // Convert from PrinterData's one-based page indices to zero-based page indices 
+          startPage = printerData.startPage-1;
+          endPage   = printerData.endPage  -1;
+        } else {
+          startPage = 0;
+          endPage   = pages.size()-1;
+        }
+
+        // Dispose pages outside the selected page range.
+        for (int i = 0; i < startPage; i++)
+          pages.get(i).dispose();
+        for (int i = endPage+1; i < pages.size(); i++)
+          pages.get(i).dispose();
+
+        for (int i = startPage; i <= endPage; i++) {
+          PrintPiece page = pages.get(i);
+
           printer.startPage ();
           page.paint (gc, bounds.x, bounds.y);
-          page.dispose();
+          page.dispose(); // reclaim system resources to keep system resource usage lean.
           printer.endPage ();
         }
-        pages.clear ();
+        pages.clear();
 
         printer.endJob ();
       } finally {
@@ -159,8 +203,6 @@ public class PrintUtil {
           gc.dispose ();
         if (transform != null)
           transform.dispose();
-        //for (PrintPiece page : pages)
-          //page.dispose ();
       }
     }
   }
