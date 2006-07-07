@@ -22,6 +22,8 @@ import org.eclipse.swt.graphics.RGB;
 public class LinePrint implements Print {
   final int orientation;
 
+  double thickness;
+
   RGB rgb = new RGB (0, 0, 0);
 
   /**
@@ -32,11 +34,21 @@ public class LinePrint implements Print {
   }
 
   /**
-   * Constructs a LinePrint with the given orientation.
+   * Constructs a LinePrint with the given orientation and 1-point thickness.
    * @param orientation one of SWT#HORIZONTAL or SWT#VERTICAL.
    */
   public LinePrint (int orientation) {
+    this(orientation, 1.0);
+  }
+
+  /**
+   * Constructs a LinePrint with the given orientation and thickness.
+   * @param orientation one of SWT#HORIZONTAL or SWT#VERTICAL.
+   * @param thickness the line thickness, expressed in points.
+   */
+  public LinePrint(int orientation, double thickness) {
     this.orientation = checkOrientation (orientation);
+    this.thickness = checkThickness(thickness);
   }
 
   private int checkOrientation (int orientation) {
@@ -46,6 +58,28 @@ public class LinePrint implements Print {
       return SWT.VERTICAL;
     else
       return SWT.HORIZONTAL;
+  }
+
+  private double checkThickness(double thickness) {
+    if (thickness < 0)
+      return 0;
+    return thickness;
+  }
+
+  /**
+   * Returns the line thickness, in points.  72 points = 1".
+   * @return the line thickness, in points.
+   */
+  public double getThickness() {
+    return thickness;
+  }
+
+  /**
+   * Sets the line thickness, in points.  72 points = 1".
+   * @param thickness the line thickness, in points.
+   */
+  public void setThickness(double thickness) {
+    this.thickness = thickness;
   }
 
   /**
@@ -72,6 +106,8 @@ public class LinePrint implements Print {
 class LineIterator extends AbstractIterator {
   final int orientation;
 
+  final Point thickness;
+
   final RGB rgb;
 
   private boolean hasNext = true;
@@ -80,6 +116,10 @@ class LineIterator extends AbstractIterator {
     super (device, gc);
     this.orientation = print.orientation;
     this.rgb = print.rgb;
+    Point dpi = device.getDPI();
+    this.thickness = new Point(
+        Math.max(1, (int) Math.round(print.thickness * dpi.x / 72)),  // convert from points
+        Math.max(1, (int) Math.round(print.thickness * dpi.y / 72))); // to pixels on device
   }
 
   LineIterator (LineIterator that) {
@@ -87,6 +127,7 @@ class LineIterator extends AbstractIterator {
     this.orientation = that.orientation;
     this.rgb = that.rgb;
     this.hasNext = that.hasNext;
+    this.thickness = that.thickness;
   }
 
   public boolean hasNext () {
@@ -94,13 +135,8 @@ class LineIterator extends AbstractIterator {
   }
 
   Point getSize (int width, int height) {
-    Point dpi = device.getDPI ();
-    switch (orientation) {
-    case SWT.VERTICAL:
-      return new Point (Math.max (Math.round (dpi.x / 72f), 1), height);
-    default:
-      return new Point (width, Math.max (Math.round (dpi.y / 72f), 1));
-    }
+    return orientation == SWT.VERTICAL ?
+        new Point (thickness.x, height) : new Point (width, thickness.y);
   }
 
   public PrintPiece next (int width, int height) {
@@ -116,11 +152,11 @@ class LineIterator extends AbstractIterator {
   }
 
   public Point minimumSize () {
-    return getSize (1, 1);
+    return new Point(thickness.x, thickness.y);
   }
 
   public Point preferredSize () {
-    return getSize (1, 1);
+    return new Point(thickness.x, thickness.y);
   }
 
   public PrintIterator copy () {
