@@ -104,11 +104,9 @@ public class LinePrint implements Print {
 }
 
 class LineIterator extends AbstractIterator {
-  final int orientation;
-
+  final int   orientation;
   final Point thickness;
-
-  final RGB rgb;
+  final RGB   rgb;
 
   private boolean hasNext = true;
 
@@ -146,9 +144,10 @@ class LineIterator extends AbstractIterator {
     Point size = getSize (width, height);
     if (size.x > width || size.y > height) return null;
 
+    PrintPiece result = new LinePiece (this, size);
     hasNext = false;
 
-    return new LinePiece (this, size);
+    return result;
   }
 
   public Point minimumSize () {
