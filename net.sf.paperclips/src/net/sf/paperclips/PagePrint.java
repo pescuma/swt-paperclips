@@ -12,6 +12,9 @@ import org.eclipse.swt.graphics.Point;
 
 /**
  * A decorator Print which displays page headers and footers, with page numbering capabilities.
+ * <p>
+ * PagePrint is horizontally and vertically greedy.  Greedy prints take up all the available space
+ * on the page. 
  * @author Matthew
  */
 public class PagePrint implements Print {
@@ -22,7 +25,6 @@ public class PagePrint implements Print {
   PageDecoration footer;
 
   int headerGap = 1; // in points
-
   int footerGap = 1; // in points
 
   /**
@@ -35,6 +37,16 @@ public class PagePrint implements Print {
     this.body = BeanUtils.checkNull (body);
     this.header = header;
     this.footer = footer;
+  }
+
+  /**
+   * Constructs a PagePrint with the given body, and no header or footer.
+   * @param body the Print being decorated.
+   */
+  public PagePrint (Print body) {
+    this.body = BeanUtils.checkNull (body);
+    this.header = null;
+    this.footer = null;
   }
 
   private int checkGap (int gap) {
@@ -127,6 +139,12 @@ public class PagePrint implements Print {
   }
 
   public PrintIterator iterator (Device device, GC gc) {
+    PageDecoration header = this.header;
+    PageDecoration footer = this.footer;
+    // If there is no header or footer, just fall through to the body iterator.
+    if (header == null && footer == null)
+      return body.iterator(device, gc);
+
     return new PageIterator (this, device, gc);
   }
 }
@@ -295,8 +313,9 @@ class PageIterator implements PrintIterator {
 
       entries.add (new CompositeEntry (headerPiece, new Point (0, 0)));
 
-      y += headerPiece.getSize ().y + headerGap;
-      height -= y;
+      int headerSize = headerPiece.getSize().y + headerGap;
+      y += headerSize;
+      height -= headerSize;
     }
 
     // FOOTER
@@ -309,20 +328,26 @@ class PageIterator implements PrintIterator {
       entries.add (new CompositeEntry (footerPiece, new Point (0, y + height
           - footerPiece.getSize ().y)));
 
-      height = height - footerPiece.getSize ().y - footerGap;
+      int footerSize = footerPiece.getSize().y + footerGap;
+
+      height -= footerSize;
     }
 
     // BODY
     PrintPiece bodyPiece = body.next (width, height);
 
-    if (bodyPiece == null) return null;
+    if (bodyPiece == null) {
+      for (CompositeEntry entry : entries)
+        entry.piece.dispose();
+      return null;
+    }
 
     entries.add (new CompositeEntry (bodyPiece, new Point (0, y)));
 
     // Compile and return page.
     PrintPiece result = new CompositePiece (entries);
 
-    // Iteration successful. Null the pageNumber field so the next iteration
+    // Iteration successful.  Null the pageNumber field so the next iteration
     // advances to the next page.
     pageNumber = null;
 
