@@ -12,6 +12,9 @@ import org.eclipse.swt.graphics.Point;
 
 /**
  * A wrapper Print which splits its child print into multiple columns.
+ * <p>This class is horizontally greedy.  Greedy prints take up all the available space on the
+ * page.
+ * <p>ColumnPrint attempts to use the minimum possible vertical space on the page.  
  * @author Matthew
  */
 public class ColumnPrint implements Print {

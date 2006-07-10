@@ -11,8 +11,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A print which inserts a page break (or a column break, if inside a
- * ColumnPrint).
+ * A print which inserts a page break (or a column break, if inside a ColumnPrint).
+ * <p>This class is horizontally and vertically greedy.  Greedy prints take up all the available
+ * space on the page.  
  * @author Matthew
  */
 public class BreakPrint implements Print {

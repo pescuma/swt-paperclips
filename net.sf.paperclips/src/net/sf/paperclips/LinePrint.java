@@ -17,6 +17,9 @@ import org.eclipse.swt.graphics.RGB;
 
 /**
  * A Print for drawing horizontal and vertical lines.
+ * <p>
+ * LinePrints are either horizontally or vertically greedy, according to the orientation of the
+ * line. Greedy prints take up all the available space on the page.
  * @author Matthew
  */
 public class LinePrint implements Print {
