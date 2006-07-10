@@ -51,6 +51,9 @@ import org.eclipse.swt.graphics.RGB;
  * Because GridPrint scales columns according to their minimum sizes in the
  * worst-case scenario, the absolute minimum size of a GridPrint is dependant on
  * its child prints and is not clearly defined.
+ * <p>
+ * If a grid has one of more columns with the grow attribute set, the grid is horizontally greedy.
+ * Greedy prints take up all the available space on the page.  
  * @author Matthew
  * @see GridColumn
  * @see PrintIterator#minimumSize()
@@ -571,6 +574,8 @@ public final class GridPrint implements Print {
    * @param look the new look.
    */
   public void setLook(GridLook look) {
+    if (look == null) throw new NullPointerException();
+
     this.look = look;
   }
 
@@ -1276,6 +1281,16 @@ class GridIterator implements PrintIterator {
         return null;
       }
 
+      if ((piece.getSize().x > cellspanWidth) || (piece.getSize().y > height)) {
+        piece.dispose();
+        for (int j = 0; j <= i; j++)
+          if (rowPieces[j] != null)
+            rowPieces[j].dispose();
+        System.err.println(rowPieces[i] + " iterated a larger piece than allowed: " +
+            new Point(cellspanWidth, height) + " available, but " + piece.getSize() + " used.");
+        return null;
+      }
+
       // If bottomOpen is true, update hasNext argument if necessary.
       hasNext[0] = hasNext[0] || iter.hasNext();
 
@@ -1327,26 +1342,16 @@ class GridIterator implements PrintIterator {
 
     int y = 0;
 
-    // Adjust the height ahead of time for all spacing that we can know about now:
-    //   Header top, header vertical, body top, footer vertical, and footer bottom.
-    // The body vertical and body bottom spacing will be determined by the content as we iterate
-    // through it.
-    if (headerPresent)
-      height = height -
-          margins.getHeaderTop() -
-          margins.getHeaderVerticalSpacing() * (header.length - 1);
-
-    if (footerPresent)
-      height = height -
-          margins.getFooterVerticalSpacing() * (footer.length - 1) -
-          margins.getFooterBottom();
-
     // HEADER
     final int[] headerHeights = new int[header.length];
     final int[][] headerColSpans = new int[header.length][];
     List <CompositeEntry> headerCells = new ArrayList <CompositeEntry> ();
     if (headerPresent) {
+      height -= margins.getHeaderTop();
+      height -= margins.getHeaderVerticalSpacing() * (header.length - 1);
+
       y += margins.getHeaderTop();
+
       for (int i = 0; i < header.length; i++) {
         GridCellIterator[] row = cloneRow(header[i]);
 
@@ -1376,11 +1381,14 @@ class GridIterator implements PrintIterator {
         for (CompositeEntry entry : rowEntries)
           headerCells.add (entry);
 
-        y += rowHeight[0] + margins.getHeaderVerticalSpacing();
-        height -= rowHeight[0];
+        // Adjust cursor for row
+        y += headerHeights[i];
+        height -= headerHeights[i];
+
+        // Adjust cursor for spacing below row
+        if (i < header.length-1)
+          y += margins.getHeaderVerticalSpacing();
       }
-      // Back off the header vertical spacing after the last row.
-      y -= margins.getHeaderVerticalSpacing();
     }
 
     // FOOTER
@@ -1388,6 +1396,12 @@ class GridIterator implements PrintIterator {
     final int[][] footerColSpans = new int[footer.length][];
     List <CompositeEntry> footerCells = new ArrayList <CompositeEntry> ();
     if (footerPresent) {
+      height -= margins.getFooterVerticalSpacing() + (footer.length - 1);
+      height -= margins.getFooterBottom();
+
+      // The footer must be calculated and assigned positions before we know its vertical
+      // placement.  So we keep a separate y coordinate within the footer, then aggregate the
+      // footer cells into a CompositePiece once we know the footer's y offset 
       int footerY = 0;
       for (int i = 0; i < footer.length; i++) {
         GridCellIterator[] row = cloneRow(footer[i]);
@@ -1400,7 +1414,6 @@ class GridIterator implements PrintIterator {
         int[] rowHeight = new int[] { 0 };
         boolean[] hasNext = new boolean[] { false };
 
-        row = cloneRow(row);
         CompositeEntry[] rowEntries =
           iterateRow(row, colSizes, height, footerY, false, rowHeight, hasNext);
 
@@ -1420,8 +1433,12 @@ class GridIterator implements PrintIterator {
         for (CompositeEntry entry : rowEntries)
           footerCells.add (entry);
 
-        footerY += rowHeight[0] + margins.getFooterVerticalSpacing();
-        height -= rowHeight[0];
+        // Adjust cursor for row
+        footerY += footerHeights[i];
+        height -= footerHeights[i];
+
+        // Adjust footer y offset cursor for spacing below row 
+        footerY += margins.getFooterVerticalSpacing();
       }
     }
 
@@ -1445,21 +1462,16 @@ class GridIterator implements PrintIterator {
       // First attempt to iterate the row with a closed bottom border.
       GridCellIterator[] thisRow = cloneRow(body[row]);
 
-      // Track colspans for grid look.
-      final int[] colspans = new int[thisRow.length];
-      for (int i = 0; i < colspans.length; i++)
-        colspans[i] = thisRow[i].colspan;
-
       CompositeEntry[] rowEntries = iterateRow (
-          thisRow, colSizes, height - bodyBottomSpacingClosed, y, false, rowHeight, hasNext);
+          thisRow, colSizes, height - bodyBottomSpacingClosed, y, bottomOpen, rowHeight, hasNext);
 
-      // If the iteration failed, or the row has more content (which it
-      // shouldn't when the bottom border is closed) then try the iteration
-      // again with an the bottom border open.
+      // If the iteration failed, or the row has more content (which it shouldn't when the bottom
+      // border is closed) then try the iteration again with an the bottom border open.
       if (rowEntries == null || hasNext[0]) {
         rowHeight[0] = 0;
         hasNext[0] = false;
         thisRow = cloneRow(body[row]);
+        bottomOpen = true;
         rowEntries = iterateRow (
             thisRow, colSizes, height - bodyBottomSpacingOpen, y, true, rowHeight, hasNext);
       }
@@ -1469,7 +1481,8 @@ class GridIterator implements PrintIterator {
       if (rowEntries == null) {
         // Back off body vertical spacing from the last iteration and add in bottom spacing for a
         // closed border.  This positions y where the footer should start (if any).
-        y = y - margins.getBodyVerticalSpacing() + bodyBottomSpacingClosed;
+        y -= margins.getBodyVerticalSpacing();
+        y += bodyBottomSpacingClosed;
         bottomOpen = false;
         break;
       }
@@ -1479,38 +1492,49 @@ class GridIterator implements PrintIterator {
         bodyCells.add (entry);
       body[row] = thisRow; // replace row iterators with the ones that just got consumed.
 
-      // Track row height and colspans for grid look.
+      // Track colspans for grid look.
+      final int[] colspans = new int[thisRow.length];
+      for (int i = 0; i < colspans.length; i++)
+        colspans[i] = thisRow[i].colspan;
       bodyColSpans.add(colspans);
+
+      // Track row height for grid look.
       bodyHeights.add(rowHeight[0]);
 
       // Adjust cursors for row height.
       y += rowHeight[0];
       height -= rowHeight[0];
 
-      // If the row we just iterated has more content, then this iteration
-      // is complete. Set the rowStarted flag so the next iteration shows
-      // an open top border in the cells.  
-      if (hasNext[0]) {
-        rowStarted = true;
+      // If the row we just iterated has more content, then this iteration is complete.  Set the
+      // rowStarted flag so the next iteration shows an open top border in the cells.
+      if (bottomOpen || hasNext[0]) {
         // Add the bottom spacing for an open border.  This positions y where the footer should
         // start (if any).
         y += bodyBottomSpacingOpen;
+        height -= bodyBottomSpacingOpen;
         bottomOpen = true;
+        rowStarted = true;
         break;
       }
-
-      y += margins.getBodyVerticalSpacing();
-      height -= margins.getBodyVerticalSpacing();
 
       // If we get to here then the row completed. Clear the rowStarted flag
       // and advance to the next row.
       rowStarted = false;
       row++;
+
+      // Advanced cursors for the spacing below the row just iterated.
+      if (hasNext()) {
+        y += margins.getBodyVerticalSpacing();
+        height -= margins.getBodyVerticalSpacing();
+      } else {
+        y += bodyBottomSpacingClosed;
+        height -= bodyBottomSpacingClosed;
+      }
     }
 
     // If no body content was generated, iteration fails.  Dispose any entries from header and
     // footer cells.
-    if (bodyCells.size () == 0) {
+    if (bodyCells.isEmpty()) {
       nuke(headerCells);
       nuke(footerCells);
       return null;
@@ -1522,20 +1546,22 @@ class GridIterator implements PrintIterator {
     }
 
     final int[] bodyRows = new int[bodyHeights.size()];
-    for (int i = 0; i < bodyRows.length; i++) bodyRows[i] = bodyHeights.get(i);
+    for (int i = 0; i < bodyRows.length; i++)
+      bodyRows[i] = bodyHeights.get(i);
+
     final int[][] bodySpans = new int[bodyColSpans.size()][];
-    for (int i = 0; i < bodySpans.length; i++) bodySpans[i] = bodyColSpans.get(i);
+    for (int i = 0; i < bodySpans.length; i++)
+      bodySpans[i] = bodyColSpans.get(i);
 
     // Add the print piece for the grid look at the beginning so background colors and such don't
     // clobber the cell contents.
-    bodyCells.add(0, new CompositeEntry(
-        new GridLookPainterPiece(
-            look,
-            colSizes,
-            headerHeights, headerColSpans,
-            firstRowIndex, topOpen, bodyRows, bodySpans, bottomOpen,
-            footerHeights, footerColSpans),
-        new Point(0, 0)));
+    PrintPiece lookPiece = new GridLookPainterPiece(
+        look,
+        colSizes,
+        headerHeights, headerColSpans,
+        firstRowIndex, topOpen, bodyRows, bodySpans, bottomOpen,
+        footerHeights, footerColSpans); 
+    bodyCells.add(0, new CompositeEntry(lookPiece, new Point(0, 0)));
 
     Point size = new Point (
         margins.getLeft() +
