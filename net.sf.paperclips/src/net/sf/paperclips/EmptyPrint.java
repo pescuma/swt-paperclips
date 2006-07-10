@@ -13,13 +13,12 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A Print which contains empty space. Useful for putting blank cells in a
+ * A Print which displays nothing but takes up space.  Useful for putting blank cells in a
  * GridPrint.
  * @author Matthew
  */
 public class EmptyPrint implements Print {
   final int width;
-
   final int height;
 
   /**
