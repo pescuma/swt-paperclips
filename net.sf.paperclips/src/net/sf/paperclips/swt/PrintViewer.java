@@ -97,11 +97,57 @@ public class PrintViewer {
       int visibleWidth = sc.getClientArea().width;
       canvasWidth = Math.max(minWidth, visibleWidth);
 
-      PrintPiece piece = iter.next(
-          canvasWidth, Integer.MAX_VALUE);
+      PrintPiece piece = iter.copy().next(canvasWidth, Integer.MAX_VALUE);
 
-      sc.setMinSize(piece == null ?
-          new Point(0, 0) : piece.getSize());
+      // If the print is vertically greedy, find the smallest height that will fit the print's
+      // complete contents onto one tall page.
+      if (piece != null &&
+          piece.getSize().y == Integer.MAX_VALUE) {
+
+        int low = iter.preferredSize().y;
+        int high = iter.preferredSize().y;
+        
+        // First geometrically increase the range low-high until we find the range that the print
+        // fits in, in one piece.
+        while (true) {
+          PrintIterator testIter = iter.copy();
+          PrintPiece test = testIter.next(canvasWidth, high);
+          if (test == null) {
+            low = high;
+            high *= 4;
+          } else if (testIter.hasNext()) {
+            low = high;
+            high *= 4;
+            test.dispose();
+          } else {
+            // Once hasNext returns false we have found the range the print fits within
+            piece.dispose();
+            piece = test;
+            break;
+          }
+        }
+
+        // Now narrow down the best height within the range found in the last loop.
+        while (high - low > 1) {
+          int height = (low+high)/2;
+          PrintIterator testIter = iter.copy();
+          PrintPiece test = testIter.next(canvasWidth, height);
+
+          if (test == null) {
+            low = height;
+          } else if (testIter.hasNext()) {
+            low = height;
+            test.dispose();
+          } else {
+            // replace previous best fit with new best fit
+            high = height;
+            piece.dispose();
+            piece = test;
+          }
+        }
+      }
+
+      sc.setMinSize(piece == null ? new Point(0, 0) : piece.getSize());
 
       PrintPiece old = canvas.getPrintPiece();
       if (old != null)
