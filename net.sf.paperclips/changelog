@@ -5,6 +5,10 @@ Version 0.5.2
 * DefaultGridLook - now supports control of the header, body, and footer
   background colors using either setHeaderBackground(RGB) or
   setHeaderBackgroundProvider(CellBackgroundProvider).
+* Prints with greedy layout behavior now have documentation indicating the
+  behavior in the javadocs.
+* Bugfix to GridPrint which sometimes cause grids to overlap with other
+  prints.
 
 Version 0.5.1
 * GridPrint - fixed bug which caused a NullPointerException whenever the cells
