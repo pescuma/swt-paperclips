@@ -23,25 +23,24 @@ import org.eclipse.swt.graphics.RGB;
 
 /**
  * A Print for displaying text.
+ * <p>
+ * TextPrints are horizontally greedy.  Greedy prints take up all the available space on the page.
  * @author Matthew
  */
 public class TextPrint implements Print {
   /** The default text for a TextPrint. Value is "". */
   public static final String DEFAULT_TEXT = "";
 
-  /** The default font data for a TextPrint.  Value is system dependent. */
+  /** The default font data for a TextPrint.  Value is device-dependent. */
   public static final FontData DEFAULT_FONT_DATA = new FontData ();
 
   /** The default alignment for TextPrint. Value is SWT.LEFT. */
   public static final int DEFAULT_ALIGN = SWT.LEFT;
 
-  String text;
-
+  String   text;
   FontData fontData;
-
-  int align;
-
-  RGB rgb;
+  int      align;
+  RGB      rgb;
 
   /**
    * Constructs a TextPrint with the default properties.
@@ -184,18 +183,13 @@ public class TextPrint implements Print {
 
 class TextIterator extends AbstractIterator {
   final String text;
-
   final String[] lines;
-
   final FontData fontData;
-
   final int align;
-
   final RGB rgb;
 
   // These are the cursor.
   int row;
-
   int col;
 
   TextIterator (TextPrint print, Device device, GC gc) {
@@ -239,17 +233,14 @@ class TextIterator extends AbstractIterator {
       FontMetrics fm = gc.getFontMetrics ();
 
       // Check line height
-      int lineHeight = fm.getHeight ();
+      final int lineHeight = fm.getHeight ();
       if (lineHeight > height) return null;
 
       // Determine maximum number of lines that could fit in next PrintPiece.
       final int maxLines = height / lineHeight;
 
-      // Largest pixel width of each line.
-      int maxWidth = 0;
-
       // Keep a list of each line that will be printed as we calculate it.
-      List <String> nextLines = new ArrayList <String> ();
+      List <String> nextLines = new ArrayList <String> (Math.min(lines.length, maxLines));
 
       while ((nextLines.size () < maxLines) && (row < lines.length)) {
         // Find out how much text will fit on one line.
@@ -259,30 +250,28 @@ class TextIterator extends AbstractIterator {
         if (line.length () > 0 && charCount == 0) return null;
 
         String thisLine = line.substring (0, charCount);
-        maxWidth = Math.max (maxWidth, gc.stringExtent (thisLine).x);
 
         // Get the text that fits on this line.
         nextLines.add (thisLine);
 
         // Remove the text we used from this row.
         col += charCount;
-        while ( // And skip any following whitespace.
-        col < lines[row].length ()
-            && Character.isWhitespace (lines[row].charAt (col))) {
+        // And skip any following whitespace.
+        while (col < lines[row].length () && Character.isWhitespace (lines[row].charAt (col))) {
           col++;
         }
 
-        // If we've used all the text for this row (in the lines array),
-        // advance to next row.
+        // If we've used all the text for this row (in the lines array), advance to next row.
         if (col >= lines[row].length ()) {
           row++;
           col = 0;
         }
       }
 
-      return new TextPiece (device, new Point (maxWidth, nextLines.size ()
-          * lineHeight), this, nextLines
-          .toArray (new String[nextLines.size ()]));
+      return new TextPiece (device,
+                            new Point (width, nextLines.size () * lineHeight),
+                            this,
+                            nextLines.toArray (new String[nextLines.size ()]));
     } finally {
       gc.setFont (font_old);
       if (font != null) font.dispose ();
@@ -418,7 +407,8 @@ class TextPiece extends AbstractPiece {
           int pixelWidth = gc.stringExtent (line).x;
           if (align == SWT.CENTER)
             lineX = x + (size.x - pixelWidth) / 2;
-          else if (align == SWT.RIGHT) lineX = x + size.x - pixelWidth;
+          else if (align == SWT.RIGHT)
+            lineX = x + size.x - pixelWidth;
         }
 
         gc.drawString (lines[i], lineX, y + lineHeight * i, true);
@@ -430,6 +420,13 @@ class TextPiece extends AbstractPiece {
   }
 
   public void dispose () {
-  // Nothing to dispose
+    if (font != null) {
+      font.dispose();
+      font = null;
+    }
+    if (foreground != null) {
+      foreground.dispose();
+      foreground = null;
+    }
   }
 }
