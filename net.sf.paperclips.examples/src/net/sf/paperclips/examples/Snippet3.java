@@ -12,7 +12,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
@@ -79,9 +78,7 @@ public class Snippet3 implements Print {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
         if (printerData != null) {
-          Printer printer = new Printer(printerData);
-          PrintUtil.printTo ("Snippet3.java", printer, print, 72); // 72 = 72 points = 1" margin
-          printer.dispose();
+          PrintUtil.printTo ("Snippet3.java", printerData, print, 72); // 72 = 72 points = 1" margin
         }
       }
     });
