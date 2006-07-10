@@ -10,8 +10,8 @@ package net.sf.paperclips;
  */
 public interface PageNumber {
   /**
-   * Returns the current page number.
-   * @return the current page number.
+   * Returns the zero-based page index.
+   * @return the zero-based page index.
    */
   public int getPageNumber ();
 
