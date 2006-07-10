@@ -1,5 +1,5 @@
 ==================================
-PaperClips Examples 0.5.2
+PaperClips Examples 0.5.3
 http://paperclips.sourceforge.net/
 ==================================
 

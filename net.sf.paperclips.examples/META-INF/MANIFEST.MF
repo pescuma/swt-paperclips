@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: PaperClips Examples Plug-in
 Bundle-SymbolicName: net.sf.paperclips.examples
-Bundle-Version: 0.5.2
+Bundle-Version: 0.5.3
 Bundle-Vendor: Woodcraft Mill & Cabinet and others
 Bundle-Localization: plugin
 Require-Bundle: net.sf.paperclips,
