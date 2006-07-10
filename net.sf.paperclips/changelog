@@ -1,3 +1,5 @@
+Version 0.5.3
+
 Version 0.5.2
 * CellBackgroundProvider interface - an interface for programmatic control of
   the background color in each grid cell.  Default implementation is provided
