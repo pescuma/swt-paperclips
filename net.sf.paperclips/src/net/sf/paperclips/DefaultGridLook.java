@@ -291,29 +291,41 @@ class DefaultGridLookPainter implements GridLookPainter {
     this.border = look.cellBorder.createPainter (device, gc);
     Point dpi = device.getDPI();
     Point cellSpacing = new Point(
-        border.getWidth() +
-        (look.cellSpacing.x == DefaultGridLook.BORDER_OVERLAP
-          ? -border.getOverlap().x
-          : dpi.x * look.cellSpacing.x / 72),
-        border.getHeight(false, false) +
-        (look.cellSpacing.y == DefaultGridLook.BORDER_OVERLAP
+      border.getWidth() +
+      (look.cellSpacing.x == DefaultGridLook.BORDER_OVERLAP
+        ? -border.getOverlap().x
+        : dpi.x * look.cellSpacing.x / 72),
+      border.getHeight(false, false) +
+      (look.cellSpacing.y == DefaultGridLook.BORDER_OVERLAP
+        ? -border.getOverlap().y
+        : dpi.y * look.cellSpacing.y / 72) );
+    final int headerClosedSpacing =
+      border.getHeight(false, false) +
+      (look.headerGap == DefaultGridLook.BORDER_OVERLAP
           ? -border.getOverlap().y
-          : dpi.y * look.cellSpacing.y / 72) );
-    int headerSpacing =
-        border.getHeight(false, false) +
-        (look.headerGap == DefaultGridLook.BORDER_OVERLAP
-          ? -border.getOverlap().y
-          : dpi.y * look.headerGap / 72);
-    int footerSpacing =
-        border.getHeight(false, false) +
-        (look.footerGap == DefaultGridLook.BORDER_OVERLAP
-          ? -border.getOverlap().y
-          : dpi.y * look.footerGap / 72);
+              : dpi.y * look.headerGap / 72);
+    final int headerOpenSpacing =
+      border.getHeight(true, false) +
+      (look.headerGap == DefaultGridLook.BORDER_OVERLAP
+        ? dpi.y / 72
+        : dpi.y * look.headerGap / 72);
+    final int footerClosedSpacing =
+      border.getHeight(false, false) +
+      (look.footerGap == DefaultGridLook.BORDER_OVERLAP
+        ? -border.getOverlap().y
+        : dpi.y * look.footerGap / 72);
+    final int footerOpenSpacing =
+      border.getHeight(false, true) +
+      (look.footerGap == DefaultGridLook.BORDER_OVERLAP
+        ? dpi.y / 72
+        : dpi.y * look.footerGap / 72);
 
     this.margins = new DefaultGridMargins(border,
                                           cellSpacing,
-                                          headerSpacing,
-                                          footerSpacing);
+                                          headerClosedSpacing,
+                                          headerOpenSpacing,
+                                          footerClosedSpacing,
+                                          footerOpenSpacing);
 
     this.bodyBackground   = look.bodyBackgroundProvider;
     this.headerBackground = look.headerBackgroundProvider;
@@ -523,17 +535,23 @@ class DefaultGridLookPainter implements GridLookPainter {
   static class DefaultGridMargins implements GridMargins {
     private final BorderPainter border;
     private final Point cellSpacing;
-    private final int headerSpacing;
-    private final int footerSpacing;
+    private final int headerClosedSpacing;
+    private final int headerOpenSpacing;
+    private final int footerClosedSpacing;
+    private final int footerOpenSpacing;
 
     DefaultGridMargins(BorderPainter border,
                        Point cellSpacing,
-                       int headerSpacing,
-                       int footerSpacing) {
+                       int headerClosedSpacing,
+                       int headerOpenSpacing,
+                       int footerClosedSpacing,
+                       int footerOpenSpacing) {
       this.border = border;
       this.cellSpacing = cellSpacing;
-      this.headerSpacing = headerSpacing;
-      this.footerSpacing = footerSpacing;
+      this.headerClosedSpacing = headerClosedSpacing;
+      this.headerOpenSpacing = headerOpenSpacing;
+      this.footerClosedSpacing = footerClosedSpacing;
+      this.footerOpenSpacing = footerOpenSpacing;
     }
 
     public int getLeft() {
@@ -557,12 +575,11 @@ class DefaultGridLookPainter implements GridLookPainter {
     }
 
     public int getBodyTop(boolean headerPresent, boolean open) {
-      if (headerPresent) {
-        if (open)
-          return border.getBottom(false) + border.getTop(true);
-        return headerSpacing;
-      }
-      return border.getTop(open);
+      return headerPresent
+          ? open
+            ? headerOpenSpacing
+            : headerClosedSpacing
+          : border.getTop(open);
     }
 
     public int getBodyVerticalSpacing() {
@@ -570,12 +587,11 @@ class DefaultGridLookPainter implements GridLookPainter {
     }
 
     public int getBodyBottom(boolean footerPresent, boolean open) {
-      if (footerPresent) {
-        if (open)
-          return border.getBottom(true) + border.getTop(false);
-        return footerSpacing;
-      }
-      return border.getBottom(open);
+      return footerPresent
+          ? open
+            ? footerOpenSpacing
+            : footerClosedSpacing
+          : border.getBottom(open);
     }
 
     public int getFooterVerticalSpacing() {
