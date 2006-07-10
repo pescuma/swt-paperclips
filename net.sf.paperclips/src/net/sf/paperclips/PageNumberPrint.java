@@ -13,28 +13,23 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * A print for displaying a page number.
+ * A print for displaying the page number.
+ * <p>
+ * This class is intended to be used in a page header or footer ({@link PageDecoration}) of a
+ * PagePrint.
+ * 
  * @author Matthew
  */
 public class PageNumberPrint implements Print {
-  /**
-   * The default font data for a PageNumberPrint. Value is Times 10-point
-   * normal.
-   */
-  public static final FontData DEFAULT_FONT_DATA = new FontData ("Times", 10,
-      SWT.NORMAL);
+  /** The default font data for a PageNumberPrint.  Value is device-dependent. */
+  public static final FontData DEFAULT_FONT_DATA = new FontData ();
 
-  /**
-   * The default alignment for a PageNumberPrint. Value is SWT.LEFT.
-   */
+  /** The default alignment for a PageNumberPrint.  Value is SWT.LEFT. */
   public static final int DEFAULT_ALIGN = SWT.LEFT;
 
   PageNumber pageNumber;
-
   FontData fontData;
-
   int align;
-
   RGB rgb;
 
   /* Default format. */
@@ -60,6 +55,15 @@ public class PageNumberPrint implements Print {
    */
   public PageNumberPrint (PageNumber pageNumber, FontData fontData) {
     this (pageNumber, fontData, DEFAULT_ALIGN);
+  }
+
+  /**
+   * Constructs a PageNumberPrint for the given page number and alignment.
+   * @param pageNumber the page number of the page this Print will appear on.
+   * @param align the horizontal alignment of the text.
+   */
+  public PageNumberPrint (PageNumber pageNumber, int align) {
+    this(pageNumber, DEFAULT_FONT_DATA, align);
   }
 
   /**
@@ -182,15 +186,10 @@ public class PageNumberPrint implements Print {
 
 class PageNumberIterator extends AbstractIterator {
   final PageNumber pageNumber;
-
   final FontData fontData;
-
   final int align;
-
   final RGB rgb;
-
   final PageNumberFormat format;
-
   final Point size;
 
   boolean hasNext = true;
@@ -217,7 +216,7 @@ class PageNumberIterator extends AbstractIterator {
         }
 
         public int getPageNumber () {
-          return 9999;
+          return pageNumber.getPageNumber();
         }
       }));
 
@@ -253,7 +252,8 @@ class PageNumberIterator extends AbstractIterator {
   public PrintPiece next (int width, int height) {
     if (width < size.x || height < size.y) return null;
 
-    return new PageNumberPiece (this);
+    Point size = new Point(width, this.size.y);
+    return new PageNumberPiece (this, size);
   }
 
   public PrintIterator copy () {
@@ -271,8 +271,8 @@ class PageNumberPiece extends AbstractPiece {
   private Font font;
   private Color foreground;
 
-  PageNumberPiece (PageNumberIterator iter) {
-    super (iter, iter.size);
+  PageNumberPiece (PageNumberIterator iter, Point size) {
+    super (iter, size);
     this.pageNumber = iter.pageNumber;
     this.fontData = iter.fontData;
     this.align = iter.align;
