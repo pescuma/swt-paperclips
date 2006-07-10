@@ -8,7 +8,6 @@ package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -38,9 +37,8 @@ public class TutorialExample1 {
 
     // Print the document to the printer the user selected.
     if (printerData != null) {
-      Printer printer = new Printer(printerData);
-      PrintUtil.printTo ("TutorialExample1.java", printer, text, 72); // 72 = 72 points = 1" margin
-      printer.dispose();
+      // 72 = 72 points = 1" margin
+      PrintUtil.printTo ("TutorialExample1.java", printerData, text, 72);
     }
   }
 }
