@@ -1,0 +1,48 @@
+PaperClips 0.5.3 released
+
+This release fixes a semantic error introduced in 0.5.3:
+* TextPrint - was modified to be horizontally greedy in version 0.5.2.  This behavior is not appropriate for left-aligned text (the default alignment), as it effectively negates the column alignment in a GridPrint cells.  Therefore as of 0.5.3, center- and right-aligned text is horizontally greedy, whereas left-aligned text is not.
+
+Features and bugfixes introduced in 0.5.2:
+* CellBackgroundProvider interface - an interface for programmatic control of the background color in each grid cell.  Default implementation is provided in the DefaultBackgroundProvider class.
+* DefaultGridLook - now supports control of the header, body, and footer background colors using either setHeaderBackground(RGB) or setHeaderBackgroundProvider(CellBackgroundProvider).
+* Prints with greedy layout behavior now have documentation indicating the behavior in the javadocs.
+* Bugfix to GridPrint which sometimes cause grids to overlap with other prints.
+
+PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what you want to print instead of how you're going to print it.
+
+In a nutshell, PaperClips provides an assortment of document "building blocks", which you can tweak and combine to form a document. The assembled document is then sent to PaperClips for printing. PaperClips includes built-in support for printing text, images, borders, headers and footers, column layouts and tabular (grid) layouts.  PaperClips is designed to be extensible, so you can code your own printable document elements.
+
+PaperClips depends on the SWT library, a project of the Eclipse Foundation. The SWT library may be downloaded from the Eclipse site: http://www.eclipse.org/swt/
+
+Project web page: http://paperclips.sourceforge.net/
+Download page: http://sourceforge.net/project/showfiles.php?group_id=148509
+Subversion: https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
+
+CHANGELOG:
+
+Version 0.5.3
+* TextPrint - was modified to be horizontally greedy in version 0.5.2.  This behavior is not appropriate for left-aligned text (the default alignment), as it effectively negates the column alignment in a GridPrint cells.  Therefore as of 0.5.3, center- and right-aligned text is horizontally greedy, whereas left-aligned text is not.
+
+Version 0.5.2
+* CellBackgroundProvider interface - an interface for programmatic control of the background color in each grid cell.  Default implementation is provided in the DefaultBackgroundProvider class.
+* DefaultGridLook - now supports control of the header, body, and footer background colors using either setHeaderBackground(RGB) or setHeaderBackgroundProvider(CellBackgroundProvider).
+* Prints with greedy layout behavior now have documentation indicating the behavior in the javadocs.
+* Bugfix to GridPrint which sometimes cause grids to overlap with other prints.
+
+Version 0.5.1
+* Fixed NullPointerException in GridPrint, which occurred whenever the cells in a single row do not finishing displaying their content on the same page.
+* Added net.sf.paperclips.decorator package to list of exported packages in plugin descriptor.
+
+Version 0.5.0
+* ScalePrint - wrapper that scales a print down to fit on the page, or scales larger or smaller depending on a scaling factor.  Requires SWT 3.2M3 or later.
+* RotatePrint - wrapper that rotates the target by 90, 180, or 270 degrees.  Since SWT doesn't provide API for setting the page orientation, this will be very useful for landscape layouts.  Requires SWT 3.2M3 or later.
+* BackgroundPrint - wrapper that draws a background color behind it's target.
+* BigPrint - wrapper that splits it's target across multiple pages if it's too large to fit on one.  Use this if you have a document that's too big to print (i.e. a GridPrint with too many columns).
+* Decorator package (net.sf.paperclips.decorator) allows you to create decorator factories which can apply decorations to prints without explicitly calling the decorator print's constructor.  Provided you use the decorator uniformly throughout your document, the style of the document can be changed by substituting another decorator.
+* TextPrint default font is the system default font instead of hard-coded "Times" font.
+* Updated semantics of PrintPiece.dispose() to allow PrintPiece and BorderPainter re-use.  Anybody who writes their own Print classes should check out the javadocs for this method and update their code to comply with the new semantics.
+* GridPrint can now add headers and footers that repeat on every page through the addHeader(...) and addFooter(...) methods (they work just like the add(...) methods).
+* Configure the appearance of your GridPrint using the GridLook interface.  A default look, DefaultGridLook, lets you configure the cell spacing, cell border, and background color of grid cells (separate color for header, body, and footer cells).
+* GridPrint public fields horizontalSpacing and verticalSpacing were deprecated.
+* Fixed bug 1480013: illogical layout of grid rows when they are broken across pages.  Sometimes some content would be on the end of one page and the other content would be at the beginning of the next page.  This led to sometimes confusing printouts.  This fix essentially "glues" the row together so it doesn't get separated like this any more.
