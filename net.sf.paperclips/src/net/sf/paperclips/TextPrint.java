@@ -24,7 +24,9 @@ import org.eclipse.swt.graphics.RGB;
 /**
  * A Print for displaying text.
  * <p>
- * TextPrints are horizontally greedy.  Greedy prints take up all the available space on the page.
+ * TextPrints with center or right alignment are horizontally greedy.  TextPrints with left
+ * alignment (the default) are not greedy.  Greedy prints take up all the available space on the
+ * page.
  * @author Matthew
  */
 public class TextPrint implements Print {
@@ -39,7 +41,7 @@ public class TextPrint implements Print {
 
   String   text;
   FontData fontData;
-  int      align;
+  int      alignment;
   RGB      rgb;
 
   /**
@@ -112,7 +114,7 @@ public class TextPrint implements Print {
    *          {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    */
   public void setAlign (int align) {
-    this.align = checkAlign (align);
+    this.alignment = checkAlign (align);
   }
 
   private int checkAlign (int align) {
@@ -147,7 +149,7 @@ public class TextPrint implements Print {
    * @return the horizontal text alignment.
    */
   public int getAlign () {
-    return align;
+    return alignment;
   }
 
   /**
@@ -197,7 +199,7 @@ class TextIterator extends AbstractIterator {
     this.text = print.text;
     this.lines = print.text.split ("(\r)?\n");
     this.fontData = print.fontData;
-    this.align = print.align;
+    this.align = print.alignment;
     this.rgb = print.rgb;
 
     this.row = 0;
@@ -242,6 +244,8 @@ class TextIterator extends AbstractIterator {
       // Keep a list of each line that will be printed as we calculate it.
       List <String> nextLines = new ArrayList <String> (Math.min(lines.length, maxLines));
 
+      int maxWidth = 0;
+
       while ((nextLines.size () < maxLines) && (row < lines.length)) {
         // Find out how much text will fit on one line.
         String line = lines[row].substring (col);
@@ -250,6 +254,8 @@ class TextIterator extends AbstractIterator {
         if (line.length () > 0 && charCount == 0) return null;
 
         String thisLine = line.substring (0, charCount);
+
+        maxWidth = Math.max(maxWidth, gc.stringExtent(thisLine).x);
 
         // Get the text that fits on this line.
         nextLines.add (thisLine);
@@ -268,8 +274,11 @@ class TextIterator extends AbstractIterator {
         }
       }
 
+      if (align == SWT.CENTER || align == SWT.RIGHT)
+        maxWidth = width;
+
       return new TextPiece (device,
-                            new Point (width, nextLines.size () * lineHeight),
+                            new Point (maxWidth, nextLines.size () * lineHeight),
                             this,
                             nextLines.toArray (new String[nextLines.size ()]));
     } finally {
