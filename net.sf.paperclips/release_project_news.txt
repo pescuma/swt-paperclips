@@ -1,6 +1,6 @@
 PaperClips 0.5.3 released
 
-This release fixes a semantic error introduced in 0.5.3:
+This release fixes a semantic error introduced in 0.5.2:
 * TextPrint - was modified to be horizontally greedy in version 0.5.2.  This behavior is not appropriate for left-aligned text (the default alignment), as it effectively negates the column alignment in a GridPrint cells.  Therefore as of 0.5.3, center- and right-aligned text is horizontally greedy, whereas left-aligned text is not.
 
 Features and bugfixes introduced in 0.5.2:
