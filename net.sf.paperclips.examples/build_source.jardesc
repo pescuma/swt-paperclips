@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+<jar path="C:/Documents and Settings/Administrator/Desktop/Eclipse Exports/PaperClips/net.sf.paperclips.examples_0.5.3_source.zip"/>
+<options buildIfNeeded="true" compress="true" descriptionLocation="/net.sf.paperclips.examples/build_source.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="true"/>
+<storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+<selectedProjects/>
+<selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="false">
+<file path="/net.sf.paperclips.examples/.classpath"/>
+<file path="/net.sf.paperclips.examples/build.properties"/>
+<file path="/net.sf.paperclips.examples/epl-v10.html"/>
+<file path="/net.sf.paperclips.examples/.project"/>
+<folder path="/net.sf.paperclips.examples/META-INF"/>
+<javaElement handleIdentifier="=net.sf.paperclips.examples/src"/>
+<file path="/net.sf.paperclips.examples/README.txt"/>
+</selectedElements>
+</jardesc>
