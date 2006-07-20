@@ -1534,7 +1534,7 @@ class GridIterator implements PrintIterator {
 
     // If no body content was generated, iteration fails.  Dispose any entries from header and
     // footer cells.
-    if (bodyCells.isEmpty()) {
+    if (bodyHeights.isEmpty()) {
       nuke(headerCells);
       nuke(footerCells);
       return null;
