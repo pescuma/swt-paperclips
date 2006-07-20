@@ -72,7 +72,7 @@ public class Snippet5 implements Print {
   public static void main(String[] args) {
     Display display = Display.getDefault ();
     final Shell shell = new Shell (display);
-    shell.setText("Snippet2.java");
+    shell.setText("Snippet5.java");
     shell.setBounds (100, 100, 640, 480);
     shell.setLayout (new GridLayout());
 
@@ -90,7 +90,7 @@ public class Snippet5 implements Print {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
         if (printerData != null) {
-          PrintUtil.printTo ("Snippet2.java", printerData, print, 72); // 72 = 72 points = 1" margin
+          PrintUtil.printTo ("Snippet5.java", printerData, print, 72); // 72 = 72 points = 1" margin
         }
       }
     });
