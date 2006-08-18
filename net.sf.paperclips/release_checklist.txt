@@ -1,0 +1,24 @@
+Release checklist
+-----------------
+* Update changelog (version number, latest changes)
+* Update README.txt (version number)
+* Update plug-in manifests (version number)
+* Update ant and jardesc files (version number in filenames).
+* Update release notes (version number, release description)
+* Update release announcement (version number, release description, changelog)
+* Build binary jar
+* Build source zip
+* Clear existing javadoc
+* Regenerate javadoc
+* Regenerate snippet PDFs
+* Build javadoc zip
+* Build example source zip
+* Upload build jar and zips
+* Upload javadocs to paperclips.sourceforge.net/api
+* Upload snippet PDFs to paperclips.sourceforge.net/pdf/
+* Create sourceforge release - notify project monitors
+* Post release announcement on paperclips.sourceforge.net
+* Post release announcement on paperclips-releases@lists.sourceforge.net
+* Post release announcement on sourceforge project news
+* Post release announcement on EclipseZone
+* Post release announcement on Eclipse Plug-in Central

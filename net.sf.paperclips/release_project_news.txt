@@ -1,13 +1,10 @@
 PaperClips 0.5.4 released
 
-This release fixes a semantic error introduced in 0.5.2:
-* TextPrint - was modified to be horizontally greedy in version 0.5.2.  This behavior is not appropriate for left-aligned text (the default alignment), as it effectively negates the column alignment in a GridPrint cells.  Therefore as of 0.5.3, center- and right-aligned text is horizontally greedy, whereas left-aligned text is not.
-
-Features and bugfixes introduced in 0.5.2:
-* CellBackgroundProvider interface - an interface for programmatic control of the background color in each grid cell.  Default implementation is provided in the DefaultBackgroundProvider class.
-* DefaultGridLook - now supports control of the header, body, and footer background colors using either setHeaderBackground(RGB) or setHeaderBackgroundProvider(CellBackgroundProvider).
-* Prints with greedy layout behavior now have documentation indicating the behavior in the javadocs.
-* Bugfix to GridPrint which sometimes cause grids to overlap with other prints.
+This maintenance addresses a GridPrint bug:
+* Bugfix: GridPrint fails to generate last page if the final row of content finishes on previous page, but there was only enough room to print an open bottom border.  (This bug was discovered trying to run Snippet4)
+* Added SimplePageDecoration, a simple wrapper for static page headers and footers.  This class can be used in lieu of creating a custom PageDecoration class for simple page numbering.
+* The DefaultPageNumberFormat class (the default PageNumberFormat class used by PageNumberPrint) is now a top-level, public class.
+* Added SimplePageDecoration class, a PageDecoration which displays a Print you provide on each page.
 
 PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what you want to print instead of how you're going to print it.
 
@@ -20,6 +17,12 @@ Download page: http://sourceforge.net/project/showfiles.php?group_id=148509
 Subversion: https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
 
 CHANGELOG:
+
+Version 0.5.4
+* Bugfix: GridPrint fails to generate last page if the final row of content finishes on previous page, but there was only enough room to print an open bottom border.  (This bug was discovered trying to run Snippet4)
+* Added SimplePageDecoration, a simple wrapper for static page headers and footers.  This class can be used in lieu of creating a custom PageDecoration class for simple page numbering.
+* The DefaultPageNumberFormat class (the default PageNumberFormat class used by PageNumberPrint) is now a top-level, public class.
+* Added SimplePageDecoration class, a PageDecoration which displays a Print you provide on each page.
 
 Version 0.5.3
 * TextPrint - was modified to be horizontally greedy in version 0.5.2.  This behavior is not appropriate for left-aligned text (the default alignment), as it effectively negates the column alignment in a GridPrint cells.  Therefore as of 0.5.3, center- and right-aligned text is horizontally greedy, whereas left-aligned text is not.

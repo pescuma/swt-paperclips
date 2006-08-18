@@ -6,6 +6,9 @@ package net.sf.paperclips;
 /**
  * An interface for creating page decorations. Instances of this interface are
  * used as headers and footers in conjunction with the PagePrint class.
+ * @see PagePrint
+ * @see SimplePageDecoration
+ * @see PageNumberPageDecoration
  * @author Matthew
  */
 public interface PageDecoration {

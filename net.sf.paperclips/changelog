@@ -1,4 +1,14 @@
 Version 0.5.4
+* Bugfix: GridPrint fails to generate last page if the final row of content
+  finishes on previous page, but there was only enough room to print an open
+  bottom border.  (This bug was discovered while trying to run Snippet4)
+* Added SimplePageDecoration, a simple wrapper for static page headers and
+  footers.  This class can be used in lieu of creating a custom PageDecoration
+  class for simple page numbering.
+* The DefaultPageNumberFormat class (the default PageNumberFormat class used
+  by PageNumberPrint) is now a top-level, public class.
+* Added SimplePageDecoration class, a PageDecoration which displays a Print you
+  provide on each page.
 
 Version 0.5.3
 * TextPrint - partially reversed a change in 0.5.2 which made TextPrints

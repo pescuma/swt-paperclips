@@ -20,27 +20,29 @@ This copyright notice MUST APPEAR in all copies of the file!
 Introduction
 ------------
 
-Welcome to PaperClips: a simple, light weight, extensible Java printing
-library for SWT. PaperClips hides the complexity of laying out and rendering
-documents on the printer, helping you focus on what you want to print instead
-of how you're going to print it.
+Welcome to PaperClips: a simple, light weight, extensible Java printing library
+for SWT.  PaperClips hides the complexity of laying out and rendering documents
+on the printer, helping you focus on what to print instead of how to print it.
 
-In a nutshell, PaperClips provides an assortment of document "building
-blocks", which you can tweak and combine to form a document. The assembled
-document is then sent to PaperClips for printing. PaperClips includes support
+In a nutshell, PaperClips provides an assortment of document "building blocks",
+which you can tweak and combine to form a custom document.  The assembled
+document is then sent to PaperClips for printing.  PaperClips includes support
 for printing text, images, borders, headers and footers, column layouts and
-grid layouts. PaperClips can be extended with your own printable objects.
+grid layouts, to name a few.  It can also be extended with your own printable
+classes.
 
-With PaperClips you do not have to track cursors, calculate line breaking,
-fool around with font metrics, or manage system resources--it's all handled
+With PaperClips you do not have to track cursors, calculate line breaking, fool
+around with font metrics, or manage system resources--it's all handled
 internally. And unlike report-generation tools, you are not constrained to a
-predefined document structure.
+predefined document structure (like report bands).  Every document is custom
+and the layout is up to you.
 
 Requirements:
 * Java 5.0 (code named "Tiger") or later.
-* SWT 3.0 or later.  SWT 3.2M3 or later is required if you use the ScalePrint
-  or RotatePrint classes.  PaperClips may work on earlier versions of SWT but
-  I have not tested this. SWT may be downloaded at http://www.eclipse.org/swt/.
+* SWT 3.0 or later (SWT 3.2 milestone 3 is required if you use the RotatePrint
+  or ScalePrint classes).  SWT may be downloaded at
+  http://www.eclipse.org/swt/.  PaperClips may work on earlier versions of
+  SWT but I have not tested this.
 
 Installation
 ------------

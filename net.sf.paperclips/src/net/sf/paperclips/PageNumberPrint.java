@@ -19,6 +19,8 @@ import org.eclipse.swt.graphics.RGB;
  * PagePrint.
  * 
  * @author Matthew
+ * @see PageNumberFormat
+ * @see DefaultPageNumberFormat
  */
 public class PageNumberPrint implements Print {
   /** The default font data for a PageNumberPrint.  Value is device-dependent. */
@@ -31,14 +33,7 @@ public class PageNumberPrint implements Print {
   FontData fontData;
   int align;
   RGB rgb;
-
-  /* Default format. */
-  PageNumberFormat format = new PageNumberFormat () {
-    public String format (PageNumber pageNumber) {
-      return "Page " + (pageNumber.getPageNumber () + 1) + " of "
-          + pageNumber.getPageCount ();
-    }
-  };
+  PageNumberFormat format;
 
   /**
    * Constructs a PageNumberPrint for the given page number.
@@ -77,6 +72,7 @@ public class PageNumberPrint implements Print {
     setFontData (fontData);
     setAlign (align);
     setRGB (new RGB (0, 0, 0));
+    setPageNumberFormat(new DefaultPageNumberFormat());
   }
 
   /**

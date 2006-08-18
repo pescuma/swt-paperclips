@@ -1,44 +1,31 @@
 Release 0.5.4:
 
-Release 0.5.3:
-
-This release fixes a semantic error introduced in 0.5.2:
-* TextPrint - was modified to be horizontally greedy in
-  version 0.5.2.  This behavior is not appropriate for
-  left-aligned text (the default alignment), as it
-  effectively negates the column alignment in a GridPrint
-  cells.  Therefore as of 0.5.3, center- and right-aligned
-  text is horizontally greedy, whereas left-aligned text is
-  not.
-
-Release 0.5.2:
-
-This release adds some features and fixes a few bugs:
-* CellBackgroundProvider interface - an interface for
-  programmatic control of the background color in each grid
-  cell.  Default implementation is provided in the
-  DefaultBackgroundProvider class.
-* DefaultGridLook - now supports control of the header,
-  body, and footer background colors using either
-  setHeaderBackground(RGB) or
-  setHeaderBackgroundProvider(CellBackgroundProvider).
-* Prints with greedy layout behavior now have documentation
-  indicating the behavior in the javadocs.
-* Bugfix to GridPrint which sometimes cause grids to overlap
-  with other prints.
+* Bugfix: GridPrint fails to generate last page if the
+  final row of content finishes on previous page, but there
+  was only enough room to print an open bottom border.
+  (This bug was discovered trying to run Snippet4)
+* Added SimplePageDecoration, a simple wrapper for static
+  page headers and footers.  This class can be used in lieu
+  of creating a custom PageDecoration class for simple page
+  numbering.
+* The DefaultPageNumberFormat class (the default
+  PageNumberFormat class used by PageNumberPrint) is now a
+  top-level, public class.
+* Added SimplePageDecoration class, a PageDecoration which
+  displays a Print you provide on each page.
 
 The example snippets were updated to use new APIs in
 PrintUtil.  Snippet6.java was added to demonstrate use of
 PagePrint.
 
-net.sf.paperclips_0.5.3.jar - Binary jar, may be used as an
+net.sf.paperclips_0.5.4.jar - Binary jar, may be used as an
 Eclipse plug-in or as a regular jar in the classpath.
 
-net.sf.paperclips_0.5.3_source.zip - PaperClips source.
+net.sf.paperclips_0.5.4_source.zip - PaperClips source.
 
-net.sf.paperclips_0.5.3_javadoc.zip - PaperClips javadocs
+net.sf.paperclips_0.5.4_javadoc.zip - PaperClips javadocs
 
-net.sf.paperclips.examples_0.5.3_source.zip - PaperClips
+net.sf.paperclips.examples_0.5.4_source.zip - PaperClips
 example source.  The examples include the tutorial examples
 and snippets available on the web sites, as well as some
 other snippets requested by PaperClips users.
