@@ -1,8 +1,8 @@
 PaperClips 0.5.4 released
 
-This maintenance addresses a GridPrint bug:
+This maintenance release addresses a GridPrint bug, and adds a few minor features:
 * Bugfix: GridPrint fails to generate last page if the final row of content finishes on previous page, but there was only enough room to print an open bottom border.  (This bug was discovered trying to run Snippet4)
-* Added SimplePageDecoration, a simple wrapper for static page headers and footers.  This class can be used in lieu of creating a custom PageDecoration class for simple page numbering.
+* Added SimplePageDecoration, a simple wrapper for static page headers and footers.  This class can be used in lieu of creating a custom PageDecoration class for simple, static page decorations.
 * The DefaultPageNumberFormat class (the default PageNumberFormat class used by PageNumberPrint) is now a top-level, public class.
 * Added SimplePageDecoration class, a PageDecoration which displays a Print you provide on each page.
 
