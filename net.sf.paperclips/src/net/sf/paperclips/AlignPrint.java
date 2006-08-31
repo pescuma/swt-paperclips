@@ -14,9 +14,7 @@ import org.eclipse.swt.graphics.Point;
  */
 public class AlignPrint implements Print {
   final Print target;
-
   final int hAlign;
-
   final int vAlign;
 
   /**
@@ -52,9 +50,7 @@ public class AlignPrint implements Print {
 
 class AlignIterator implements PrintIterator {
   private final PrintIterator target;
-
   private final int hAlign;
-
   private final int vAlign;
 
   AlignIterator (AlignPrint print, Device device, GC gc) {
@@ -83,28 +79,30 @@ class AlignIterator implements PrintIterator {
 
   public PrintPiece next (int width, int height) {
     PrintPiece piece = target.next (width, height);
-
     if (piece == null) return null;
 
     Point size = piece.getSize ();
-
     Point offset = new Point (0, 0);
 
     if (hAlign == SWT.CENTER)
       offset.x = (width - size.x) / 2;
-    else if (hAlign == SWT.RIGHT) offset.x = width - size.x;
+    else if (hAlign == SWT.RIGHT)
+      offset.x = width - size.x;
+
+    if (hAlign != SWT.LEFT)
+      size.x = width;
 
     if (vAlign == SWT.CENTER)
       offset.y = (height - size.y) / 2;
-    else if (vAlign == SWT.BOTTOM) offset.y = height - size.x;
+    else if (vAlign == SWT.BOTTOM)
+      offset.y = height - size.x;
 
-    if (hAlign != SWT.LEFT) size.x = width;
-    if (vAlign != SWT.TOP) size.y = height;
+    if (vAlign != SWT.TOP)
+      size.y = height;
 
     CompositeEntry entry = new CompositeEntry (piece, offset);
 
-    return new CompositePiece (new CompositeEntry[] {
-      entry }, size);
+    return new CompositePiece (new CompositeEntry[] { entry }, size);
   }
 
   public PrintIterator copy () {
