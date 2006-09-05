@@ -29,7 +29,9 @@ public class ScalePrint implements Print {
    * @param target the print to scale down.
    */
   public ScalePrint(Print target) {
-    this.target = BeanUtils.checkNull(target);
+    if (target == null)
+      throw new NullPointerException();
+    this.target = target;
     this.scale = null;
   }
 
@@ -42,10 +44,12 @@ public class ScalePrint implements Print {
    * @throws IllegalArgumentException if scale is not > 0.
    */
   public ScalePrint(Print target, Double scale) {
-    if (scale != null && !(scale > 0))
+    if (scale != null && !(scale.doubleValue() > 0))
       throw new IllegalArgumentException("Scale "+scale+" must be > 0");
+    if (target == null)
+      throw new NullPointerException();
 
-    this.target = BeanUtils.checkNull (target);
+    this.target = target;
     this.scale = scale;
   }
 
@@ -63,7 +67,10 @@ class ScaleIterator implements PrintIterator {
   private final Point preferredSize;
 
   ScaleIterator(ScalePrint print, Device device, GC gc) {
-    this.device = BeanUtils.checkNull(device);
+    if (device == null)
+      throw new NullPointerException();
+
+    this.device = device;
     this.target = print.target.iterator(device, gc);
     this.scale  = print.scale;
 
@@ -143,8 +150,10 @@ final class ScalePiece implements PrintPiece {
   private Transform transform;
 
   ScalePiece(Device device, PrintPiece target, double scale, int maxWidth, int maxHeight) {
-    this.device = BeanUtils.checkNull (device);
-    this.target = BeanUtils.checkNull (target);
+    if (device == null || target == null)
+      throw new NullPointerException();
+    this.device = device;
+    this.target = target;
     this.scale = scale;
     Point targetSize = target.getSize();
     this.size = new Point(

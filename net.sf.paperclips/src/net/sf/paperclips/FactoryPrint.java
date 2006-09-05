@@ -22,21 +22,16 @@ import org.eclipse.swt.graphics.Point;
  * @author Matthew
  */
 public abstract class FactoryPrint implements Print {
-  private Print print;
-
   /**
    * Default constructor.
    */
   public FactoryPrint () {}
 
   /**
-   * Creates and caches the underlying Print using createPrint(), then returns
-   * its iterator.
+   * Returns a PrintIterator for the Print returned from a call to createPrint().
    */
   public PrintIterator iterator (Device device, GC gc) {
-    if (print == null) print = createPrint ();
-
-    return print.iterator (device, gc);
+    return createPrint().iterator(device, gc);
   }
 
   /**
@@ -304,7 +299,6 @@ public abstract class FactoryPrint implements Print {
    * determine the name of the print job. Override this method to change this
    * default.
    */
-  @Override
   public String toString () {
     return "PaperClips print job";
   }

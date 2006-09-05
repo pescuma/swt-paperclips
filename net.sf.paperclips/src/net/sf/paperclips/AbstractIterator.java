@@ -23,7 +23,7 @@ public abstract class AbstractIterator implements PrintIterator {
   protected final Device device;
 
   /**
-   * A GC used for drawing on the print device.
+   * A GC used for measuring document elements.
    */
   protected final GC gc;
 
@@ -33,8 +33,10 @@ public abstract class AbstractIterator implements PrintIterator {
    * @param gc a GC used for drawing on the print device.
    */
   protected AbstractIterator (Device device, GC gc) {
-    this.device = BeanUtils.checkNull (device);
-    this.gc = BeanUtils.checkNull (gc);
+    if (device == null || gc == null)
+      throw new NullPointerException();
+    this.device = device;
+    this.gc     = gc;
   }
 
   /**
@@ -43,6 +45,6 @@ public abstract class AbstractIterator implements PrintIterator {
    */
   protected AbstractIterator (AbstractIterator that) {
     this.device = that.device;
-    this.gc = that.gc;
+    this.gc     = that.gc;
   }
 }

@@ -15,9 +15,7 @@ import org.eclipse.swt.graphics.Point;
  */
 public class ImagePrint implements Print {
   ImageData imageData;
-
   Point dpi;
-
   Point size;
 
   /**
@@ -25,7 +23,9 @@ public class ImagePrint implements Print {
    * @param imageData the image to be displayed.
    */
   public ImagePrint (ImageData imageData) {
-    this.imageData = BeanUtils.checkNull (imageData);
+    if (imageData == null)
+      throw new NullPointerException();
+    this.imageData = imageData;
     setDPI (new Point (72, 72));
   }
 
@@ -35,8 +35,10 @@ public class ImagePrint implements Print {
    * @param dpi the DPI that the image will be displayed at.
    */
   public ImagePrint (ImageData imageData, Point dpi) {
-    this.imageData = BeanUtils.checkNull (imageData);
-    setDPI (BeanUtils.checkNull (dpi));
+    if (imageData == null || dpi == null)
+      throw new NullPointerException();
+    this.imageData = imageData;
+    setDPI (dpi);
   }
 
   /**
@@ -47,8 +49,9 @@ public class ImagePrint implements Print {
   public void setSize (Point size) {
     // The DPI is rounded up, so that the specified
     // width and height will not be exceeded.
-    dpi = new Point ((int) Math.ceil (imageData.width * 72.0f / size.x),
-        (int) Math.ceil (imageData.height * 72.0f / size.y));
+    dpi = new Point (
+        (int) Math.ceil (imageData.width  * 72f / size.x),
+        (int) Math.ceil (imageData.height * 72f / size.y));
     this.size = size;
   }
 
@@ -78,7 +81,9 @@ public class ImagePrint implements Print {
    * @param dpi the DPI of the image.
    */
   public void setDPI (Point dpi) {
-    dpi = BeanUtils.checkNull (dpi);
+    if (dpi == null)
+      throw new NullPointerException();
+    this.dpi = dpi;
     size = new Point ((int) Math.ceil (imageData.width * 72 / dpi.x),
         (int) Math.ceil (imageData.height * 72 / dpi.y));
   }
@@ -109,7 +114,6 @@ public class ImagePrint implements Print {
    * determine the name of the print job. Override this method to change this
    * default.
    */
-  @Override
   public String toString () {
     return "PaperClips print job";
   }
@@ -127,7 +131,9 @@ class ImageIterator implements PrintIterator {
   boolean hasNext;
 
   ImageIterator (ImagePrint print, Device device) {
-    this.device = BeanUtils.checkNull (device);
+    if (device == null)
+      throw new NullPointerException();
+    this.device = device;
     this.imageData = print.imageData;
     this.dpi = print.dpi;
     this.size = print.size;
@@ -183,9 +189,11 @@ class ImagePiece implements PrintPiece {
   private Image image;
 
   ImagePiece (Device device, ImageData imageData, Point size) {
-    this.device = BeanUtils.checkNull(device);
-    this.imageData = BeanUtils.checkNull (imageData);
-    this.size = BeanUtils.checkNull (size);
+    if (device == null || imageData == null || size == null)
+      throw new NullPointerException();
+    this.device = device;
+    this.imageData = imageData;
+    this.size = size;
   }
 
   public Point getSize () {

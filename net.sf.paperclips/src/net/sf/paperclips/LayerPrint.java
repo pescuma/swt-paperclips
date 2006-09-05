@@ -9,6 +9,7 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -26,7 +27,7 @@ public class LayerPrint implements Print {
    */
   public static final int DEFAULT_ALIGN = SWT.LEFT;
 
-  final List <LayerEntry> entries = new ArrayList <LayerEntry> ();
+  final List entries = new ArrayList ();
 
   /**
    * Constructs a new LayerPrint.
@@ -61,7 +62,6 @@ public class LayerPrint implements Print {
    * determine the name of the print job. Override this method to change this
    * default.
    */
-  @Override
   public String toString () {
     return "PaperClips print job";
   }
@@ -69,14 +69,21 @@ public class LayerPrint implements Print {
 
 class LayerEntry {
   final Print print;
-
   final int align;
-
   PrintIterator iterator;
 
   LayerEntry (Print print, int align) {
-    this.print = BeanUtils.checkNull (print);
+    if (print == null) throw new NullPointerException();
+    this.print = print;
     this.align = checkAlign (align);
+  }
+
+  LayerEntry (LayerEntry that) {
+    this.print = that.print;
+    this.align = that.align;
+    this.iterator = that.iterator;
+    if (iterator != null)
+      iterator = iterator.copy();
   }
 
   private static int checkAlign (int align) {
@@ -88,71 +95,80 @@ class LayerEntry {
   }
 
   LayerEntry copy () {
-    return new LayerEntry (print, align);
+    return new LayerEntry (this);
   }
 }
 
 class LayerIterator implements PrintIterator {
-  final LayerEntry[] entries;
+  LayerEntry[] entries;
 
   LayerIterator (LayerPrint print, Device device, GC gc) {
     entries = new LayerEntry[print.entries.size ()];
 
     for (int i = 0; i < entries.length; i++) {
-      entries[i] = print.entries.get (i).copy ();
+      entries[i] = ((LayerEntry) print.entries.get (i)).copy ();
       entries[i].iterator = entries[i].print.iterator (device, gc);
     }
   }
 
   LayerIterator (LayerIterator that) {
-    this.entries = that.entries.clone ();
-    for (int i = 0; i < entries.length; i++) {
-      LayerEntry oldEntry = entries[i];
-      LayerEntry newEntry = oldEntry.copy ();
-      newEntry.iterator = oldEntry.iterator.copy ();
-    }
+    this.entries = (LayerEntry[]) that.entries.clone ();
+    for (int i = 0; i < entries.length; i++)
+      entries[i] = entries[i].copy();
   }
 
   public boolean hasNext () {
-    for (LayerEntry entry : entries)
-      if (entry.iterator.hasNext ()) return true;
+    for (int i = 0; i < entries.length; i++)
+      if (entries[i].iterator.hasNext ())
+        return true;
     return false;
   }
 
   public PrintPiece next (int width, int height) {
     if (!hasNext ()) throw new IllegalStateException ();
+    List pieces = new ArrayList ();
+    LayerEntry[] entries = (LayerEntry[]) this.entries.clone();
 
-    List <CompositeEntry> pieces = new ArrayList <CompositeEntry> ();
-
-    for (LayerEntry entry : entries)
+    for (int i = 0; i < entries.length; i++) {
+      LayerEntry entry = entries[i];
       if (entry.iterator.hasNext ()) {
         PrintPiece piece = entry.iterator.next (width, height);
-        if (piece != null) {
-          CompositeEntry c_entry;
-          switch (entry.align) {
-          case SWT.CENTER:
-            c_entry = new CompositeEntry (piece, new Point ((width - piece
-                .getSize ().x) / 2, 0));
-            break;
-          case SWT.RIGHT:
-            c_entry = new CompositeEntry (piece, new Point (width
-                - piece.getSize ().x, 0));
-            break;
-          case SWT.LEFT:
-          default:
-            c_entry = new CompositeEntry (piece, new Point (0, 0));
-            break;
-          }
-          pieces.add (c_entry);
-        }
-      }
 
-    return (pieces.size () == 0) ? null : new CompositePiece (pieces);
+        if (piece == null) {
+          for (Iterator iter = pieces.iterator(); iter.hasNext(); )
+            ((PrintPiece) iter.next()).dispose();
+          return null;
+        }
+
+        CompositeEntry c_entry;
+        switch (entry.align) {
+        case SWT.CENTER:
+          c_entry = new CompositeEntry (piece, new Point ((width - piece
+              .getSize ().x) / 2, 0));
+          break;
+        case SWT.RIGHT:
+          c_entry = new CompositeEntry (piece, new Point (width
+              - piece.getSize ().x, 0));
+          break;
+        case SWT.LEFT:
+        default:
+          c_entry = new CompositeEntry (piece, new Point (0, 0));
+          break;
+        }
+        pieces.add (c_entry);
+      }
+    }
+
+    // Replace instance entries with the entries that were just consumed.
+    this.entries = entries;
+
+    return new CompositePiece (pieces);
   }
 
   Point computeSize (PrintSizeStrategy strategy) {
     Point size = new Point (0, 0);
-    for (LayerEntry entry : entries) {
+    for (int i = 0; i < entries.length; i++) {
+      LayerEntry entry = entries[i];
       Point entrySize = strategy.computeSize (entry.iterator);
       size.x = Math.max (size.x, entrySize.x);
       size.y = Math.max (size.y, entrySize.y);

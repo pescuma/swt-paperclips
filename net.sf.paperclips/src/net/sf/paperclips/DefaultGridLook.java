@@ -7,6 +7,7 @@
 package net.sf.paperclips;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.Color;
@@ -336,10 +337,11 @@ class DefaultGridLookPainter implements GridLookPainter {
     return margins;
   }
 
-  private Color getColor(HashMap<RGB, Color> colorMap, RGB rgb) {
+  // colorMap maps RGBs to Color instances to avoid creating a lot of Color objects on the device.
+  private Color getColor(HashMap colorMap, RGB rgb) {
     if (rgb == null) return null;
 
-    Color result = colorMap.get(rgb);
+    Color result = (Color) colorMap.get(rgb);
     if (result == null) {
       result = new Color(device, rgb);
       colorMap.put(rgb, result);
@@ -364,7 +366,7 @@ class DefaultGridLookPainter implements GridLookPainter {
     final boolean headerPresent = headerRows.length > 0;
     final boolean footerPresent = footerRows.length > 0;
 
-    final HashMap<RGB, Color> colorMap = new HashMap<RGB, Color>();
+    final HashMap colorMap = new HashMap();
 
     // Cursor variables
     int X;
@@ -383,11 +385,13 @@ class DefaultGridLookPainter implements GridLookPainter {
           // Height of all cells on current row.
           final int H = headerRows[row];
 
-          for (int cellSpan : headerCellSpans[row]) {
+          for (int i = 0; i < headerCellSpans[row].length; i++) {
+            int cellSpan = headerCellSpans[row][i];
+
             // Compute cellspan width.
             int W = (cellSpan - 1) * margins.getHorizontalSpacing();
-            for (int i = 0; i < cellSpan; i++)
-              W += columns[col+i];
+            for (int j = 0; j < cellSpan; j++)
+              W += columns[col+j];
 
             // Paint background
             Color background =
@@ -436,11 +440,13 @@ class DefaultGridLookPainter implements GridLookPainter {
         final boolean rowTopOpen = row == 0 ? topOpen : false;
         final boolean rowBottomOpen = row == bodyRows.length - 1 ? bottomOpen : false;
 
-        for (int cellSpan : bodyCellSpans[row]) {
+        for (int i = 0; i < bodyCellSpans[row].length; i++) {
+          int cellSpan = bodyCellSpans[row][i];
+
           // Compute cellspan width.
           int W = (cellSpan - 1) * margins.getHorizontalSpacing();
-          for (int i = 0; i < cellSpan; i++)
-            W += columns[col+i];
+          for (int j = 0; j < cellSpan; j++)
+            W += columns[col+j];
 
           // Paint background
           Color background = getColor(colorMap,
@@ -484,11 +490,13 @@ class DefaultGridLookPainter implements GridLookPainter {
 
           // Height of all cells on current row.
           final int H = footerRows[row];
-          for (int cellSpan : footerCellSpans[row]) {
+          for (int i = 0; i < footerCellSpans[row].length; i++) {
+            int cellSpan = footerCellSpans[row][i];
+
             // Compute cellspan width.
             int W = (cellSpan - 1) * margins.getHorizontalSpacing();
-            for (int i = 0; i < cellSpan; i++)
-              W += columns[col+i];
+            for (int j = 0; j < cellSpan; j++)
+              W += columns[col+j];
 
             // Paint background
             Color background =
@@ -522,8 +530,11 @@ class DefaultGridLookPainter implements GridLookPainter {
         }
       }
     } finally {
-      for (Map.Entry<RGB, Color> entry : colorMap.entrySet())
-        entry.getValue().dispose();
+      for (Iterator iter = colorMap.entrySet().iterator(); iter.hasNext(); ) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        Color color = (Color) entry.getValue();
+        color.dispose();
+      }
       colorMap.clear();
     }
   }

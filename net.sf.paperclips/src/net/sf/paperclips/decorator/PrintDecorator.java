@@ -9,7 +9,9 @@ package net.sf.paperclips.decorator;
 import net.sf.paperclips.Print;
 
 /**
- * Interface for wrapping a print in a decoration.  This is
+ * Interface for wrapping a print in a decoration.  This interface is useful for applying
+ * decorations uniformly without having to explicitly call constructors for each item being
+ * decorated.
  * @author Matthew
  */
 public interface PrintDecorator {

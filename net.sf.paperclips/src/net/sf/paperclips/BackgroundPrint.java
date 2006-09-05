@@ -26,8 +26,10 @@ public class BackgroundPrint implements Print {
    * @param background
    */
   public BackgroundPrint(Print target, RGB background) {
-    this.target = BeanUtils.checkNull(target);
-    this.background = BeanUtils.checkNull(background);
+    if (target == null || background == null)
+      throw new NullPointerException();
+    this.target = target;
+    this.background = background;
   }
 
   /**
@@ -43,7 +45,9 @@ public class BackgroundPrint implements Print {
    * @param background the new background color.
    */
   public void setBackground (RGB background) {
-    this.background = BeanUtils.checkNull(background);
+    if (background == null)
+      throw new NullPointerException();
+    this.background = background;
   }
 
   public PrintIterator iterator (Device device, GC gc) {
@@ -57,7 +61,9 @@ class BackgroundIterator implements PrintIterator {
   private final Device device;
 
   BackgroundIterator(BackgroundPrint print, Device device, GC gc) {
-    this.device = BeanUtils.checkNull(device);
+    if (device == null)
+      throw new NullPointerException();
+    this.device = device;
     this.target = print.target.iterator (device, gc);
     this.background = print.background;
   }
@@ -99,9 +105,11 @@ class BackgroundPiece implements PrintPiece {
   private Color backgroundColor;
 
   BackgroundPiece(PrintPiece target, RGB background, Device device) {
-    this.target = BeanUtils.checkNull(target);
-    this.device = BeanUtils.checkNull(device);
-    this.background = BeanUtils.checkNull(background);
+    if (target == null || device == null || background == null)
+      throw new NullPointerException();
+    this.target = target;
+    this.device = device;
+    this.background = background;
   }
 
   private Color getBackgroundColor() {

@@ -36,9 +36,11 @@ public abstract class AbstractPiece implements PrintPiece {
    * @param size the value to be returned by getSize().
    */
   protected AbstractPiece (Device device, GC gc, Point size) {
-    this.device = BeanUtils.checkNull (device);
-    this.gc = BeanUtils.checkNull (gc);
-    this.size = BeanUtils.checkNull (size);
+    if (device == null || gc == null || size == null)
+      throw new NullPointerException();
+    this.device = device;
+    this.gc = gc;
+    this.size = size;
   }
 
   /**

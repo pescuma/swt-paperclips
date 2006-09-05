@@ -90,7 +90,9 @@ public class LinePrint implements Print {
    * @param foreground the new line color.
    */
   public void setRGB (RGB foreground) {
-    this.rgb = BeanUtils.checkNull (foreground);
+    if (foreground == null)
+      throw new NullPointerException();
+    this.rgb = foreground;
   }
 
   /**

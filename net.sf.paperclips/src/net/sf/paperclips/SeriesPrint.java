@@ -24,21 +24,23 @@ import org.eclipse.swt.graphics.Point;
  * @author Matthew
  */
 public class SeriesPrint implements Print {
-  final List <Print> prints = new ArrayList <Print> ();
+  final List prints = new ArrayList ();
 
   /**
    * Adds the given prints to this SeriesPrint.
    * @param prints the Prints to add
    */
-  public void add (Print... prints) {
+  public void add (Print[] prints) {
     // Check for nulls first.
-    BeanUtils.checkNull (prints);
-    for (Print print : prints)
-      BeanUtils.checkNull (print);
+    if (prints == null)
+      throw new NullPointerException();
+    for (int i = 0; i < prints.length; i++)
+      if (prints[i] == null)
+        throw new NullPointerException();
 
     // OK, add all
-    for (Print print : prints)
-      this.prints.add (print);
+    for (int i = 0; i < prints.length; i++)
+      this.prints.add (prints[i]);
   }
 
   /**
@@ -46,7 +48,9 @@ public class SeriesPrint implements Print {
    * @param print the Print to add
    */
   public void add (Print print) {
-    prints.add (BeanUtils.checkNull (print));
+    if (print == null)
+      throw new NullPointerException();
+    prints.add (print);
   }
 
   /**
@@ -66,7 +70,6 @@ public class SeriesPrint implements Print {
    * determine the name of the print job. Override this method to change this
    * default.
    */
-  @Override
   public String toString () {
     if (size () == 0) return "PaperClips print job";
     if (size () == 1) return prints.get (0).toString ();
@@ -83,13 +86,13 @@ class SeriesIterator implements PrintIterator {
   SeriesIterator (SeriesPrint print, Device device, GC gc) {
     this.iters = new PrintIterator[print.prints.size ()];
     for (int i = 0; i < iters.length; i++) {
-      iters[i] = print.prints.get (i).iterator (device, gc);
+      iters[i] = ((Print) print.prints.get (i)).iterator (device, gc);
     }
     this.index = 0;
   }
 
   SeriesIterator (SeriesIterator that) {
-    this.iters = that.iters.clone ();
+    this.iters = (PrintIterator[]) that.iters.clone ();
     this.index = that.index;
 
     // Start at index since the previous iterators are already consumed.
@@ -103,7 +106,8 @@ class SeriesIterator implements PrintIterator {
 
   private Point computeSize (PrintSizeStrategy strategy) {
     Point size = new Point (0, 0);
-    for (PrintIterator iter : iters) {
+    for (int i = 0; i < iters.length; i++) {
+      PrintIterator iter = iters[i];
       Point printSize = strategy.computeSize (iter);
       size.x = Math.max (size.x, printSize.x);
       size.y = Math.max (size.y, printSize.y);

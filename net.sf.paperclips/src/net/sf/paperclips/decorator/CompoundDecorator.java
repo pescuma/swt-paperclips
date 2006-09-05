@@ -19,17 +19,17 @@ public class CompoundDecorator implements PrintDecorator {
    * Constructs a CompoundDecorator.
    * @param decorators the decorators, in order from innermost to outermost.
    */
-  public CompoundDecorator(PrintDecorator...decorators) {
+  public CompoundDecorator(PrintDecorator[] decorators) {
     if (decorators == null) throw new NullPointerException();
     for (int i = 0; i < decorators.length; i++)
       if (decorators[i] == null) throw new NullPointerException();
-    this.decorators = decorators.clone ();
+    this.decorators = (PrintDecorator[]) decorators.clone ();
   }
 
   public Print decorate (Print target) {
     Print result = target;
-    for (PrintDecorator decorator : decorators)
-      result = decorator.decorate (target);
+    for (int i = 0; i < decorators.length; i++)
+      result = decorators[i].decorate (target);
     return result;
   }
 }

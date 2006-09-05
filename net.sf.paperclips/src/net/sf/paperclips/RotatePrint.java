@@ -38,10 +38,12 @@ public final class RotatePrint implements Print {
    * Constructs a RotatePrint.
    * @param target the print to rotate.
    * @param angle the angle by which the target will be rotated, expressed in degrees
-   *        counter-clockwise.  A negative number rotates clockwise.
+   *        counter-clockwise.  A negative number rotates clockwise.  Must be a multiple of 90.
    */
   public RotatePrint(Print target, int angle) {
-    this.target = BeanUtils.checkNull(target);
+    if (target == null)
+      throw new NullPointerException();
+    this.target = target;
     this.angle = checkAngle(angle);
   }
 
@@ -75,14 +77,17 @@ final class RotateIterator implements PrintIterator {
   private final Point preferredSize;
 
   RotateIterator(Print target, int angle, Device device, GC gc) {
-    this.device = BeanUtils.checkNull(device);
+    if (device == null)
+      throw new NullPointerException();
+
+    this.device = device;
     this.target = target.iterator(device, gc);
-    this.angle = checkAngle(angle);
+    this.angle = checkAngle(angle); // returns 90, 180, or 270 only
 
     Point min  = this.target.minimumSize ();
     Point pref = this.target.preferredSize ();
 
-    if (angle % 180 == 0) {
+    if (this.angle == 180) {
       this.minimumSize   = new Point(min.x,  min.y);
       this.preferredSize = new Point(pref.x, pref.y);
     } else { // flip x and y sizes if rotating by 90 or 270 degrees
@@ -124,7 +129,7 @@ final class RotateIterator implements PrintIterator {
 
   public PrintPiece next (int width, int height) {
     PrintPiece target;
-    if (angle % 180 == 0)
+    if (angle == 180) // angle may only be init'd to 90, 180, of 270
       target = this.target.next (width, height);
     else // flip width and height if rotating by 90 or 270
       target = this.target.next (height, width);
@@ -149,10 +154,12 @@ final class RotatePiece implements PrintPiece {
   private Transform transform;
 
   RotatePiece(Device device, PrintPiece target, int angle, Point size) {
-    this.device = BeanUtils.checkNull (device);
-    this.target = BeanUtils.checkNull(target);
+    if (device == null || target == null || size == null)
+      throw new NullPointerException();
+    this.device = device;
+    this.target = target;
     this.angle = angle;
-    this.size = BeanUtils.checkNull(size);
+    this.size = size;
   }
 
   public Point getSize () {

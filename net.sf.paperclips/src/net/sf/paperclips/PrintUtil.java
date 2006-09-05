@@ -9,6 +9,7 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.GC;
@@ -31,7 +32,6 @@ public class PrintUtil {
    * @param print the item to print.
    * @deprecated use {@link PrintUtil#print(String, Print) } instead.
    */
-  @Deprecated
   public static void print (Print print) {
     print (print.toString (), print, 72);
   }
@@ -43,7 +43,6 @@ public class PrintUtil {
    * @param margins the page margins, in points.
    * @deprecated use {@link PrintUtil#print(String, Print, int) } instead.
    */
-  @Deprecated
   public static void print (Print print, int margins) {
     print (print.toString (), print, margins);
   }
@@ -55,7 +54,6 @@ public class PrintUtil {
    * @param print the item to print.
    * @deprecated Use {@link PrintUtil#printTo(String, Printer, Print) } instead.
    */
-  @Deprecated
   public static void printTo (Printer printer, Print print) {
     printTo (printer, print, 72);
   }
@@ -69,7 +67,6 @@ public class PrintUtil {
    * @deprecated Use {@link PrintUtil#printTo(String, Printer, Print, int) }
    *             instead.
    */
-  @Deprecated
   public static void printTo (Printer printer, Print print, int margins) {
     printTo (print.toString (), printer, print, margins);
   }
@@ -145,7 +142,7 @@ public class PrintUtil {
     if (printer.startJob (jobName)) {
       GC gc = null;
       Transform transform = null;
-      List <PrintPiece> pages = new ArrayList <PrintPiece> ();
+      List pages = new ArrayList ();
 
       try {
         gc = new GC (printer);
@@ -181,12 +178,12 @@ public class PrintUtil {
 
         // Dispose pages outside the selected page range.
         for (int i = 0; i < startPage; i++)
-          pages.get(i).dispose();
+          ((PrintPiece) pages.get(i)).dispose();
         for (int i = endPage+1; i < pages.size(); i++)
-          pages.get(i).dispose();
+          ((PrintPiece) pages.get(i)).dispose();
 
         for (int i = startPage; i <= endPage; i++) {
-          PrintPiece page = pages.get(i);
+          PrintPiece page = (PrintPiece) pages.get(i);
 
           printer.startPage ();
           page.paint (gc, bounds.x, bounds.y);
@@ -197,8 +194,8 @@ public class PrintUtil {
 
         printer.endJob ();
       } finally {
-        for (PrintPiece page : pages)
-          page.dispose();
+        for (Iterator iter = pages.iterator(); iter.hasNext(); )
+          ((PrintPiece) iter.next()).dispose();
         if (gc != null)
           gc.dispose ();
         if (transform != null)

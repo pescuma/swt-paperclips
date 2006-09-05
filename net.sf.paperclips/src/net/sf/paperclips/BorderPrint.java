@@ -25,8 +25,10 @@ public class BorderPrint implements Print {
    * @throws NullPointerException if either argument is null.
    */
   public BorderPrint (Print target, Border border) {
-    this.target = BeanUtils.checkNull (target);
-    this.border = BeanUtils.checkNull (border);
+    if (target == null || border == null)
+      throw new NullPointerException();
+    this.target = target;
+    this.border = border;
   }
 
   public PrintIterator iterator (Device device, GC gc) {
@@ -141,8 +143,10 @@ class BorderPiece implements PrintPiece {
                BorderPainter border,
                boolean topOpen,
                boolean bottomOpen) {
-    this.target = BeanUtils.checkNull (piece);
-    this.border = BeanUtils.checkNull (border);
+    if (piece == null || border == null)
+      throw new NullPointerException();
+    this.target = piece;
+    this.border = border;
 
     this.topOpen = topOpen;
     this.bottomOpen = bottomOpen;

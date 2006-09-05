@@ -4,6 +4,7 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Device;
@@ -36,8 +37,10 @@ public class ColumnPrint implements Print {
       throw new IllegalArgumentException ("columnSpacing must be >= 0");
     if (columns < 2)
       throw new IllegalArgumentException ("columnCount must be >= 2");
+    if (target == null)
+      throw new NullPointerException();
 
-    this.target = BeanUtils.checkNull (target);
+    this.target = target;
     this.spacing = spacing;
     this.columns = columns;
   }
@@ -113,7 +116,7 @@ class ColumnIterator implements PrintIterator {
   PrintPiece[] nextColumns (PrintIterator iterator, int[] colSizes, int height) {
     boolean fail = false;
 
-    List <PrintPiece> pieces = new ArrayList <PrintPiece> ();
+    List pieces = new ArrayList ();
     for (int i = 0; i < columns && iterator.hasNext (); i++) {
       int colSize = colSizes[i];
 
@@ -130,8 +133,10 @@ class ColumnIterator implements PrintIterator {
       if (size.x > colSize || size.y > height) {
         // Dispose print pieces before throwing exception.
         piece.dispose ();
-        for (PrintPiece otherPiece : pieces)
+        for (Iterator iter = pieces.iterator(); iter.hasNext(); ) {
+          PrintPiece otherPiece = (PrintPiece) iter.next();
           otherPiece.dispose ();
+        }
 
         throw new IllegalStateException ("Iterator " + iterator
             + "returned PrintPiece larger than allowed!");
@@ -141,12 +146,14 @@ class ColumnIterator implements PrintIterator {
     }
 
     if (fail) {
-      for (PrintPiece piece : pieces)
+      for (Iterator iter = pieces.iterator(); iter.hasNext(); ) {
+        PrintPiece piece = (PrintPiece) iter.next();
         piece.dispose ();
+      }
       return null;
     }
 
-    return pieces.toArray (new PrintPiece[pieces.size ()]);
+    return (PrintPiece[]) pieces.toArray (new PrintPiece[pieces.size ()]);
   }
 
   PrintPiece createResult (PrintPiece[] pieces, int[] colSizes) {
@@ -191,8 +198,8 @@ class ColumnIterator implements PrintIterator {
     PrintIterator bestIteration = testIterator;
     PrintPiece[] bestIterationPieces = testPieces;
     int bestHeight = 0;
-    for (PrintPiece piece : testPieces)
-      bestHeight = Math.max (bestHeight, piece.getSize ().y);
+    for (int i = 0; i < testPieces.length; i++)
+      bestHeight = Math.max (bestHeight, testPieces[i].getSize ().y);
 
     while (bestHeight > largestInvalidHeight + 1) {
       int testHeight = (bestHeight + largestInvalidHeight + 1) / 2;
@@ -209,22 +216,21 @@ class ColumnIterator implements PrintIterator {
         // Iteration succeeded but the height was too short
         // to completely contain iterator's contents.
         largestInvalidHeight = testHeight;
-        for (PrintPiece piece : testPieces)
-          piece.dispose ();
+        disposePieces(testPieces);
       } else {
         // Iteration succeeded, and the height was sufficient to contain
         // all of the iterator's contents. Replace the previous best
         // iteration result with that of this iteration.
 
         // Dispose the PrintPieces from the prior "best" iteration.
-        for (PrintPiece piece : bestIterationPieces)
-          piece.dispose ();
+        disposePieces(bestIterationPieces);
 
         bestIteration = testIterator;
         bestIterationPieces = testPieces;
         bestHeight = 0;
-        for (PrintPiece piece : bestIterationPieces)
-          bestHeight = Math.max (bestHeight, piece.getSize ().y);
+
+        for (int i = 0; i < bestIterationPieces.length; i++)
+          bestHeight = Math.max (bestHeight, bestIterationPieces[i].getSize ().y);
       }
     }
 
@@ -232,6 +238,11 @@ class ColumnIterator implements PrintIterator {
     // can update the state of this iterator with return the result.
     this.target = bestIteration;
     return createResult (bestIterationPieces, colSizes);
+  }
+
+  private void disposePieces(PrintPiece[] pieces) {
+    for (int i = 0; i < pieces.length; i++)
+      pieces[i].dispose();
   }
 
   public PrintIterator copy () {

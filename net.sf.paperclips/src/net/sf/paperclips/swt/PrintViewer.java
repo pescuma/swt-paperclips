@@ -39,7 +39,6 @@ public class PrintViewer {
     sc.setExpandHorizontal(true);
     sc.setExpandVertical(true);
     sc.addControlListener(new ControlAdapter() {
-      @Override
       public void controlResized(ControlEvent e) {
         if (sc.getClientArea().width != canvasWidth)
           updateCanvas();

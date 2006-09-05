@@ -97,22 +97,18 @@ class GapBorderPainter extends AbstractBorderPainter {
     return Math.max (0, points) * dpi / 72;
   }
 
-  @Override
   public int getBottom (boolean open) {
     return open ? openBottom : bottom;
   }
 
-  @Override
   public int getLeft () {
     return left;
   }
 
-  @Override
   public int getRight () {
     return right;
   }
 
-  @Override
   public int getTop (boolean open) {
     return open ? openTop : top;
   }
@@ -121,7 +117,6 @@ class GapBorderPainter extends AbstractBorderPainter {
     return new Point (Math.min (left, right), Math.max (top, bottom));
   }
 
-  @Override
   public void paint (GC gc,
                      int x,
                      int y,

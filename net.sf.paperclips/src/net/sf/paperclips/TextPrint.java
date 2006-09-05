@@ -97,7 +97,9 @@ public class TextPrint implements Print {
    * @param text the text to print.
    */
   public void setText (String text) {
-    this.text = BeanUtils.checkNull (text);
+    if (text == null)
+      throw new NullPointerException();
+    this.text = text;
   }
 
   /**
@@ -105,7 +107,9 @@ public class TextPrint implements Print {
    * @param fontData the font that will be used to print the text.
    */
   public void setFontData (FontData fontData) {
-    this.fontData = BeanUtils.checkNull (fontData);
+    if (fontData == null)
+      throw new NullPointerException();
+    this.fontData = fontData;
   }
 
   /**
@@ -157,7 +161,9 @@ public class TextPrint implements Print {
    * @param foreground the new text color.
    */
   public void setRGB (RGB foreground) {
-    this.rgb = BeanUtils.checkNull (foreground);
+    if (foreground == null)
+      throw new NullPointerException();
+    this.rgb = foreground;
   }
 
   /**
@@ -177,7 +183,6 @@ public class TextPrint implements Print {
    * determine the name of the print job. Override this method to change this
    * default.
    */
-  @Override
   public String toString () {
     return "PaperClips print job";
   }
@@ -210,7 +215,7 @@ class TextIterator extends AbstractIterator {
     super (that);
 
     this.text = that.text;
-    this.lines = that.lines.clone ();
+    this.lines = (String[]) that.lines.clone ();
     this.fontData = that.fontData;
     this.align = that.align;
     this.rgb = that.rgb;
@@ -242,7 +247,7 @@ class TextIterator extends AbstractIterator {
       final int maxLines = height / lineHeight;
 
       // Keep a list of each line that will be printed as we calculate it.
-      List <String> nextLines = new ArrayList <String> (Math.min(lines.length, maxLines));
+      List nextLines = new ArrayList (Math.min(lines.length, maxLines));
 
       int maxWidth = 0;
 
@@ -280,7 +285,7 @@ class TextIterator extends AbstractIterator {
       return new TextPiece (device,
                             new Point (maxWidth, nextLines.size () * lineHeight),
                             this,
-                            nextLines.toArray (new String[nextLines.size ()]));
+                            (String[]) nextLines.toArray (new String[nextLines.size ()]));
     } finally {
       gc.setFont (font_old);
       if (font != null) font.dispose ();
@@ -305,8 +310,10 @@ class TextIterator extends AbstractIterator {
       FontMetrics fm = gc.getFontMetrics ();
       int maxWidth = 0;
 
-      for (String textPiece : text)
+      for (int i = 0; i < text.length; i++) {
+        String textPiece = text[i];
         maxWidth = Math.max (maxWidth, gc.stringExtent (textPiece).x);
+      }
 
       return new Point (maxWidth, fm.getHeight ());
     } finally {

@@ -9,7 +9,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A wrapper print that aligns its target vertically and horizontally.
+ * A wrapper print that aligns its target vertically and horizontally.  This class is vertically
+ * greedy for vertical alignments of SWT.CENTER or SWT.BOTTOM, and horizontally greedy for
+ * horizontal alignments of SWT.CENTER and SWT.RIGHT. 
  * @author Matthew
  */
 public class AlignPrint implements Print {
@@ -24,7 +26,9 @@ public class AlignPrint implements Print {
    * @param vAlign the vertical alignment.
    */
   public AlignPrint (Print target, int hAlign, int vAlign) {
-    this.target = BeanUtils.checkNull (target);
+    if (target == null)
+      throw new NullPointerException();
+    this.target = target;
     this.hAlign = checkHAlign (hAlign);
     this.vAlign = checkVAlign (vAlign);
   }

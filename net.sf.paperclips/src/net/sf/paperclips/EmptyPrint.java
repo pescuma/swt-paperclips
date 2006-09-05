@@ -49,7 +49,6 @@ public class EmptyPrint implements Print {
    * determine the name of the print job. Override this method to change this
    * default.
    */
-  @Override
   public String toString () {
     return "PaperClips print job";
   }
@@ -64,9 +63,8 @@ class EmptyIterator implements PrintIterator {
 
   private boolean hasNext = true;
 
-  EmptyIterator (Device dev, EmptyPrint target) {
-    BeanUtils.checkNull (dev);
-    Point dpi = dev.getDPI ();
+  EmptyIterator (Device device, EmptyPrint target) {
+    Point dpi = device.getDPI ();
     this.size = new Point (
         Math.round (target.width  * dpi.x / 72f),
         Math.round (target.height * dpi.y / 72f));

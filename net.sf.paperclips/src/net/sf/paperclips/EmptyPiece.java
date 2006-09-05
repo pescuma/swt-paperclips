@@ -13,7 +13,9 @@ class EmptyPiece implements PrintPiece {
   private Point size;
 
   EmptyPiece (Point size) {
-    this.size = BeanUtils.checkNull (size);
+    if (size == null)
+      throw new NullPointerException();
+    this.size = size;
   }
 
   public Point getSize () {

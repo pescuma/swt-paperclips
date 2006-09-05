@@ -4,6 +4,7 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Device;
@@ -34,7 +35,9 @@ public class PagePrint implements Print {
    * @param footer a PageDecoration for creating the footer. may be null.
    */
   public PagePrint (Print body, PageDecoration header, PageDecoration footer) {
-    this.body = BeanUtils.checkNull (body);
+    if (body == null)
+      throw new NullPointerException();
+    this.body = body;
     this.header = header;
     this.footer = footer;
   }
@@ -44,7 +47,9 @@ public class PagePrint implements Print {
    * @param body the Print being decorated.
    */
   public PagePrint (Print body) {
-    this.body = BeanUtils.checkNull (body);
+    if (body == null)
+      throw new NullPointerException();
+    this.body = body;
     this.header = null;
     this.footer = null;
   }
@@ -61,7 +66,9 @@ public class PagePrint implements Print {
    * @param body the new page body.
    */
   public void setBody (Print body) {
-    this.body = BeanUtils.checkNull (body);
+    if (body == null)
+      throw new NullPointerException();
+    this.body = body;
   }
 
   /**
@@ -168,8 +175,7 @@ class PageNumberer {
     }
   }
 
-  @Override
-  public PageNumberer clone () {
+  PageNumberer copy () {
     PageNumberer result = new PageNumberer ();
     result.pageCount = this.pageCount;
     return result;
@@ -273,7 +279,7 @@ class PageIterator implements PrintIterator {
     this.footer = that.footer;
     this.footerGap = that.footerGap;
 
-    this.numberer = that.numberer.clone ();
+    this.numberer = that.numberer.copy ();
 
     this.minimumSize = that.minimumSize;
     this.preferredSize = that.preferredSize;
@@ -302,7 +308,7 @@ class PageIterator implements PrintIterator {
     // y offset
     int y = 0;
 
-    List <CompositeEntry> entries = new ArrayList <CompositeEntry> ();
+    List entries = new ArrayList ();
 
     // HEADER
     if (header != null) {
@@ -337,8 +343,10 @@ class PageIterator implements PrintIterator {
     PrintPiece bodyPiece = body.next (width, height);
 
     if (bodyPiece == null) {
-      for (CompositeEntry entry : entries)
+      for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
+        CompositeEntry entry = (CompositeEntry) iter.next();
         entry.piece.dispose();
+      }
       return null;
     }
 

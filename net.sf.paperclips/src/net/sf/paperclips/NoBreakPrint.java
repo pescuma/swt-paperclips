@@ -29,7 +29,9 @@ public class NoBreakPrint implements Print {
    * @param target the print to 
    */
   public NoBreakPrint(Print target) {
-    this.target = BeanUtils.checkNull(target);
+    if (target == null)
+      throw new NullPointerException();
+    this.target = target;
   }
 
   public PrintIterator iterator (Device device, GC gc) {
@@ -41,7 +43,9 @@ class NoBreakIterator implements PrintIterator {
   private PrintIterator target;
 
   NoBreakIterator(PrintIterator target) {
-    this.target = BeanUtils.checkNull(target);
+    if (target == null)
+      throw new NullPointerException();
+    this.target = target;
   }
 
   public PrintIterator copy () {

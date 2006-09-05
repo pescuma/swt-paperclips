@@ -25,8 +25,10 @@ public class CompositeEntry {
    * @param offset the painting offset within the CompositePrint.
    */
   public CompositeEntry (PrintPiece piece, Point offset) {
-    this.piece = BeanUtils.checkNull (piece);
-    this.offset = BeanUtils.checkNull (offset);
+    if (piece == null || offset == null)
+      throw new NullPointerException();
+    this.piece = piece; 
+    this.offset = offset;
 
     if (offset.x < 0 || offset.y < 0)
       throw new IllegalArgumentException (

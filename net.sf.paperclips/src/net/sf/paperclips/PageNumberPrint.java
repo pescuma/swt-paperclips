@@ -80,7 +80,9 @@ public class PageNumberPrint implements Print {
    * @param pageNumber the new page number.
    */
   public void setPageNumber (PageNumber pageNumber) {
-    this.pageNumber = BeanUtils.checkNull (pageNumber);
+    if (pageNumber == null)
+      throw new NullPointerException();
+    this.pageNumber = pageNumber;
   }
 
   /**
@@ -96,7 +98,9 @@ public class PageNumberPrint implements Print {
    * @param fontData the new text font.
    */
   public void setFontData (FontData fontData) {
-    this.fontData = BeanUtils.checkNull (fontData);
+    if (fontData == null)
+      throw new NullPointerException();
+    this.fontData = fontData;
   }
 
   /**
@@ -141,7 +145,9 @@ public class PageNumberPrint implements Print {
    * @param format the new page number format.
    */
   public void setPageNumberFormat (PageNumberFormat format) {
-    this.format = BeanUtils.checkNull (format);
+    if (format == null)
+      throw new NullPointerException();
+    this.format = format;
   }
 
   /**
@@ -164,7 +170,9 @@ public class PageNumberPrint implements Print {
    * @param foreground the new text color.
    */
   public void setRGB (RGB foreground) {
-    this.rgb = BeanUtils.checkNull (foreground);
+    if (foreground == null)
+      throw new NullPointerException();
+    this.rgb = foreground;
   }
 
   /**

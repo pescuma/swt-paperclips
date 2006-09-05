@@ -10,17 +10,15 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Point;
 
-enum PrintSizeStrategy {
+abstract class PrintSizeStrategy {
   /** Compute the minimum size */
-  MINIMUM {
-    @Override
+  public static final PrintSizeStrategy MINIMUM = new PrintSizeStrategy() {
     Point computeSize (PrintIterator iter) {
       return iter.minimumSize ();
     }
-  },
+  };
   /** Compute the preferred size. */
-  PREFERRED {
-    @Override
+  public static final PrintSizeStrategy PREFERRED = new PrintSizeStrategy() {
     Point computeSize (PrintIterator iter) {
       return iter.preferredSize ();
     }

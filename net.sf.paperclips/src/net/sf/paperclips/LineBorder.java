@@ -15,9 +15,7 @@ import org.eclipse.swt.graphics.RGB;
  */
 public class LineBorder implements Border {
   RGB rgb;
-
   int lineWidth = 1; // in points
-
   int gapSize = 5; // in points
 
   /**
@@ -102,8 +100,10 @@ class LineBorderPainter extends AbstractBorderPainter {
   private Color color;
 
   LineBorderPainter (LineBorder border, Device device, GC gc) {
+    if (device == null)
+      throw new NullPointerException();
     this.rgb = border.rgb;
-    this.device = BeanUtils.checkNull (device);
+    this.device = device;
 
     int lineWidthPoints = border.getLineWidth ();
     int borderWidthPoints = border.getGapSize ();
@@ -115,22 +115,18 @@ class LineBorderPainter extends AbstractBorderPainter {
         .round (borderWidthPoints * dpi.y / 72f));
   }
 
-  @Override
   public int getLeft () {
     return borderWidth.x;
   }
 
-  @Override
   public int getRight () {
     return borderWidth.x;
   }
 
-  @Override
   public int getTop (boolean open) {
     return open ? 0 : borderWidth.y;
   }
 
-  @Override
   public int getBottom (boolean open) {
     return open ? 0 : borderWidth.y;
   }
@@ -141,7 +137,6 @@ class LineBorderPainter extends AbstractBorderPainter {
     return color;
   }
 
-  @Override
   public void paint (GC gc,
                      int x,
                      int y,
@@ -159,7 +154,8 @@ class LineBorderPainter extends AbstractBorderPainter {
       gc.fillRectangle (x + width - lineWidth.x, y, lineWidth.x, height);
 
       // Top & bottom
-      if (!topOpen) gc.fillRectangle (x, y, width, lineWidth.y);
+      if (!topOpen)
+        gc.fillRectangle (x, y, width, lineWidth.y);
       if (!bottomOpen)
         gc.fillRectangle (x, y + height - lineWidth.y, width, lineWidth.y);
     } finally {

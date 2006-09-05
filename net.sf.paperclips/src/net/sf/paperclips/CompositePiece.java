@@ -30,7 +30,7 @@ public class CompositePiece implements PrintPiece {
    * Constructs a CompositePiece with the given entries.
    * @param entries an array of entries that make up this PrintPiece.
    */
-  public CompositePiece (CompositeEntry... entries) {
+  public CompositePiece (CompositeEntry[] entries) {
     this (createList (entries));
   }
 
@@ -45,10 +45,10 @@ public class CompositePiece implements PrintPiece {
     this (createList (entries), size);
   }
 
-  private static List <CompositeEntry> createList (CompositeEntry[] entries) {
-    List <CompositeEntry> result = new ArrayList <CompositeEntry> ();
-    for (CompositeEntry entry : entries)
-      result.add (entry);
+  private static List createList (CompositeEntry[] entries) {
+    List result = new ArrayList ();
+    for (int i = 0; i < entries.length; i++)
+      result.add(entries[i]);
     return result;
   }
 
@@ -56,7 +56,7 @@ public class CompositePiece implements PrintPiece {
    * Constructs a composite PrintPiece with the given entries.
    * @param entries an array of entries that make up this PrintPiece.
    */
-  public CompositePiece (List <CompositeEntry> entries) {
+  public CompositePiece (List entries) {
     this (entries, new Point (0, 0));
   }
 
@@ -68,15 +68,15 @@ public class CompositePiece implements PrintPiece {
    *          getSize(). This constructor increase this size to fit any entries
    *          that extend outside the given size.
    */
-  public CompositePiece (List <CompositeEntry> entries, Point size) {
-    BeanUtils.checkNull (entries);
-    for (CompositeEntry entry : entries)
-      BeanUtils.checkNull (entry);
+  public CompositePiece (List entries, Point size) {
+    if (entries.contains(null))
+      throw new NullPointerException();
 
-    this.entries = entries.toArray (new CompositeEntry[entries.size ()]);
+    this.entries = (CompositeEntry[]) entries.toArray (new CompositeEntry[entries.size ()]);
     this.size = new Point (size.x, size.y);
 
-    for (CompositeEntry entry : this.entries) {
+    for (int i = 0; i < this.entries.length; i++) {
+      CompositeEntry entry = this.entries[i];
       Point pieceSize = entry.piece.getSize ();
       this.size.x = Math.max (this.size.x, entry.offset.x + pieceSize.x);
       this.size.y = Math.max (this.size.y, entry.offset.y + pieceSize.y);
@@ -89,7 +89,8 @@ public class CompositePiece implements PrintPiece {
 
   public void paint (GC gc, int x, int y) {
     Rectangle clip = gc.getClipping ();
-    for (CompositeEntry entry : entries) {
+    for (int i = 0; i < entries.length; i++) {
+      CompositeEntry entry = entries[i];
       Point size = entry.piece.getSize ();
       if (clip.intersects (x + entry.offset.x, y + entry.offset.y, size.x,
           size.y))
@@ -98,7 +99,7 @@ public class CompositePiece implements PrintPiece {
   }
 
   public void dispose () {
-    for (CompositeEntry entry : entries)
-      entry.piece.dispose ();
+    for (int i = 0; i < entries.length; i++)
+      entries[i].piece.dispose ();
   }
 }
