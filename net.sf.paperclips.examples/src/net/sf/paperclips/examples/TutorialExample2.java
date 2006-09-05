@@ -7,6 +7,8 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
@@ -16,13 +18,14 @@ import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LinePrint;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.PrintIterator;
 import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 
 /**
  * First example in the PaperClips online tutorial.
  */
-public class TutorialExample2 {
+public class TutorialExample2 implements Print {
   private static Print createPrint() {
     // Create a grid with the following columns:
     // Column 1: preferred width
@@ -45,6 +48,10 @@ public class TutorialExample2 {
     grid.add(new LinePrint(SWT.HORIZONTAL), GridPrint.REMAINDER);
 
     return grid;
+  }
+
+  public PrintIterator iterator(Device device, GC gc) {
+    return createPrint().iterator(device, gc);
   }
 
   /**

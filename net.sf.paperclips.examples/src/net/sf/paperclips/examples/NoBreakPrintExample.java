@@ -23,7 +23,6 @@ import net.sf.paperclips.TextPrint;
  * @author Matthew
  */
 public class NoBreakPrintExample extends FactoryPrint {
-  @Override
   protected Print createPrint () {
     DefaultGridLook look = new DefaultGridLook(10, 10);
     look.setCellBorder(new LineBorder());

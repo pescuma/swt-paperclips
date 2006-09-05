@@ -45,7 +45,6 @@ public class ColumnPrintExample extends FactoryPrint {
     PrintUtil.print("ColumnPrintExample", new ColumnPrintExample());
   }
 
-  @Override
   protected Print createPrint() {
     StringBuffer buf = new StringBuffer(11000);
     for (int i = 1; i <= 500; i ++) {

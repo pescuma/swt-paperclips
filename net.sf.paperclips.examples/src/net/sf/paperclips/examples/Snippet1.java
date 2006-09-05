@@ -68,16 +68,21 @@ public class Snippet1 implements Print {
     GridPrint grid = new GridPrint(cols, look);
 
     // Add header and footer to match table column names.
-    for (TableColumn col : table.getColumns ()) {
+    TableColumn[] columns = table.getColumns();
+    for (int i = 0; i < columns.length; i++) {
+      TableColumn col = columns[i];
       Print cell = createCell(col.getImage(), col.getText());
       grid.addHeader(cell);
       grid.addFooter(cell);
     }
 
     // Add content rows
-    for (TableItem item : table.getItems())
-      for (int i = 0; i < cols.length; i++)
-        grid.add(createCell(item.getImage(i), item.getText(i)));
+    TableItem[] items = table.getItems();
+    for (int i = 0; i < items.length; i++) {
+      TableItem item = items[i];
+      for (int j = 0; j < cols.length; j++)
+        grid.add(createCell(item.getImage(j), item.getText(j)));
+    }
 
     return grid;
   }
@@ -125,8 +130,9 @@ public class Snippet1 implements Print {
     }
 
     table.setHeaderVisible (true);
-    for (TableColumn col : table.getColumns())
-      col.pack();
+    TableColumn[] columns = table.getColumns();
+    for (int i = 0; i < columns.length; i++)
+      columns[i].pack();
 
     button.addListener(SWT.Selection, new Listener() {
       public void handleEvent (Event event) {

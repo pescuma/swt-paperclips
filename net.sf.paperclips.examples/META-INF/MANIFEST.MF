@@ -6,5 +6,6 @@ Bundle-Version: 0.5.4
 Bundle-Vendor: Woodcraft Mill & Cabinet and others
 Bundle-Localization: plugin
 Require-Bundle: net.sf.paperclips,
- org.eclipse.swt
+ org.eclipse.swt,
+ net.sf.paperclips.ui
 Export-Package: net.sf.paperclips.examples

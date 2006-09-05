@@ -25,7 +25,6 @@ import net.sf.paperclips.TextPrint;
  * @author Matthew
  */
 public class BreakPrintExample extends FactoryPrint {
-  @Override
   protected Print createPrint () {
     GridPrint grid = new GridPrint("d:g", new DefaultGridLook(10, 10));
 

@@ -49,7 +49,6 @@ public class GridPrintExample extends FactoryPrint {
     PrintUtil.print("GridPrintExample", new GridPrintExample());
   }
 
-  @Override
   protected Print createPrint() {
     GridPrint grid = new GridPrint("r:72, p, d, r:d:g(3), r:d:g", new DefaultGridLook(5, 5));
 
