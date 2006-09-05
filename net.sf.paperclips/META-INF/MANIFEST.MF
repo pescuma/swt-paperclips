@@ -10,3 +10,4 @@ Export-Package: net.sf.paperclips,
  net.sf.paperclips.decorator,
  net.sf.paperclips.swt
 Bundle-ClassPath: .
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
