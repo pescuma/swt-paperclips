@@ -9,3 +9,4 @@ Require-Bundle: net.sf.paperclips,
  org.eclipse.swt,
  net.sf.paperclips.ui
 Export-Package: net.sf.paperclips.examples
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
