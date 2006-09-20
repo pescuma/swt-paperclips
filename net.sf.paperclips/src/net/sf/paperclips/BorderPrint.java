@@ -81,8 +81,7 @@ class BorderIterator implements PrintIterator {
     if (width < 0 || height < 0) return null;
 
     PrintIterator testIterator = target.copy();
-    PrintPiece piece = testIterator.next (width, height);
-
+    PrintPiece piece = PaperClips.next(testIterator, width, height);
     if (piece == null) return null;
 
     // If bottom border is closed, testIterator must be consumed in this

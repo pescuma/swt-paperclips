@@ -44,6 +44,10 @@ public interface PrintIterator {
    * this PrintIterator cannot fit any more in the given print area. Future
    * calls to this method should provide a fresh print area. At the top level,
    * each returned PrintPiece contains an entire page.
+   * <p>
+   * <b>Note</b>: PrintIterator classes should call
+   * {@link PaperClips#next(PrintIterator, int, int)} instead of calling this method directly,
+   * to gain automatic results checking to ensure all Print classes are well-behaved. 
    * @param width the width available on the graphics device for this iteration.
    * @param height the height available on the graphics device for this
    *          iteration.

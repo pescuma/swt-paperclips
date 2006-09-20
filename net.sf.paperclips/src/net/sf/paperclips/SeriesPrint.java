@@ -127,7 +127,7 @@ class SeriesIterator implements PrintIterator {
     if (!hasNext ()) throw new IllegalStateException ();
 
     PrintIterator iter = iters[index];
-    PrintPiece printPiece = iter.next (width, height);
+    PrintPiece printPiece = PaperClips.next(iter, width, height);
 
     if (printPiece != null && !iter.hasNext ()) index++;
 

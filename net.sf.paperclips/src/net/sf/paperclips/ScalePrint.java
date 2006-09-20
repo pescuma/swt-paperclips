@@ -128,7 +128,7 @@ class ScaleIterator implements PrintIterator {
     final int scaledWidth  = (int) Math.ceil (width  / scale);
     final int scaledHeight = (int) Math.ceil (height / scale);
 
-    PrintPiece target = this.target.next(scaledWidth, scaledHeight);
+    PrintPiece target = PaperClips.next(this.target, scaledWidth, scaledHeight);
 
     if (target == null) return null;
 

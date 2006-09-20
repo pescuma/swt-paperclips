@@ -68,7 +68,7 @@ class NoBreakIterator implements PrintIterator {
     // Use a test iterator so we preserve the original iterator
     PrintIterator testIterator = target.copy();
 
-    PrintPiece result = testIterator.next(width, height);
+    PrintPiece result = PaperClips.next(testIterator, width, height);
     if (result == null)
       return result;
 

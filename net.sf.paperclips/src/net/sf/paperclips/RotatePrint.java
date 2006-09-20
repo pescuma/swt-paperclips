@@ -130,9 +130,9 @@ final class RotateIterator implements PrintIterator {
   public PrintPiece next (int width, int height) {
     PrintPiece target;
     if (angle == 180) // angle may only be init'd to 90, 180, of 270
-      target = this.target.next (width, height);
+      target = PaperClips.next(this.target, width, height);
     else // flip width and height if rotating by 90 or 270
-      target = this.target.next (height, width);
+      target = PaperClips.next(this.target, height, width);
 
     if (target == null) return null;
 

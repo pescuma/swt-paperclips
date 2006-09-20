@@ -107,7 +107,7 @@ class BigIterator implements PrintIterator {
 
     if (currentPiece == null) {
       Point pages = estimatePagesRequired(width, height);
-      currentPiece = target.next (width * pages.x, height * pages.y);
+      currentPiece = PaperClips.next(target, width * pages.x, height * pages.y);
       if (currentPiece == null) return null; // Iteration fails
 
       // Reset the offset for the new piece.

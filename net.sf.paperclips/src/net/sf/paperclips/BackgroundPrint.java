@@ -87,7 +87,7 @@ class BackgroundIterator implements PrintIterator {
   }
 
   public PrintPiece next (int width, int height) {
-    PrintPiece targetPiece = target.next(width, height);
+    PrintPiece targetPiece = PaperClips.next(target, width, height);
     if (targetPiece == null) return null;
     return new BackgroundPiece(targetPiece, background, device);
   }

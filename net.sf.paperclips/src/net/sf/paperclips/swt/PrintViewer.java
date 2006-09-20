@@ -3,6 +3,7 @@
  */
 package net.sf.paperclips.swt;
 
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
 import net.sf.paperclips.PrintPiece;
@@ -96,7 +97,7 @@ public class PrintViewer {
       int visibleWidth = sc.getClientArea().width;
       canvasWidth = Math.max(minWidth, visibleWidth);
 
-      PrintPiece piece = iter.copy().next(canvasWidth, Integer.MAX_VALUE);
+      PrintPiece piece = PaperClips.next(iter.copy(), canvasWidth, Integer.MAX_VALUE);
 
       // If the print is vertically greedy, find the smallest height that will fit the print's
       // complete contents onto one tall page.
@@ -110,7 +111,7 @@ public class PrintViewer {
         // fits in, in one piece.
         while (true) {
           PrintIterator testIter = iter.copy();
-          PrintPiece test = testIter.next(canvasWidth, high);
+          PrintPiece test = PaperClips.next(testIter, canvasWidth, high);
           if (test == null) {
             low = high;
             high *= 4;
@@ -130,7 +131,7 @@ public class PrintViewer {
         while (high - low > 1) {
           int height = (low+high)/2;
           PrintIterator testIter = iter.copy();
-          PrintPiece test = testIter.next(canvasWidth, height);
+          PrintPiece test = PaperClips.next(testIter, canvasWidth, height);
 
           if (test == null) {
             low = height;

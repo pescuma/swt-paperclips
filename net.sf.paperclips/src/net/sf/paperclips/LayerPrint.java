@@ -132,7 +132,7 @@ class LayerIterator implements PrintIterator {
     for (int i = 0; i < entries.length; i++) {
       LayerEntry entry = entries[i];
       if (entry.iterator.hasNext ()) {
-        PrintPiece piece = entry.iterator.next (width, height);
+        PrintPiece piece = PaperClips.next(entry.iterator, width, height);
 
         if (piece == null) {
           for (Iterator iter = pieces.iterator(); iter.hasNext(); )

@@ -120,26 +120,11 @@ class ColumnIterator implements PrintIterator {
     for (int i = 0; i < columns && iterator.hasNext (); i++) {
       int colSize = colSizes[i];
 
-      PrintPiece piece = iterator.next (colSize, height);
+      PrintPiece piece = PaperClips.next(iterator, colSize, height);
 
       if (piece == null) {
         fail = true;
         break;
-      }
-
-      // VERIFY THAT THE RETURNED PRINT PIECE DOES NOT EXCEED THE EXPECTED
-      // SIZE! Otherwise ColumnIterator will have an infinite loop!
-      Point size = piece.getSize ();
-      if (size.x > colSize || size.y > height) {
-        // Dispose print pieces before throwing exception.
-        piece.dispose ();
-        for (Iterator iter = pieces.iterator(); iter.hasNext(); ) {
-          PrintPiece otherPiece = (PrintPiece) iter.next();
-          otherPiece.dispose ();
-        }
-
-        throw new IllegalStateException ("Iterator " + iterator
-            + "returned PrintPiece larger than allowed!");
       }
 
       pieces.add (piece);

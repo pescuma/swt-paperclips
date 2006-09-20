@@ -312,8 +312,9 @@ class PageIterator implements PrintIterator {
 
     // HEADER
     if (header != null) {
-      PrintPiece headerPiece = header.createPrint (pageNumber).iterator (
-          device, gc).next (width, height);
+      Print headerPrint = header.createPrint(pageNumber);
+      PrintIterator headerIterator = headerPrint.iterator(device, gc);
+      PrintPiece headerPiece = PaperClips.next(headerIterator, width, height);
 
       if (headerPiece == null) return null;
 
@@ -326,8 +327,9 @@ class PageIterator implements PrintIterator {
 
     // FOOTER
     if (footer != null) {
-      PrintPiece footerPiece = footer.createPrint (pageNumber).iterator (
-          device, gc).next (width, height);
+      Print footerPrint = footer.createPrint(pageNumber);
+      PrintIterator footerIterator = footerPrint.iterator(device, gc);
+      PrintPiece footerPiece = PaperClips.next(footerIterator, width, height);
 
       if (footerPiece == null) return null;
 
@@ -340,7 +342,7 @@ class PageIterator implements PrintIterator {
     }
 
     // BODY
-    PrintPiece bodyPiece = body.next (width, height);
+    PrintPiece bodyPiece = PaperClips.next(body, width, height);
 
     if (bodyPiece == null) {
       for (Iterator iter = entries.iterator(); iter.hasNext(); ) {

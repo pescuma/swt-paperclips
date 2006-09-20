@@ -1304,7 +1304,7 @@ class GridIterator implements PrintIterator {
       }
 
       // Iterate the current cell.
-      PrintPiece piece = rowPieces[cellIndex] = iter.next (cellspanWidth, height);
+      PrintPiece piece = rowPieces[cellIndex] = PaperClips.next(iter, cellspanWidth, height);
 
       // Two conditions that cause iteration to fail:
       // 1) piece is null.  All unconsumed cells should iterate or the whole row should wait until

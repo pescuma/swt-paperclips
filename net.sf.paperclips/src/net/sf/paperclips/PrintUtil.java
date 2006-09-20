@@ -156,7 +156,7 @@ public class PrintUtil {
         // sending any pages to the printer, so that PageNumberPrints have
         // the correct total page count.
         while (iterator.hasNext ()) {
-          PrintPiece page = iterator.next (bounds.width, bounds.height);
+          PrintPiece page = PaperClips.next(iterator, bounds.width, bounds.height);
           if (page == null) {
             printer.cancelJob ();
             throw new RuntimeException ("Print is too large to fit on paper.");

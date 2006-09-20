@@ -82,7 +82,7 @@ class AlignIterator implements PrintIterator {
   }
 
   public PrintPiece next (int width, int height) {
-    PrintPiece piece = target.next (width, height);
+    PrintPiece piece = PaperClips.next(target, width, height);
     if (piece == null) return null;
 
     Point size = piece.getSize ();
