@@ -37,7 +37,7 @@ public class PaperClips {
       Point size = result.getSize();
       if (size.x > width || size.y > height)
         throw new RuntimeException(
-            iterator+" produced a "+size+" piece for a "+width+"x"+height+" area.");
+            iterator+" produced a "+size.x+"x"+size.y+" piece for a "+width+"x"+height+" area.");
     }
     return result;
   }
