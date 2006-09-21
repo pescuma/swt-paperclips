@@ -64,17 +64,6 @@ public class SeriesPrint implements Print {
   public PrintIterator iterator (Device device, GC gc) {
     return new SeriesIterator (this, device, gc);
   }
-
-  /**
-   * Returns "PaperClips print job". This method is invoked by PrintUtil to
-   * determine the name of the print job. Override this method to change this
-   * default.
-   */
-  public String toString () {
-    if (size () == 0) return "PaperClips print job";
-    if (size () == 1) return prints.get (0).toString ();
-    return "Multiple Print Jobs";
-  }
 }
 
 class SeriesIterator implements PrintIterator {

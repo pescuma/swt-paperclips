@@ -293,13 +293,4 @@ public abstract class FactoryPrint implements Print {
   protected EmptyPrint empty (int width, int height) {
     return new EmptyPrint (width, height);
   }
-
-  /**
-   * Returns "PaperClips print job". This method is invoked by PrintUtil to
-   * determine the name of the print job. Override this method to change this
-   * default.
-   */
-  public String toString () {
-    return "PaperClips print job";
-  }
 }

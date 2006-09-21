@@ -177,15 +177,6 @@ public class TextPrint implements Print {
   public PrintIterator iterator (Device device, GC gc) {
     return new TextIterator (this, device, gc);
   }
-
-  /**
-   * Returns "PaperClips print job". This method is invoked by PrintUtil to
-   * determine the name of the print job. Override this method to change this
-   * default.
-   */
-  public String toString () {
-    return "PaperClips print job";
-  }
 }
 
 class TextIterator extends AbstractIterator {
