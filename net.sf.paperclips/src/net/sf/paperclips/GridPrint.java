@@ -1551,7 +1551,7 @@ class GridIterator implements PrintIterator {
       bodyColSpans.add(colspans);
 
       // Track row height for grid look.
-      bodyHeights.add(Integer.valueOf(rowHeight[0]));
+      bodyHeights.add(new Integer(rowHeight[0]));
 
       // Adjust cursors for row height.
       y += rowHeight[0];
