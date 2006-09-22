@@ -149,7 +149,6 @@ public class PrintPreview extends Canvas {
     this.orientation = orientation;
   }
 
-  @Override
   public Point computeSize(int wHint, int hHint) {
     return super.computeSize(wHint, hHint);
   }
@@ -183,8 +182,8 @@ public class PrintPreview extends Canvas {
 
   private void disposePages() {
     if (pages != null) {
-      for (PrintPiece page : pages)
-        page.dispose();
+      for (int i = 0; i < pages.length; i++)
+        pages[i].dispose();
       pages = null;
     }
   }
