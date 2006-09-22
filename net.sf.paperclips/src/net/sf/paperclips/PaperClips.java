@@ -148,11 +148,11 @@ public class PaperClips {
     // Determine the number of copies and collation.
     final int collatedCopies;
     final int noncollatedCopies;
-    if (printerData.collate) {
-      collatedCopies = printerData.copyCount;
+    if (printerData.collate) { // always false if printer driver performs collation
+      collatedCopies = printerData.copyCount; // always 1 if printer driver handles copy count
       noncollatedCopies = 1;
     } else {
-      noncollatedCopies = printerData.copyCount;
+      noncollatedCopies = printerData.copyCount; // always 1 if printer driver handles copy count
       collatedCopies = 1;
     }
 
