@@ -12,8 +12,8 @@ import net.sf.paperclips.BorderPrint;
 import net.sf.paperclips.ColumnPrint;
 import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.LineBorder;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.swt.PrintViewer;
 
@@ -42,7 +42,7 @@ public class ColumnPrintExample extends FactoryPrint {
       if (!display.readAndDispatch())
         display.sleep();
 
-    PrintUtil.print("ColumnPrintExample", new ColumnPrintExample());
+    PaperClips.print("ColumnPrintExample", new ColumnPrintExample());
   }
 
   protected Print createPrint() {

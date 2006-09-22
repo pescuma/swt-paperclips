@@ -13,8 +13,8 @@ import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -47,6 +47,6 @@ public class BreakPrintExample extends FactoryPrint {
    * @param args command-line args
    */
   public static void main(String[] args) {
-    PrintUtil.print("BreakPrintExample.java", new BreakPrintExample());
+    PaperClips.print("BreakPrintExample.java", new BreakPrintExample());
   }
 }

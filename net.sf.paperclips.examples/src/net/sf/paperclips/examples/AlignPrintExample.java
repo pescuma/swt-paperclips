@@ -9,9 +9,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import net.sf.paperclips.AlignPrint;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintUtil;
 
 /**
  * Prints the contents of TutorialExample2, but centered horizontally and vertically on the page.
@@ -40,7 +40,7 @@ public class AlignPrintExample implements Print {
     shell.dispose();
     display.dispose();
     if (printerData != null)
-      PrintUtil.printTo("AlignPrintExample.java", printerData, new AlignPrintExample(), 72); 
+      PaperClips.print("AlignPrintExample.java", new AlignPrintExample(), printerData); 
   }
 
 }

@@ -9,8 +9,8 @@ import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.ImagePrint;
 import net.sf.paperclips.LinePrint;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.swt.PrintViewer;
 
@@ -46,7 +46,7 @@ public class GridPrintExample extends FactoryPrint {
       if (!display.readAndDispatch())
         display.sleep();
 
-    PrintUtil.print("GridPrintExample", new GridPrintExample());
+    PaperClips.print("GridPrintExample", new GridPrintExample());
   }
 
   protected Print createPrint() {

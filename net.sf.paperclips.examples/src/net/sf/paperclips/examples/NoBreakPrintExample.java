@@ -12,8 +12,8 @@ import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.NoBreakPrint;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -50,6 +50,6 @@ public class NoBreakPrintExample extends FactoryPrint {
    * @param args command-line args
    */
   public static void main(String[] args) {
-    PrintUtil.print("NoBreakPrintExample.java", new NoBreakPrintExample());
+    PaperClips.print("NoBreakPrintExample.java", new NoBreakPrintExample());
   }
 }

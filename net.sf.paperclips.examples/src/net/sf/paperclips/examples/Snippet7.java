@@ -21,9 +21,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.ui.PrintPreview;
 
@@ -99,9 +99,8 @@ public class Snippet7 implements Print {
       public void handleEvent (Event event) {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
-        if (printerData != null) {
-          PrintUtil.printTo ("Snippet7.java", printerData, print, 72);
-        }
+        if (printerData != null)
+          PaperClips.print("Snippet7.java", print, printerData);
       }
     });
 

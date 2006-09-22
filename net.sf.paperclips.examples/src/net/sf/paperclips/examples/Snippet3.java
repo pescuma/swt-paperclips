@@ -22,9 +22,10 @@ import org.eclipse.swt.widgets.Shell;
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
+import net.sf.paperclips.Margins;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.BigPrint;
 import net.sf.paperclips.swt.PrintViewer;
@@ -77,9 +78,11 @@ public class Snippet3 implements Print {
       public void handleEvent (Event event) {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
-        if (printerData != null) {
-          PrintUtil.printTo ("Snippet3.java", printerData, print, 72); // 72 = 72 points = 1" margin
-        }
+        if (printerData != null)
+          PaperClips.print("Snippet3.java",
+                           print,
+                           new Margins(72), // 72 = 72 points = 1" margin
+                           printerData);
       }
     });
 

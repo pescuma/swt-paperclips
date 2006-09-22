@@ -41,6 +41,6 @@ public class PaperClipsExample {
         GridPrint.REMAINDER);
 
     //  When the document is ready to go, pass it to the PrintUtil.print(Print) method.
-    PrintUtil.print("PaperClipsExample", grid);
+    PaperClips.print("PaperClipsExample", grid);
   }
 }

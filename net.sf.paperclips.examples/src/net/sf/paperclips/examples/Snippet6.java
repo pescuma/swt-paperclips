@@ -26,13 +26,14 @@ import net.sf.paperclips.GridLook;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.LinePrint;
+import net.sf.paperclips.Margins;
 import net.sf.paperclips.PageDecoration;
 import net.sf.paperclips.PageNumber;
 import net.sf.paperclips.PageNumberPrint;
 import net.sf.paperclips.PagePrint;
+import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintUtil;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.swt.PrintViewer;
 
@@ -119,9 +120,11 @@ public class Snippet6 implements Print {
       public void handleEvent (Event event) {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
-        if (printerData != null) {
-          PrintUtil.printTo ("Snippet6.java", printerData, print, 72); // 72 = 72 points = 1" margin
-        }
+        if (printerData != null)
+          PaperClips.print("Snippet6.java",
+                           print,
+                           new Margins(72), // 72 = 72 points = 1" margin
+                           printerData);
       }
     });
 
