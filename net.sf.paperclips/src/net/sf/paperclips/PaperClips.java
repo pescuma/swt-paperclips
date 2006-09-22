@@ -191,7 +191,8 @@ public class PaperClips {
   /**
    * Processes the print job and returns an array of pages for the given printer device.  Margins
    * and page orientation are handled in this method, such that calling paint(gc, 0, 0) on the
-   * returned pages renders the document at the correct location on the paper.
+   * returned pages renders the document at the correct location on the paper.  (For screen
+   * display, the x and y coordinates need to be adjusted for the non-printable trim size.)
    * @param printer the printing device.
    * @param printJob the print job.
    * @return an array of all pages of the print job.
@@ -217,7 +218,7 @@ public class PaperClips {
         }
         break;
     }
-    final Rectangle rect = getPrinterBounds(margins, printer);
+    final Rectangle rect = getMarginBounds(margins, printer);
 
     GC gc = new GC(printer);
     List pages = new ArrayList();
@@ -225,12 +226,11 @@ public class PaperClips {
 
     try {
       while (iter.hasNext()) {
-        PrintPiece page = PaperClips.next(iter, rect.width, rect.height);
+        PrintPiece page = next(iter, rect.width, rect.height);
         if (page == null) {
-          for (Iterator it = pages.iterator(); iter.hasNext(); ) {
+          for (Iterator it = pages.iterator(); iter.hasNext(); )
             ((PrintPiece)it.next()).dispose();
-            it.remove();
-          }
+          pages.clear();
           throw new RuntimeException("Unable to layout pages");
         }
         pages.add(new PagePiece(rect, page));
@@ -243,38 +243,51 @@ public class PaperClips {
   }
 
   /**
-   * Given the desired margins, returns the bounding rectangle on the Printer device which is
-   * within those margins.  Margins less than the printer's minimum margins will be increased to
-   * the minimum.
+   * Returns the bounding rectangle of the paper, including non-printable margins.
+   * @param printer the printer device.
+   * @return a rectangle whose edges correspond to the edges of the paper. 
+   */
+  public static Rectangle getPaperBounds(Printer printer) {
+    Rectangle rect = printer.getClientArea();
+    return printer.computeTrim(rect.x, rect.y, rect.width, rect.height);
+  }
+
+  /**
+   * Returns the bounding rectangle of the printable area on the paper.
+   * @param printer the printer device.
+   * @return the bounding rectangle of the printable area on the paper.
+   */
+  public static Rectangle getPrintableBounds(Printer printer) {
+    return printer.getClientArea();
+  }
+
+  /**
+   * Returns the bounding rectangle of the printable area which is inside the given margins on the
+   * paper.  The printer's minimum margins are reflected in the returned rectangle.
    * @param printer the printer device.
    * @param margins the desired page margins.
-   * @return the bounding rectangle on the printer device which is within the desired margins.
+   * @return the bounding rectangle on the printable area which is within the margins.
    */
-  public static Rectangle getPrinterBounds(Margins margins, Printer printer) {
-    Point dpi = printer.getDPI();
-
-    // The printable area of the page.
-    Rectangle rect = printer.getClientArea();
-
-    // Adding the trim gives the entire page, not just the printable area.  Margins are calculated
-    // from the total page size.
-    Rectangle trim = printer.computeTrim(rect.x, rect.y, rect.width, rect.height);
+  public static Rectangle getMarginBounds(Margins margins, Printer printer) {
+    Rectangle paperBounds = getPaperBounds(printer);
 
     // Calculate the pixel coordinates for the margins
-    int top = trim.y + (margins.top * dpi.y / 72);
-    int left = trim.x + (margins.left * dpi.x / 72);
-    int right = trim.x + trim.width - (margins.right * dpi.x / 72);
-    int bottom = trim.y + trim.height - (margins.bottom * dpi.y / 72);
+    Point dpi = printer.getDPI();
+    int top = paperBounds.y + (margins.top * dpi.y / 72);
+    int left = paperBounds.x + (margins.left * dpi.x / 72);
+    int right = paperBounds.x + paperBounds.width - (margins.right * dpi.x / 72);
+    int bottom = paperBounds.y + paperBounds.height - (margins.bottom * dpi.y / 72);
 
     // Enforce the printer's minimum margins.
-    if (top < rect.y)
-      top = rect.y;
-    if (left < rect.x)
-      left = rect.x;
-    if (right > rect.x + rect.width)
-      right = rect.x + rect.width;
-    if (bottom > rect.y + rect.height)
-      bottom = rect.y + rect.height;
+    Rectangle printableBounds = getPrintableBounds(printer);
+    if (top < printableBounds.y)
+      top = printableBounds.y;
+    if (left < printableBounds.x)
+      left = printableBounds.x;
+    if (right > printableBounds.x + printableBounds.width)
+      right = printableBounds.x + printableBounds.width;
+    if (bottom > printableBounds.y + printableBounds.height)
+      bottom = printableBounds.y + printableBounds.height;
 
     return new Rectangle(left, top, right-left, bottom-top);
   }
