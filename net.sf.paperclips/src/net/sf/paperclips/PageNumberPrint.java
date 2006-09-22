@@ -322,7 +322,7 @@ class PageNumberPiece extends AbstractPiece {
       }
 
       // Draw the page number.
-      gc.drawText (text, x, y);
+      gc.drawText (text, x, y, true);
     } finally {
       gc.setFont (oldFont);
       gc.setForeground (oldForeground);
