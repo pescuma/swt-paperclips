@@ -8,32 +8,28 @@
  ******************************************************************************/
 package net.sf.paperclips;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 
 /**
- * A static class for printing Print objects.
+ * Deprecated class methods for printing documents--use the {@link PaperClips} class instead.
  * @author Matthew
+ * @deprecated Create {@PrintJob} instances, and print them through the
+ *             {@link PaperClips#print(PrintJob, PrinterData)} method.
  */
 public class PrintUtil {
   private PrintUtil () {}
+
+  private static final String DEFAULT_JOB_NAME = "PaperClips printing";
 
   /**
    * Prints the argument to the default printer with 1" margins. The Print's
    * toString() result will be used as the print job name.
    * @param print the item to print.
-   * @deprecated use {@link PrintUtil#print(String, Print) } instead.
+   * @deprecated use {@link PaperClips#print(String, Print) } instead.
    */
   public static void print (Print print) {
-    print (print.toString (), print, 72);
+    PaperClips.print(DEFAULT_JOB_NAME, print);
   }
 
   /**
@@ -41,10 +37,10 @@ public class PrintUtil {
    * will be used as the print job name.
    * @param print the item to print.
    * @param margins the page margins, in points.
-   * @deprecated use {@link PrintUtil#print(String, Print, int) } instead.
+   * @deprecated use {@link PaperClips#print(String, Print, Margins) } instead.
    */
   public static void print (Print print, int margins) {
-    print (print.toString (), print, margins);
+    PaperClips.print(DEFAULT_JOB_NAME, print, new Margins(margins));
   }
 
   /**
@@ -52,10 +48,10 @@ public class PrintUtil {
    * toString() result will be used as the print job name.
    * @param printer the device to print on.
    * @param print the item to print.
-   * @deprecated Use {@link PrintUtil#printTo(String, Printer, Print) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
    */
   public static void printTo (Printer printer, Print print) {
-    printTo (printer, print, 72);
+    PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print), printer);
   }
 
   /**
@@ -64,20 +60,20 @@ public class PrintUtil {
    * @param printer the device to print on.
    * @param print the item to print.
    * @param margins the page margins, in points.
-   * @deprecated Use {@link PrintUtil#printTo(String, Printer, Print, int) }
-   *             instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
    */
   public static void printTo (Printer printer, Print print, int margins) {
-    printTo (print.toString (), printer, print, margins);
+    PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print, new Margins(margins)), printer);
   }
 
   /**
    * Prints the argument to the default printer with 1" margins.
    * @param jobName the print job name.
    * @param print the item to print.
+   * @deprecated Use {@link PaperClips#print(String, Print) } instead.
    */
   public static void print (String jobName, Print print) {
-    print (jobName, print, 72);
+    PaperClips.print(new PrintJob(jobName, print), new PrinterData());
   }
 
   /**
@@ -85,9 +81,10 @@ public class PrintUtil {
    * @param jobName the print job name.
    * @param print the item to print.
    * @param margins the page margins, in points. 72 pts = 1".
+   * @deprecated Use {@link PaperClips#print(String, Print, Margins) } instead.
    */
   public static void print (String jobName, Print print, int margins) {
-    printTo (jobName, new PrinterData(), print, margins);
+    PaperClips.print(jobName, print, new Margins(margins));
   }
 
   /**
@@ -95,9 +92,10 @@ public class PrintUtil {
    * @param jobName the print job name.
    * @param printerData the printer to print to.
    * @param print the item to print.
+   * @deprecated Use {@link PaperClips#print(String, Print, PrinterData) } instead.
    */
   public static void printTo(String jobName, PrinterData printerData, Print print) {
-    printTo (jobName, printerData, print, 72);
+    PaperClips.print(new PrintJob(jobName, print), printerData);
   }
 
   /**
@@ -106,14 +104,12 @@ public class PrintUtil {
    * @param printerData PrinterData of the printer to print to.
    * @param print the item to print.
    * @param margins the page margins, in points.  72 pts = 1".
+   * @deprecated Use {@link PaperClips#print(String, Print, Margins, PrinterData) } instead.
    */
   public static void printTo(String jobName, PrinterData printerData, Print print, int margins) {
-    Printer printer = new Printer(printerData);
-    try {
-      printTo(jobName, printer, print, margins);
-    } finally {
-      printer.dispose();
-    }
+    PrintJob job = new PrintJob(jobName, print);
+    job.setMargins(margins);
+    PaperClips.print(job, printerData);
   }
 
   /**
@@ -121,9 +117,10 @@ public class PrintUtil {
    * @param jobName the print job name.
    * @param printer the device to print on.
    * @param print the item to print.
+   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
    */
   public static void printTo (String jobName, Printer printer, Print print) {
-    printTo (jobName, printer, print, 72);
+    PaperClips.print(new PrintJob(jobName, print), printer);
   }
 
   /**
@@ -132,105 +129,12 @@ public class PrintUtil {
    * @param printer the device to print on.
    * @param print the item to print.
    * @param margins the page margins, in points. 72 pts = 1".
+   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
    */
   public static void printTo (String jobName,
                               Printer printer,
                               Print print,
                               int margins) {
-    final PrinterData printerData = printer.getPrinterData();
-
-    if (printer.startJob (jobName)) {
-      GC gc = null;
-      Transform transform = null;
-      List pages = new ArrayList ();
-
-      try {
-        gc = new GC (printer);
-
-        Rectangle bounds = computePrintArea (printer, margins);
-        gc.setClipping (bounds);
-
-        PrintIterator iterator = print.iterator (printer, gc);
-
-        // Iterate through all pages. Must complete the iteration before
-        // sending any pages to the printer, so that PageNumberPrints have
-        // the correct total page count.
-        while (iterator.hasNext ()) {
-          PrintPiece page = PaperClips.next(iterator, bounds.width, bounds.height);
-          if (page == null) {
-            printer.cancelJob ();
-            throw new RuntimeException ("Print is too large to fit on paper.");
-          }
-          pages.add (page);
-        }
-
-        // Determine the page range to print based on PrinterData.scope
-        final int startPage;
-        final int endPage;
-        if (printerData.scope == PrinterData.PAGE_RANGE) {
-          // Convert from PrinterData's one-based page indices to zero-based page indices 
-          startPage = printerData.startPage-1;
-          endPage   = printerData.endPage  -1;
-        } else {
-          startPage = 0;
-          endPage   = pages.size()-1;
-        }
-
-        // Dispose pages outside the selected page range.
-        for (int i = 0; i < startPage; i++)
-          ((PrintPiece) pages.get(i)).dispose();
-        for (int i = endPage+1; i < pages.size(); i++)
-          ((PrintPiece) pages.get(i)).dispose();
-
-        for (int i = startPage; i <= endPage; i++) {
-          PrintPiece page = (PrintPiece) pages.get(i);
-
-          printer.startPage ();
-          page.paint (gc, bounds.x, bounds.y);
-          page.dispose(); // reclaim system resources to keep system resource usage lean.
-          printer.endPage ();
-        }
-        pages.clear();
-
-        printer.endJob ();
-      } finally {
-        for (Iterator iter = pages.iterator(); iter.hasNext(); )
-          ((PrintPiece) iter.next()).dispose();
-        if (gc != null)
-          gc.dispose ();
-        if (transform != null)
-          transform.dispose();
-      }
-    }
-  }
-
-  private static Rectangle computePrintArea (Printer printer, int margins) {
-    // Printer's DPI
-    Point dpi = printer.getDPI ();
-
-    // Convert margins from points to pixels
-    int marginX = dpi.x * margins / 72;
-    int marginY = dpi.y * margins / 72;
-
-    // Printable area
-    Rectangle rect = printer.getClientArea ();
-
-    // Compute trim
-    Rectangle trim = printer.computeTrim (0, 0, 0, 0);
-
-    // Calculate printable area, with 1" margins
-    int left = trim.x + marginX;
-    if (left < rect.x) left = rect.x;
-
-    int right = (rect.width + trim.x + trim.width) - marginX;
-    if (right > rect.width) right = rect.width;
-
-    int top = trim.y + marginY;
-    if (top < rect.y) top = rect.y;
-
-    int bottom = (rect.height + trim.y + trim.height) - marginY;
-    if (bottom > rect.height) bottom = rect.height;
-
-    return new Rectangle (left, top, right - left, bottom - top);
+    PaperClips.print(new PrintJob(jobName, print, new Margins(margins)), printer);
   }
 }
