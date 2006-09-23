@@ -22,6 +22,14 @@ public class PageNumberPageDecoration implements PageDecoration {
   public PageNumberPageDecoration() {}
 
   /**
+   * Constructs a PageNumberPageDecoration with the given alignment.
+   * @param align horizontal text alignment.
+   */
+  public PageNumberPageDecoration(int align) {
+    setAlign(align);
+  }
+
+  /**
    * Returns the font.
    * @return the font.
    */
