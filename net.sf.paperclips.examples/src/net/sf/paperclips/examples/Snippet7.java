@@ -21,9 +21,14 @@ import org.eclipse.swt.widgets.Shell;
 
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
+import net.sf.paperclips.Margins;
+import net.sf.paperclips.PageNumberPageDecoration;
+import net.sf.paperclips.PagePrint;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
+import net.sf.paperclips.PrintJob;
+import net.sf.paperclips.SimplePageDecoration;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.ui.PrintPreview;
 
@@ -38,10 +43,16 @@ public class Snippet7 implements Print {
     GridPrint grid = new GridPrint("p:g, d:g", look);
 
     String text = "The quick brown fox jumps over the lazy dog.";
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 50; i++)
       grid.add(new TextPrint(text));
 
-    return grid;
+    PagePrint page = new PagePrint(grid);
+    page.setHeader(new SimplePageDecoration(new TextPrint("Snippet7.java", SWT.CENTER)));
+    page.setFooter(new PageNumberPageDecoration(SWT.CENTER));
+    page.setHeaderGap(5);
+    page.setFooterGap(5);
+
+    return page;
   }
 
   public PrintIterator iterator (Device device, GC gc) {
@@ -59,50 +70,75 @@ public class Snippet7 implements Print {
     shell.setBounds (100, 100, 640, 480);
     shell.setLayout (new GridLayout(6, false));
 
-    Button button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    button.setText ("H. Fit");
-    button.addListener(SWT.Selection, new Listener() {
+    Margins margins = new Margins(108); // 1 1/2" margins
+    final PrintJob printJob = new PrintJob("Snippet7.java", new Snippet7(), margins);
+
+    Button hFit = new Button (shell, SWT.PUSH);
+    Button vFit = new Button (shell, SWT.PUSH);
+    Button bFit = new Button (shell, SWT.PUSH);
+    Button prev = new Button (shell, SWT.PUSH);
+    Button next = new Button (shell, SWT.PUSH);
+    Button print = new Button (shell, SWT.PUSH);
+    final PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
+
+    hFit.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    hFit.setText ("H. Fit");
+    hFit.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
-        
+        preview.setFitHorizontal(true);
+        preview.setFitVertical(false);
       }
     });
     
-    button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    button.setText ("V. Fit");
+    vFit.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    vFit.setText ("V. Fit");
+    vFit.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setFitVertical(true);
+        preview.setFitHorizontal(false);
+      }
+    });
 
-    button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    button.setText ("Best Fit");
+    bFit.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    bFit.setText ("Best Fit");
+    bFit.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setFitVertical(true);
+        preview.setFitHorizontal(true);
+      }
+    });
 
-    button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    button.setText ("<< Page");
+    prev.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    prev.setText ("<< Page");
+    prev.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setPageIndex(Math.max(0, preview.getPageIndex()-1));
+      }
+    });
 
-    button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    button.setText ("Page >>");
+    next.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    next.setText ("Page >>");
+    next.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setPageIndex(Math.min(preview.getPageIndex()+1, preview.getPageCount()-1));
+      }
+    });
 
-    button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    button.setText ("Print");
-
-    PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
-    GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-    data.horizontalSpan = 6;
-    preview.setLayoutData(data);
-    final Print print = new Snippet7();
-    preview.setPrint (print);
-
-    button.addListener(SWT.Selection, new Listener() {
+    print.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    print.setText ("Print");
+    print.addListener(SWT.Selection, new Listener() {
       public void handleEvent (Event event) {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
         if (printerData != null)
-          PaperClips.print("Snippet7.java", print, printerData);
+          PaperClips.print(printJob, printerData);
       }
     });
+
+    GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+    data.horizontalSpan = 6;
+    preview.setLayoutData(data);
+    preview.setPrintJob(printJob);
 
     shell.setVisible (true);
 
