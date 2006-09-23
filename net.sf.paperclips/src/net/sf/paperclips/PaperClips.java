@@ -203,22 +203,22 @@ public class PaperClips {
     Print document = printJob.getDocument();
 
     // Rotate the document (and margins with it) depending on print job orientation.
-    Rectangle bounds = printer.getBounds();
+    Rectangle paperBounds = getPaperBounds(printer);
     switch (orientation) {
       case LANDSCAPE:
-        if (bounds.width < bounds.height) {
+        if (paperBounds.width < paperBounds.height) {
           margins = margins.rotate();
           document = new RotatePrint(document);
         }
         break;
       case PORTRAIT:
-        if (bounds.height < bounds.width) {
+        if (paperBounds.height < paperBounds.width) {
           margins = margins.rotate();
           document = new RotatePrint(document);
         }
         break;
     }
-    final Rectangle rect = getMarginBounds(margins, printer);
+    final Rectangle marginBounds = getMarginBounds(margins, printer);
 
     GC gc = new GC(printer);
     List pages = new ArrayList();
@@ -226,14 +226,14 @@ public class PaperClips {
 
     try {
       while (iter.hasNext()) {
-        PrintPiece page = next(iter, rect.width, rect.height);
+        PrintPiece page = next(iter, marginBounds.width, marginBounds.height);
         if (page == null) {
           for (Iterator it = pages.iterator(); iter.hasNext(); )
             ((PrintPiece)it.next()).dispose();
           pages.clear();
           throw new RuntimeException("Unable to layout pages");
         }
-        pages.add(new PagePiece(rect, page));
+        pages.add(new PagePiece(marginBounds, page));
       }
     } finally {
       gc.dispose();
