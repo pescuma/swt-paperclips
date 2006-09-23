@@ -15,7 +15,7 @@ import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.swt.PrintViewer;
+import net.sf.paperclips.ui.PrintViewer;
 
 /**
  * Example for the ColumnPrint class.

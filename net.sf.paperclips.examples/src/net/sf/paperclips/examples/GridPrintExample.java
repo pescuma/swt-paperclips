@@ -12,7 +12,7 @@ import net.sf.paperclips.LinePrint;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.swt.PrintViewer;
+import net.sf.paperclips.ui.PrintViewer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
