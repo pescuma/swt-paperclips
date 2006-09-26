@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="plugin_export" name="build">
+	<target name="plugin_export">
+		<pde.exportPlugins destination="C:\Documents and Settings\Administrator\Desktop\Eclipse Exports\PaperClips" exportSource="false" exportType="directory" plugins="net.sf.paperclips,net.sf.paperclips.ui" useJARFormat="true"/>
+	</target>
+</project>

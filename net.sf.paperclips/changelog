@@ -1,4 +1,5 @@
 Version 0.6.0
+
 * JDK 1.4 compliance.
 * New WYSIWYG (what you see is what you get) PrintPreview control in the
   net.sf.paperclips.ui plugin.

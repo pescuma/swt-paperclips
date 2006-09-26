@@ -1,5 +1,7 @@
 PaperClips 0.6.0 released
 
+Note: This release is API incompatible with previous releases.  The UI controls have been moved to a different package, and to a different plugin (net.sf.paperclips.ui).  A simple search and replace should suffice to fix compilation problems.  I try to minimize changing APIs on everybody, I sincerely hope this doesn't cause a big problem.  However I believe that the improves clarity of the API will pay dividends in the long run.
+
 Features and changes in this release:
 * JDK 1.4 compliance.
 * New WYSIWYG (what you see is what you get) PrintPreview control in the net.sf.paperclips.ui plugin.

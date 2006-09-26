@@ -6,7 +6,7 @@ Release checklist
 * Update ant and jardesc files (version number in filenames).
 * Update release notes (version number, release description)
 * Update release announcement (version number, release description, changelog)
-* Build binary jar
+* Build binary jars (core and UI)
 * Build source zip
 * Clear existing javadoc
 * Regenerate javadoc
