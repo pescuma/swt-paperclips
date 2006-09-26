@@ -6,11 +6,11 @@ package net.sf.paperclips;
  */
 public class PrintJob {
   private final String name;
-  private final Print document;
+  private final Print  document;
 
-  private Margins margins;
+  private Margins margins = new Margins();
 
-  private int orientation = PaperClips.PORTRAIT;
+  private int orientation = PaperClips.ORIENTATION_DEFAULT;
 
   /**
    * Constructs a PrintJob for the given document.
@@ -19,22 +19,10 @@ public class PrintJob {
    * @param document the document to be printed.
    */
   public PrintJob(String name, Print document) {
-    this(name, document, new Margins());
-  }
-
-  /**
-   * Constructs a PrintJob for the given document.
-   * @param name the name of the print job, which will appear in the print queue of the operating
-   *        system.
-   * @param document the document to be printed.
-   * @param margins the page margins.
-   */
-  public PrintJob(String name, Print document, Margins margins) {
-    if (name == null || document == null || margins == null)
+    if (name == null || document == null)
       throw new NullPointerException();
     this.name = name;
     this.document = document;
-    this.margins = margins;
   }
 
   /**
@@ -63,21 +51,25 @@ public class PrintJob {
 
   /**
    * Sets the page orientation.
-   * @param orientation the page orientation.  Must be one of {@link PaperClips#PAGE_PORTRAIT} or
-   *        {@link PaperClips#PAGE_LANDSCAPE}.
+   * @param orientation the page orientation.  Must be one of
+   *        {@link PaperClips#ORIENTATION_DEFAULT }, {@link PaperClips#ORIENTATION_PORTRAIT } or
+   *        {@link PaperClips#ORIENTATION_LANDSCAPE }.  Values other than these choices will be
+   *        automatically changed to {@link PaperClips#ORIENTATION_DEFAULT }.
+   * @return this PrintJob (for chaining method calls)
    */
-  public void setOrientation(int orientation) {
+  public PrintJob setOrientation(int orientation) {
     this.orientation = checkOrientation(orientation);
+    return this;
   }
 
   private int checkOrientation(int orientation) {
     switch (orientation) {
-      case PaperClips.DEFAULT:
-      case PaperClips.LANDSCAPE:
-      case PaperClips.PORTRAIT:
+      case PaperClips.ORIENTATION_DEFAULT:
+      case PaperClips.ORIENTATION_LANDSCAPE:
+      case PaperClips.ORIENTATION_PORTRAIT:
         return orientation;
       default:
-        return PaperClips.DEFAULT;
+        return PaperClips.ORIENTATION_DEFAULT;
     }
   }
 
@@ -91,19 +83,23 @@ public class PrintJob {
 
   /**
    * Sets the page margins.
-   * @param margins the new page margins, expressed in points.  72 points = 1".
+   * @param margins the new page margins.
+   * @return this PrintJob (for chaining method calls)
    */
-  public void setMargins(Margins margins) {
+  public PrintJob setMargins(Margins margins) {
     if (margins == null)
       throw new NullPointerException();
     this.margins = margins;
+    return this;
   }
 
   /**
    * Sets the top, left, right, and bottom margins to the argument.
    * @param margins the margins, in points.  72 points = 1 inch.
+   * @return this PrintJob (for chaining method calls)
    */
-  public void setMargins(int margins) {
+  public PrintJob setMargins(int margins) {
     this.margins = new Margins(margins);
+    return this;
   }
 }
