@@ -1,5 +1,5 @@
 ==================================
-PaperClips Examples 0.5.4
+PaperClips Examples 0.6.0
 http://paperclips.sourceforge.net/
 ==================================
 
@@ -25,10 +25,8 @@ how to use various features of the PaperClips API.  This project is intended
 to be imported as a plugin project in your Eclipse IDE.
 
 Requirements:
-* Java 5.0 (code named "Tiger") or later.
-* SWT 3.0 or later.  SWT 3.2M3 or later is required if you use the ScalePrint
-  or RotatePrint classes.  PaperClips may work on earlier versions of SWT but
-  I have not tested this. SWT may be downloaded at http://www.eclipse.org/swt/.
+* Java 1.4 or later.
+* SWT 3.2 or later.  SWT may be downloaded at http://www.eclipse.org/swt/.
 * The net.sf.paperclips plugin must be available in the classpath (for regular
   java apps) or in the plugins folder of your target platform (for Eclipse
   apps).
