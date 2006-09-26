@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: PaperClips UI Plug-in
 Bundle-SymbolicName: net.sf.paperclips.ui
-Bundle-Version: 0.5.5
+Bundle-Version: 0.6.0
 Bundle-Vendor: Woodcraft Mill & Cabinet and others
 Bundle-Localization: plugin
 Require-Bundle: net.sf.paperclips;visibility:=reexport
