@@ -14,7 +14,7 @@ import org.eclipse.swt.printing.PrinterData;
 /**
  * Deprecated class methods for printing documents--use the {@link PaperClips} class instead.
  * @author Matthew
- * @deprecated Create {@PrintJob} instances, and print them through the
+ * @deprecated Create {@PrintJob} instances, and print them with the
  *             {@link PaperClips#print(PrintJob, PrinterData)} method.
  */
 public class PrintUtil {
@@ -26,10 +26,10 @@ public class PrintUtil {
    * Prints the argument to the default printer with 1" margins. The Print's
    * toString() result will be used as the print job name.
    * @param print the item to print.
-   * @deprecated use {@link PaperClips#print(String, Print) } instead.
+   * @deprecated use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void print (Print print) {
-    PaperClips.print(DEFAULT_JOB_NAME, print);
+    PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print), new PrinterData());
   }
 
   /**
@@ -37,10 +37,11 @@ public class PrintUtil {
    * will be used as the print job name.
    * @param print the item to print.
    * @param margins the page margins, in points.
-   * @deprecated use {@link PaperClips#print(String, Print, Margins) } instead.
+   * @deprecated use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void print (Print print, int margins) {
-    PaperClips.print(DEFAULT_JOB_NAME, print, new Margins(margins));
+    PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print).setMargins(new Margins(margins)),
+                     new PrinterData());
   }
 
   /**
@@ -48,7 +49,7 @@ public class PrintUtil {
    * toString() result will be used as the print job name.
    * @param printer the device to print on.
    * @param print the item to print.
-   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void printTo (Printer printer, Print print) {
     PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print), printer);
@@ -60,17 +61,18 @@ public class PrintUtil {
    * @param printer the device to print on.
    * @param print the item to print.
    * @param margins the page margins, in points.
-   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void printTo (Printer printer, Print print, int margins) {
-    PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print, new Margins(margins)), printer);
+    PaperClips.print(new PrintJob(DEFAULT_JOB_NAME, print).setMargins(margins),
+                     printer);
   }
 
   /**
    * Prints the argument to the default printer with 1" margins.
    * @param jobName the print job name.
    * @param print the item to print.
-   * @deprecated Use {@link PaperClips#print(String, Print) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void print (String jobName, Print print) {
     PaperClips.print(new PrintJob(jobName, print), new PrinterData());
@@ -81,10 +83,10 @@ public class PrintUtil {
    * @param jobName the print job name.
    * @param print the item to print.
    * @param margins the page margins, in points. 72 pts = 1".
-   * @deprecated Use {@link PaperClips#print(String, Print, Margins) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void print (String jobName, Print print, int margins) {
-    PaperClips.print(jobName, print, new Margins(margins));
+    PaperClips.print(new PrintJob(jobName, print).setMargins(margins), new PrinterData());
   }
 
   /**
@@ -92,7 +94,7 @@ public class PrintUtil {
    * @param jobName the print job name.
    * @param printerData the printer to print to.
    * @param print the item to print.
-   * @deprecated Use {@link PaperClips#print(String, Print, PrinterData) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void printTo(String jobName, PrinterData printerData, Print print) {
     PaperClips.print(new PrintJob(jobName, print), printerData);
@@ -104,7 +106,7 @@ public class PrintUtil {
    * @param printerData PrinterData of the printer to print to.
    * @param print the item to print.
    * @param margins the page margins, in points.  72 pts = 1".
-   * @deprecated Use {@link PaperClips#print(String, Print, Margins, PrinterData) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void printTo(String jobName, PrinterData printerData, Print print, int margins) {
     PrintJob job = new PrintJob(jobName, print);
@@ -117,7 +119,7 @@ public class PrintUtil {
    * @param jobName the print job name.
    * @param printer the device to print on.
    * @param print the item to print.
-   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void printTo (String jobName, Printer printer, Print print) {
     PaperClips.print(new PrintJob(jobName, print), printer);
@@ -129,12 +131,12 @@ public class PrintUtil {
    * @param printer the device to print on.
    * @param print the item to print.
    * @param margins the page margins, in points. 72 pts = 1".
-   * @deprecated Use {@link PaperClips#print(PrintJob, Printer) } instead.
+   * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData) } instead.
    */
   public static void printTo (String jobName,
                               Printer printer,
                               Print print,
                               int margins) {
-    PaperClips.print(new PrintJob(jobName, print, new Margins(margins)), printer);
+    PaperClips.print(new PrintJob(jobName, print).setMargins(margins), printer);
   }
 }
