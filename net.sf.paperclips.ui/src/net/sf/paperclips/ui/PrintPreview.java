@@ -23,7 +23,15 @@ import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.PrintPiece;
 
 /**
- * A WYSIWYG (what you see is what you get) print preview panel.
+ * A WYSIWYG (what you see is what you get) print preview panel.  This control displays a preview
+ * of what a PrintJob will look like on paper when printed on the printer indicated by the
+ * printerData property.
+ * <dl>
+ * <dt><b>Styles:</b></dt>
+ * <dd>(none)</dd>
+ * <dt><b>Events:</b></dt>
+ * <dd>(none)</dd>
+ * </dl>
  * @author Matthew Hall
  */
 public class PrintPreview extends Canvas {
@@ -34,6 +42,8 @@ public class PrintPreview extends Canvas {
    */
   public PrintPreview(Composite parent, int style) {
     super(parent, style | SWT.DOUBLE_BUFFERED);
+
+    setBackground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 
     addPaintListener(new PaintListener() {
       public void paintControl(PaintEvent e) {
@@ -63,8 +73,8 @@ public class PrintPreview extends Canvas {
   boolean     fitVertical   = true;
   float       scale         = 1.0f;
 
-  Printer   printer            = null;
-  Rectangle paperPrinterBounds = null; // The bounds of the paper on the printer device.
+  Printer printer   = null;
+  Point   paperSize = null; // The bounds of the paper on the printer device.
 
   PrintPiece[] pages              = null;
   Rectangle    paperDisplayBounds = null; // Where the paper is drawn within this control.
@@ -85,6 +95,7 @@ public class PrintPreview extends Canvas {
     this.printJob = printJob;
     this.pageIndex = 0;
     disposePages();
+    paperSize = null; // in case the orientation changed
     redraw();
   }
 
@@ -209,18 +220,17 @@ public class PrintPreview extends Canvas {
         return;
       }
 
-      if (printer == null) {
-        printer = new Printer(printerData);
-        paperPrinterBounds = PaperClips.getPaperBounds(printer);
-      }
+      getPrinter();
+      getPaperSize();
+      getPages();
+      getPaperDisplayBounds();
 
-      if (pages == null)
-        pages = PaperClips.getPages(printJob, printer);
-
-      if (paperDisplayBounds == null)
-        paperDisplayBounds = getPaperDisplayBounds();
-
-      if (pageIndex < 0 || pageIndex >= pages.length) {
+      if (printer == null ||
+          paperSize == null ||
+          pages == null ||
+          paperDisplayBounds == null ||
+          pageIndex < 0 ||
+          pageIndex >= pages.length) {
         drawBackground(event, event.display, event.gc);
         return;
       }
@@ -237,15 +247,12 @@ public class PrintPreview extends Canvas {
       drawPaper(printer, printerGC);
 
       printerTransform.translate(paperDisplayBounds.x, paperDisplayBounds.y);
-      float absoluteScale = getAbsoluteScale();
-      Point displayDPI = event.display.getDPI();
-      Point printerDPI = printer.getDPI();
-      float scaleX = absoluteScale * displayDPI.x / printerDPI.x;
-      float scaleY = absoluteScale * displayDPI.y / printerDPI.y;
-      printerTransform.scale(scaleX, scaleY);
+      printerTransform.scale(
+          (float) paperDisplayBounds.width / (float) paperSize.x,
+          (float) paperDisplayBounds.height / (float) paperSize.y);
       printerGC.setTransform(printerTransform);
   
-      pages[pageIndex].paint(printerGC, -paperPrinterBounds.x, -paperPrinterBounds.y);
+      pages[pageIndex].paint(printerGC, 0, 0);
   
       displayImage = new Image(event.display, printerImage.getImageData());
       event.gc.drawImage(displayImage, event.x, event.y);
@@ -268,20 +275,56 @@ public class PrintPreview extends Canvas {
   private final int BOILERPLATE_SIZE =
     2*PAPER_MARGIN + 2*PAPER_BORDER_WIDTH + PAPER_SHADOW_WIDTH;
 
-  RGB background;
+  private Printer getPrinter() {
+    if (printer == null && printerData != null) {
+      printer = new Printer(printerData);
+      disposePages();
+      paperDisplayBounds = null;
+    }
+    return printer;
+  }
+
+  private boolean orientationRequiresRotate() {
+    int orientation = printJob.getOrientation();
+    Rectangle bounds = PaperClips.getPaperBounds(printer);
+    return
+        (orientation == PaperClips.ORIENTATION_PORTRAIT  && bounds.width > bounds.height) ||
+        (orientation == PaperClips.ORIENTATION_LANDSCAPE && bounds.height > bounds.width);
+  }
+
+  private Point getPaperSize() {
+    Printer printer = getPrinter();
+    if (paperSize == null && printer != null && printJob != null) {
+      Rectangle paperBounds = PaperClips.getPaperBounds(printer);
+      this.paperSize = orientationRequiresRotate() ?
+          new Point(paperBounds.height, paperBounds.width) :
+          new Point(paperBounds.width, paperBounds.height);
+    }
+    return paperSize;
+  }
+
+  private PrintPiece[] getPages() {
+    if (pages == null && printJob != null) {
+      pages = PaperClips.getPages(printJob, getPrinter());
+      if (orientationRequiresRotate())
+        for (int i = 0; i < pages.length; i++)
+          pages[i] = new RotateClockwisePrintPiece(printer, pages[i]);
+    }
+    return pages;
+  }
 
   private void drawBackground(PaintEvent event, Device device, GC gc) {
     Color oldBackground = gc.getBackground();
-
-    if (background == null)
-      background = event.display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB();
+    RGB background = getBackground().getRGB();
 
     Color bg = new Color(device, background);
-
-    gc.setBackground(bg);
-    gc.fillRectangle(event.x, event.y, event.width, event.height);
-    gc.setBackground(oldBackground);
-    bg.dispose();
+    try {
+      gc.setBackground(bg);
+      gc.fillRectangle(event.x, event.y, event.width, event.height);
+      gc.setBackground(oldBackground);
+    } finally {
+      bg.dispose();
+    }
   }
 
   private void drawPaper(Device device, GC gc) {
@@ -289,13 +332,16 @@ public class PrintPreview extends Canvas {
 
     Color white = device.getSystemColor(SWT.COLOR_WHITE);
     Color black = device.getSystemColor(SWT.COLOR_BLACK);
+    RGB shadowRGB = getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW).getRGB();
+    Color shadow = new Color(device, shadowRGB);
 
     // Drop shadow
-    gc.setBackground(black);
+    gc.setBackground(shadow);
     gc.fillRectangle(paperDisplayBounds.x+PAPER_SHADOW_WIDTH,
                      paperDisplayBounds.y+PAPER_SHADOW_WIDTH,
                      paperDisplayBounds.width+PAPER_BORDER_WIDTH,
                      paperDisplayBounds.height+PAPER_BORDER_WIDTH);
+    shadow.dispose();
 
     // White page
     gc.setBackground(white);
@@ -314,10 +360,10 @@ public class PrintPreview extends Canvas {
   /**
    * Calculates the scale that the page should be displayed at on-screen.  This value is an 
    * absolute scale based on physical measurements, and is independent of the relative DPI of the
-   * display and printer devices.  This means that the GC transform must be scaled by the result,
-   * as well as the display DPI to printer DPI ratio.
+   * display and printer devices.  This means that the GC transform must be scaled by the value
+   * returned from this method, as well as the display DPI to printer DPI ratio.
    * <p>
-   * It is an error to call this method if the Printer field is null.
+   * <b>Note</b>: It is an error to call this method if the printerData property is null.
    * @param display the display device.
    * @param printer the printer device.
    * @return the absolute scale that the page should be displayed, based on properties. 
@@ -325,27 +371,27 @@ public class PrintPreview extends Canvas {
   private float getAbsoluteScale() {
     if (fitHorizontal || fitVertical) {
       Point displayDPI = getDisplay().getDPI();
-      Point printerDPI = printer.getDPI();
-      Point screenSize = getSize();
-      Rectangle paperSize = PaperClips.getPaperBounds(printer);
-      screenSize.x -= BOILERPLATE_SIZE;
-      screenSize.y -= BOILERPLATE_SIZE;
+      Point printerDPI = getPrinter().getDPI();
+      Point controlSize = getSize();
+      Point paperSize = getPaperSize();
+      controlSize.x -= BOILERPLATE_SIZE;
+      controlSize.y -= BOILERPLATE_SIZE;
 
       if (fitHorizontal) {
-        float screenWidth = (float) screenSize.x / (float) displayDPI.x; // inches
-        float paperWidth = (float) paperSize.width / (float) printerDPI.x; // inches
+        float screenWidth = (float) controlSize.x / (float) displayDPI.x; // inches
+        float paperWidth  = (float) paperSize.x   / (float) printerDPI.x; // inches
         float scaleX = screenWidth / paperWidth;
         if (fitVertical) {
-          float screenHeight = (float) screenSize.y / (float) displayDPI.y; // inches
-          float paperHeight = (float) paperSize.height / (float) printerDPI.y; // inches
+          float screenHeight = (float) controlSize.y / (float) displayDPI.y; // inches
+          float paperHeight  = (float) paperSize.y   / (float) printerDPI.y; // inches
           float scaleY = screenHeight / paperHeight;
           return Math.min(scaleX, scaleY);
         }
         return scaleX;
       }
       // fitVertical == true
-      float screenHeight = (float) screenSize.y / (float) displayDPI.y; // inches
-      float paperHeight = (float) paperSize.height / (float) printerDPI.y; // inches
+      float screenHeight = (float) controlSize.y / (float) displayDPI.y; // inches
+      float paperHeight  = (float) paperSize.y   / (float) printerDPI.y; // inches
       float scaleY = screenHeight / paperHeight;
       return scaleY;
     }
@@ -358,24 +404,27 @@ public class PrintPreview extends Canvas {
    * @return the bounding rectangle where the paper is drawn on the control.
    */
   private Rectangle getPaperDisplayBounds() {
-    Point displayDPI = getDisplay().getDPI();
-    Point printerDPI = printer.getDPI();
-    float absoluteScale = getAbsoluteScale();
-    float scaleX = absoluteScale * displayDPI.x / printerDPI.x;
-    float scaleY = absoluteScale * displayDPI.y / printerDPI.y;
+    if (paperDisplayBounds == null) {
+      Point displayDPI = getDisplay().getDPI();
+      Point printerDPI = printer.getDPI();
+      float absoluteScale = getAbsoluteScale();
+      float scaleX = absoluteScale * displayDPI.x / printerDPI.x;
+      float scaleY = absoluteScale * displayDPI.y / printerDPI.y;
 
-    int x = PAPER_MARGIN + PAPER_BORDER_WIDTH;
-    int y = PAPER_MARGIN + PAPER_BORDER_WIDTH;
-    int width  = (int) Math.ceil(scaleX * paperPrinterBounds.width);
-    int height = (int) Math.ceil(scaleY * paperPrinterBounds.height);
+      int x = PAPER_MARGIN + PAPER_BORDER_WIDTH;
+      int y = PAPER_MARGIN + PAPER_BORDER_WIDTH;
+      int width  = (int) Math.ceil(scaleX * paperSize.x);
+      int height = (int) Math.ceil(scaleY * paperSize.y);
 
-    // Center the paper horizontally if needed 
-    Point size = getSize();
-    size.x -= (width  + BOILERPLATE_SIZE);
-    if (size.x > 0)
-      x += size.x/2;
+      // Center the paper horizontally if needed 
+      Point size = getSize();
+      size.x -= (width + BOILERPLATE_SIZE);
+      if (size.x > 0)
+        x += size.x/2;
 
-    return new Rectangle(x, y, width, height);
+      paperDisplayBounds = new Rectangle(x, y, width, height);
+    }
+    return paperDisplayBounds;
   }
 
   private void disposePages() {
@@ -392,7 +441,7 @@ public class PrintPreview extends Canvas {
     if (printer != null) {
       printer.dispose();
       printer = null;
-      paperPrinterBounds = null;
+      paperSize = null;
     }
   }
 
@@ -402,4 +451,52 @@ public class PrintPreview extends Canvas {
   }
 
   // TODO Implement computeSize(int, int, boolean)
+}
+
+class RotateClockwisePrintPiece implements PrintPiece {
+  private final Printer printer;
+  private final PrintPiece target;
+  private final Point size;
+  
+  RotateClockwisePrintPiece(Printer printer, PrintPiece target) {
+    if (printer == null || target == null)
+      throw new NullPointerException();
+    this.printer = printer;
+    this.target = target;
+    Point targetSize = target.getSize();
+    this.size = new Point(targetSize.y, targetSize.x);
+  }
+
+  public void dispose() {
+    target.dispose();
+  }
+
+  public Point getSize() {
+    return new Point(size.x, size.y);
+  }
+
+  public void paint(GC gc, int x, int y) {
+    Transform oldTransform = null;
+    Transform newTransform = null;
+    try {
+      oldTransform = new Transform(printer);
+      gc.getTransform(oldTransform);
+
+      newTransform = new Transform(printer);
+      gc.getTransform(newTransform);
+      newTransform.translate(x, y);
+      newTransform.translate(size.x, 0);
+      newTransform.rotate(90);
+      gc.setTransform(newTransform);
+
+      target.paint(gc, 0, 0);
+
+      gc.setTransform(oldTransform);
+    } finally {
+      if (oldTransform != null)
+        oldTransform.dispose();
+      if (newTransform != null)
+        newTransform.dispose();
+    }
+  }
 }
