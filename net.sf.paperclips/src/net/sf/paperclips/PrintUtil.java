@@ -14,7 +14,7 @@ import org.eclipse.swt.printing.PrinterData;
 /**
  * Deprecated class methods for printing documents--use the {@link PaperClips} class instead.
  * @author Matthew
- * @deprecated Create {@PrintJob} instances, and print them with the
+ * @deprecated Create {@link PrintJob} instances, and print them with the
  *             {@link PaperClips#print(PrintJob, PrinterData)} method.
  */
 public class PrintUtil {
