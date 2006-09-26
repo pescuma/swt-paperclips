@@ -12,27 +12,27 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 
 /**
- * This class contains static contants and methods for preparing and printing documents.  This
- * class supersedes the PrintUtil class.
+ * This class contains static constants and methods for preparing and printing documents.  Methods
+ * in this class supersede those in PrintUtil.
  * @author Matthew Hall
  */
 public class PaperClips {
   private PaperClips() {} // no instances
 
   /**
-   * Constant int value for printer default page orientation.  Value is SWT.DEFAULT.
+   * Indicates that the printer's default page orientation should be used.
    */
-  public static final int DEFAULT = SWT.DEFAULT;
+  public static final int ORIENTATION_DEFAULT = SWT.DEFAULT;
 
   /**
-   * Constant int value for portrait page orientation.  Value is SWT.VERTICAL.
+   * Indicates portrait page orientation.
    */
-  public static final int PORTRAIT = SWT.VERTICAL;
+  public static final int ORIENTATION_PORTRAIT = SWT.VERTICAL;
 
   /**
-   * Constant int value for landscape page orientation.  Value is SWT.HORIZONTAL
+   * Indicates landscape page orientation.
    */
-  public static final int LANDSCAPE = SWT.HORIZONTAL;
+  public static final int ORIENTATION_LANDSCAPE = SWT.HORIZONTAL;
 
   /**
    * Calls iterator.next(width, height) and returns the result, or throws a RuntimeException if
@@ -61,58 +61,10 @@ public class PaperClips {
   }
 
   /**
-   * Print the document to the default printer.
-   * @param jobName the name of the print job.
-   * @param document the document to print.
-   */
-  public static void print(String jobName, Print document) {
-    print(new PrintJob(jobName, document));
-  }
-
-  /**
-   * Print the document to the default printer. 
-   * @param jobName the name of the print job.
-   * @param document the document to print.
-   * @param margins the page margins.
-   */
-  public static void print(String jobName, Print document, Margins margins) {
-    print(new PrintJob(jobName, document, margins));
-  }
-
-  /**
-   * Print the document to the given printer.
-   * @param jobName the name of the print job.
-   * @param document the document to print.
-   * @param printerData the printer device to print to.
-   */
-  public static void print(String jobName, Print document, PrinterData printerData) {
-    print(new PrintJob(jobName, document), printerData);
-  }
-
-  /**
-   * Print the document to the given printer.
-   * @param jobName the name of the print job.
-   * @param document the document to print.
-   * @param margins the page margins.
-   * @param printerData the printer device to print to.
-   */
-  public static void print(
-      String jobName, Print document, Margins margins, PrinterData printerData) {
-    print(new PrintJob(jobName, document, margins), printerData);
-  }
-
-  /**
-   * Prints the print job to the default printer.
+   * Prints the print job to the given printer.  This method constructs a Printer, forwards to
+   * {@link #print(PrintJob, Printer) }, and disposes the printer before returning.
    * @param printJob the print job.
-   */
-  public static void print(PrintJob printJob) {
-    print(printJob, new PrinterData());
-  }
-
-  /**
-   * Prints the print job to the printer identified by printerData.
-   * @param printJob the print job.
-   * @param printerData the PrinterData identifying the desired printer.
+   * @param printerData the PrinterData of the selected printer.
    */
   public static void print(PrintJob printJob, PrinterData printerData) {
     Printer printer = new Printer(printerData);
@@ -163,13 +115,17 @@ public class PaperClips {
 
     GC gc = new GC(printer);
 
+    Rectangle paperBounds = getPaperBounds(printer);
+    final int x = paperBounds.x;
+    final int y = paperBounds.y;
+
     try {
       if (printer.startJob(printJob.getName())) {
         for (int collated = 0; collated < collatedCopies; collated++)
           for (int i = startPage; i <= endPage; i++)
             for (int noncollated = 0; noncollated < noncollatedCopies; noncollated++)
               if (printer.startPage()) {
-                pages[i].paint(gc, 0, 0);
+                pages[i].paint(gc, x, y);
                 pages[i].dispose();
                 printer.endPage();
               } else {
@@ -189,13 +145,17 @@ public class PaperClips {
   }
 
   /**
-   * Processes the print job and returns an array of pages for the given printer device.  Margins
-   * and page orientation are handled in this method, such that calling paint(gc, 0, 0) on the
-   * returned pages renders the document at the correct location on the paper.  (For screen
-   * display, the x and y coordinates need to be adjusted for the non-printable trim size.)
+   * Processes the print job and returns an array of pages for the given printer device.  Each
+   * element in the returned array has already had the page orientation and page margins
+   * applied.  Therefore, when calling the paint(GC, int, int) method on each page, the printer's
+   * trim should be provided as the x and y arguments.  In other words, the trim is taken as a
+   * minimum margin while applying calculating margins, but the position where the page's content
+   * is drawn is determined solely by the margin, and is not offset by the trim.  This behavior is
+   * helpful for screen display, and is already compensated for in the
+   * {@link #print(PrintJob, Printer) } method.
    * @param printer the printing device.
    * @param printJob the print job.
-   * @return an array of all pages of the print job.
+   * @return an array of all pages of the print job.  Each element of the 
    */
   public static PrintPiece[] getPages(PrintJob printJob, Printer printer) {
     int orientation = printJob.getOrientation();
@@ -205,13 +165,13 @@ public class PaperClips {
     // Rotate the document (and margins with it) depending on print job orientation.
     Rectangle paperBounds = getPaperBounds(printer);
     switch (orientation) {
-      case LANDSCAPE:
+      case ORIENTATION_LANDSCAPE:
         if (paperBounds.width < paperBounds.height) {
           margins = margins.rotate();
           document = new RotatePrint(document);
         }
         break;
-      case PORTRAIT:
+      case ORIENTATION_PORTRAIT:
         if (paperBounds.height < paperBounds.width) {
           margins = margins.rotate();
           document = new RotatePrint(document);
@@ -233,7 +193,7 @@ public class PaperClips {
           pages.clear();
           throw new RuntimeException("Unable to layout pages");
         }
-        pages.add(new PagePiece(marginBounds, page));
+        pages.add(new PagePiece(paperBounds, marginBounds, page));
       }
     } finally {
       gc.dispose();
@@ -294,13 +254,15 @@ public class PaperClips {
 }
 
 class PagePiece implements PrintPiece {
-  private final Rectangle bounds;
+  private final Point size;
+  private final Point offset;
   private final PrintPiece target;
 
-  PagePiece(Rectangle bounds, PrintPiece target) {
-    if (bounds == null || target == null)
+  PagePiece(Rectangle paperBounds, Rectangle marginBounds, PrintPiece target) {
+    if (paperBounds == null || marginBounds == null || target == null)
       throw new NullPointerException();
-    this.bounds = bounds;
+    this.size = new Point(paperBounds.width, paperBounds.height);
+    this.offset = new Point(marginBounds.x-paperBounds.x, marginBounds.y-paperBounds.y);
     this.target = target;
   }
 
@@ -309,10 +271,10 @@ class PagePiece implements PrintPiece {
   }
 
   public Point getSize() {
-    return new Point(bounds.width, bounds.height);
+    return new Point(size.x, size.y);
   }
 
   public void paint(GC gc, int x, int y) {
-    target.paint(gc, bounds.x, bounds.y);
+    target.paint(gc, x+offset.x, x+offset.y);
   }
 }
