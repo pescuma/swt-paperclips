@@ -1,10 +1,14 @@
-PaperClips 0.5.4 released
+PaperClips 0.6.0 released
 
-This maintenance release addresses a GridPrint bug, and adds a few minor features:
-* Bugfix: GridPrint fails to generate last page if the final row of content finishes on previous page, but there was only enough room to print an open bottom border.  (This bug was discovered trying to run Snippet4)
-* Added SimplePageDecoration, a simple wrapper for static page headers and footers.  This class can be used in lieu of creating a custom PageDecoration class for simple, static page decorations.
-* The DefaultPageNumberFormat class (the default PageNumberFormat class used by PageNumberPrint) is now a top-level, public class.
-* Added SimplePageDecoration class, a PageDecoration which displays a Print you provide on each page.
+Features and changes in this release:
+* JDK 1.4 compliance.
+* New WYSIWYG (what you see is what you get) PrintPreview control in the net.sf.paperclips.ui plugin.
+* Other existing UI controls (in the net.sf.paperclips.swt package) have been moved to the net.sf.paperclips.ui, into the net.sf.paperclips.ui package.
+* The PrintUtil class has been replaced with the PaperClips and PrintJob classes.
+* The new PrintJob class holds information about the job name, document, page margins, and paper orientation.
+* The new PaperClips class provides a simpler API for printing documents.
+* The new Margins class provides fine control over margins on each edge of the paper.
+* Deprecated package net.sf.paperclips.preview has been removed.
 
 PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what you want to print instead of how you're going to print it.
 
@@ -17,6 +21,16 @@ Download page: http://sourceforge.net/project/showfiles.php?group_id=148509
 Subversion: https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
 
 CHANGELOG:
+
+Version 0.6.0
+* JDK 1.4 compliance.
+* New WYSIWYG (what you see is what you get) PrintPreview control in the net.sf.paperclips.ui plugin.
+* Other existing UI controls (in the net.sf.paperclips.swt package) have been moved to the net.sf.paperclips.ui, into the net.sf.paperclips.ui package.
+* The PrintUtil class has been replaced with the PaperClips and PrintJob classes.
+* The new PrintJob class holds information about the job name, document, page margins, and paper orientation.
+* The new PaperClips class provides a simpler API for printing documents.
+* The new Margins class provides fine control over margins on each edge of the paper.
+* Deprecated package net.sf.paperclips.preview has been removed.
 
 Version 0.5.4
 * Bugfix: GridPrint fails to generate last page if the final row of content finishes on previous page, but there was only enough room to print an open bottom border.  (This bug was discovered trying to run Snippet4)

@@ -1,34 +1,41 @@
-Release 0.5.4:
+Release 0.6.0:
 
-* Bugfix: GridPrint fails to generate last page if the
-  final row of content finishes on previous page, but there
-  was only enough room to print an open bottom border.
-  (This bug was discovered trying to run Snippet4)
-* Added SimplePageDecoration, a simple wrapper for static
-  page headers and footers.  This class can be used in lieu
-  of creating a custom PageDecoration class for simple page
-  numbering.
-* The DefaultPageNumberFormat class (the default
-  PageNumberFormat class used by PageNumberPrint) is now a
-  top-level, public class.
-* Added SimplePageDecoration class, a PageDecoration which
-  displays a Print you provide on each page.
+* JDK 1.4 compliance.
+* New WYSIWYG (what you see is what you get) PrintPreview
+  control in the net.sf.paperclips.ui plugin.
+* Other existing UI controls (in the net.sf.paperclips.swt
+  package) have been moved to the net.sf.paperclips.ui,
+  into the net.sf.paperclips.ui package.
+* The PrintUtil class has been replaced with the PaperClips
+  and PrintJob classes.
+* The new PrintJob class holds information about the job
+  name, document, page margins, and paper orientation.
+* The new PaperClips class provides a simpler API for
+  printing documents.
+* The new Margins class provides fine control over margins
+  on each edge of the paper.
+* Deprecated package net.sf.paperclips.preview has been
+  removed.
 
 The example snippets were updated to use new APIs in
-PrintUtil.  Snippet6.java was added to demonstrate use of
-PagePrint.
+PaperClips.  Snippet7.java was added to demonstrate use of
+the new PrintPreview control.
 
-net.sf.paperclips_0.5.4.jar - Binary jar, may be used as an
-Eclipse plug-in or as a regular jar in the classpath.
+Core Plug-in
+------------
+net.sf.paperclips_0.6.0.jar         - Binary jar
+net.sf.paperclips_0.6.0_source.zip  - Source zip
+net.sf.paperclips_0.6.0_javadoc.zip - Javadoc zip
 
-net.sf.paperclips_0.5.4_source.zip - PaperClips source.
+UI Plug-in
+----------
+net.sf.paperclips.ui_0.6.0.jar          - Binary jar
+net.sf.paperclips.ui_0.6.0_source.zip   - Source zip
+net.sf.paperclips.ui_0.6.0_javadocs.zip - Javadoc zip
 
-net.sf.paperclips_0.5.4_javadoc.zip - PaperClips javadocs
+Examples Plugin
+---------------
+net.sf.paperclips.examples_0.6.0_source.zip - Source zip
 
-net.sf.paperclips.examples_0.5.4_source.zip - PaperClips
-example source.  The examples include the tutorial examples
-and snippets available on the web sites, as well as some
-other snippets requested by PaperClips users.
-
-Both of the source ZIP files may be imported into Eclipse as
-plug-in projects.
+The source ZIP files may be imported into Eclipse as plug-in
+projects.

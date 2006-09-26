@@ -1,3 +1,18 @@
+Version 0.6.0
+* JDK 1.4 compliance.
+* New WYSIWYG (what you see is what you get) PrintPreview control in the
+  net.sf.paperclips.ui plugin.
+* Other existing UI controls (in the net.sf.paperclips.swt package) have been
+  moved to the net.sf.paperclips.ui, into the net.sf.paperclips.ui package.
+* The PrintUtil class has been replaced with the PaperClips and PrintJob
+  classes.
+* The new PrintJob class holds information about the job name, document, page
+  margins, and paper orientation.
+* The new PaperClips class provides a simpler API for printing documents.
+* The new Margins class provides fine control over margins on each edge of the
+  paper.
+* Deprecated package net.sf.paperclips.preview has been removed.
+
 Version 0.5.4
 * Bugfix: GridPrint fails to generate last page if the final row of content
   finishes on previous page, but there was only enough room to print an open
