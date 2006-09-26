@@ -4,11 +4,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
@@ -42,8 +40,6 @@ public class PrintPreview extends Canvas {
    */
   public PrintPreview(Composite parent, int style) {
     super(parent, style | SWT.DOUBLE_BUFFERED);
-
-    setBackground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 
     addPaintListener(new PaintListener() {
       public void paintControl(PaintEvent e) {
@@ -215,10 +211,10 @@ public class PrintPreview extends Canvas {
     Image displayImage = null;
 
     try {
-      if (printJob == null || printerData == null) {
-        drawBackground(event, event.display, event.gc);
+      drawBackground(event);
+
+      if (printJob == null || printerData == null)
         return;
-      }
 
       getPrinter();
       getPaperSize();
@@ -230,32 +226,24 @@ public class PrintPreview extends Canvas {
           pages == null ||
           paperDisplayBounds == null ||
           pageIndex < 0 ||
-          pageIndex >= pages.length) {
-        drawBackground(event, event.display, event.gc);
+          pageIndex >= pages.length)
         return;
-      }
 
-      printerImage = new Image(printer, event.width, event.height);
+      drawPaper(event);
+
+      printerImage = new Image(printer, paperDisplayBounds.width, paperDisplayBounds.height);
       printerGC = new GC(printerImage);
-
       printerTransform = new Transform(printer);
+
       printerGC.getTransform(printerTransform);
-      printerTransform.translate(-event.x, -event.y);
-      printerGC.setTransform(printerTransform);
-
-      drawBackground(event, printer, printerGC);
-      drawPaper(printer, printerGC);
-
-      printerTransform.translate(paperDisplayBounds.x, paperDisplayBounds.y);
       printerTransform.scale(
-          (float) paperDisplayBounds.width / (float) paperSize.x,
+          (float) paperDisplayBounds.width  / (float) paperSize.x,
           (float) paperDisplayBounds.height / (float) paperSize.y);
       printerGC.setTransform(printerTransform);
-  
       pages[pageIndex].paint(printerGC, 0, 0);
-  
+ 
       displayImage = new Image(event.display, printerImage.getImageData());
-      event.gc.drawImage(displayImage, event.x, event.y);
+      event.gc.drawImage(displayImage, paperDisplayBounds.x, paperDisplayBounds.y);
     } finally {
       if (printerImage != null)
         printerImage.dispose();
@@ -313,48 +301,39 @@ public class PrintPreview extends Canvas {
     return pages;
   }
 
-  private void drawBackground(PaintEvent event, Device device, GC gc) {
-    Color oldBackground = gc.getBackground();
-    RGB background = getBackground().getRGB();
-
-    Color bg = new Color(device, background);
+  private void drawBackground(PaintEvent event) {
+    Color oldBackground = event.gc.getBackground();
+    Color bg = event.display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
     try {
-      gc.setBackground(bg);
-      gc.fillRectangle(event.x, event.y, event.width, event.height);
-      gc.setBackground(oldBackground);
+      event.gc.setBackground(bg);
+      event.gc.fillRectangle(event.x, event.y, event.width, event.height);
+      event.gc.setBackground(oldBackground);
     } finally {
       bg.dispose();
     }
   }
 
-  private void drawPaper(Device device, GC gc) {
+  private void drawPaper(PaintEvent event) {
     if (paperDisplayBounds == null) return;
 
-    Color white = device.getSystemColor(SWT.COLOR_WHITE);
-    Color black = device.getSystemColor(SWT.COLOR_BLACK);
-    RGB shadowRGB = getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW).getRGB();
-    Color shadow = new Color(device, shadowRGB);
+    Color black  = event.display.getSystemColor(SWT.COLOR_BLACK);
+    Color shadow = event.display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW);
 
     // Drop shadow
-    gc.setBackground(shadow);
-    gc.fillRectangle(paperDisplayBounds.x+PAPER_SHADOW_WIDTH,
+    event.gc.setBackground(shadow);
+    event.gc.fillRectangle(paperDisplayBounds.x+PAPER_SHADOW_WIDTH,
                      paperDisplayBounds.y+PAPER_SHADOW_WIDTH,
                      paperDisplayBounds.width+PAPER_BORDER_WIDTH,
                      paperDisplayBounds.height+PAPER_BORDER_WIDTH);
     shadow.dispose();
 
-    // White page
-    gc.setBackground(white);
-    gc.fillRectangle(paperDisplayBounds);
-
     // Page border
-    gc.setForeground(black);
+    event.gc.setForeground(black);
     for (int i = 1; i <= PAPER_BORDER_WIDTH; i++)
-      gc.drawRectangle(paperDisplayBounds.x-i,
-                       paperDisplayBounds.y-i,
-                       paperDisplayBounds.width+2*i-1,
-                       paperDisplayBounds.height+2*i-1);
-
+      event.gc.drawRectangle(paperDisplayBounds.x-i,
+                             paperDisplayBounds.y-i,
+                             paperDisplayBounds.width+2*i-1,
+                             paperDisplayBounds.height+2*i-1);
   }
 
   /**
