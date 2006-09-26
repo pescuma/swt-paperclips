@@ -11,6 +11,7 @@ import net.sf.paperclips.ImagePrint;
 import net.sf.paperclips.LinePrint;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.ui.PrintViewer;
 
@@ -18,6 +19,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -46,7 +48,8 @@ public class GridPrintExample extends FactoryPrint {
       if (!display.readAndDispatch())
         display.sleep();
 
-    PaperClips.print("GridPrintExample", new GridPrintExample());
+    PaperClips.print(new PrintJob("GridPrintExample", new GridPrintExample()),
+                     new PrinterData());
   }
 
   protected Print createPrint() {

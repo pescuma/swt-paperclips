@@ -5,6 +5,7 @@ package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -14,6 +15,7 @@ import net.sf.paperclips.FactoryPrint;
 import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.ui.PrintViewer;
 
@@ -42,7 +44,8 @@ public class ColumnPrintExample extends FactoryPrint {
       if (!display.readAndDispatch())
         display.sleep();
 
-    PaperClips.print("ColumnPrintExample", new ColumnPrintExample());
+    PaperClips.print(new PrintJob("ColumnPrintExample.java", new ColumnPrintExample()),
+                     new PrinterData());
   }
 
   protected Print createPrint() {

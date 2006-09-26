@@ -29,10 +29,10 @@ import net.sf.paperclips.GridColumn;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.ImagePrint;
 import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.Margins;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -141,10 +141,7 @@ public class Snippet1 implements Print {
         PrinterData printerData = dialog.open ();
         if (printerData != null) {
           Print print = new Snippet1(table);
-          PaperClips.print("Snippet1.java",
-                           print,
-                           new Margins(72), // 72 = 72 points = 1" margins
-                           printerData);
+          PaperClips.print(new PrintJob("Snippet1.java", print).setMargins(72), printerData);
         }
       }
     });

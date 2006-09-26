@@ -6,6 +6,8 @@
  */
 package net.sf.paperclips.examples;
 
+import org.eclipse.swt.printing.PrinterData;
+
 import net.sf.paperclips.ColumnPrint;
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.FactoryPrint;
@@ -14,6 +16,7 @@ import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.NoBreakPrint;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -50,6 +53,7 @@ public class NoBreakPrintExample extends FactoryPrint {
    * @param args command-line args
    */
   public static void main(String[] args) {
-    PaperClips.print("NoBreakPrintExample.java", new NoBreakPrintExample());
+    PaperClips.print(new PrintJob("NoBreakPrintExample.java", new NoBreakPrintExample()),
+                     new PrinterData());
   }
 }

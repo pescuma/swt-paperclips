@@ -17,10 +17,10 @@ import org.eclipse.swt.widgets.Shell;
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LinePrint;
-import net.sf.paperclips.Margins;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.PrintIterator;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -70,7 +70,7 @@ public class TutorialExample2 implements Print {
 
     // Print the document to the printer the user selected.
     if (printerData != null)
-      // 72 = 72 points = 1" margin
-      PaperClips.print("TutorialExample2.java", createPrint(), new Margins(72), printerData);
+      PaperClips.print(new PrintJob("TutorialExample2.java", createPrint()).setMargins(72),
+                       printerData);
   }
 }

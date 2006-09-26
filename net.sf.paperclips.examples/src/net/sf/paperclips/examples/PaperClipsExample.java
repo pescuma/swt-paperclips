@@ -6,6 +6,7 @@ package net.sf.paperclips.examples;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.printing.PrinterData;
 
 import net.sf.paperclips.*;
 
@@ -41,6 +42,7 @@ public class PaperClipsExample {
         GridPrint.REMAINDER);
 
     //  When the document is ready to go, pass it to the PrintUtil.print(Print) method.
-    PaperClips.print("PaperClipsExample", grid);
+    PaperClips.print(new PrintJob("PaperClipsExample.java", grid),
+                     new PrinterData());
   }
 }

@@ -12,8 +12,8 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import net.sf.paperclips.Margins;
 import net.sf.paperclips.PaperClips;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -38,7 +38,7 @@ public class TutorialExample1 {
 
     // Print the document to the printer the user selected.
     if (printerData != null)
-      // 72 = 72 points = 1" margin
-      PaperClips.print("TutorialExample1.java", text, new Margins(72), printerData);
+      PaperClips.print(new PrintJob("TutorialExample1.java", text).setMargins(72),
+                       printerData);
   }
 }

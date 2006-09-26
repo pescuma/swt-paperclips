@@ -6,6 +6,8 @@
  */
 package net.sf.paperclips.examples;
 
+import org.eclipse.swt.printing.PrinterData;
+
 import net.sf.paperclips.BorderPrint;
 import net.sf.paperclips.BreakPrint;
 import net.sf.paperclips.ColumnPrint;
@@ -15,6 +17,7 @@ import net.sf.paperclips.GridPrint;
 import net.sf.paperclips.LineBorder;
 import net.sf.paperclips.PaperClips;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 
 /**
@@ -47,6 +50,7 @@ public class BreakPrintExample extends FactoryPrint {
    * @param args command-line args
    */
   public static void main(String[] args) {
-    PaperClips.print("BreakPrintExample.java", new BreakPrintExample());
+    PaperClips.print(new PrintJob("BreakPrintExample.java", new BreakPrintExample()),
+                     new PrinterData());
   }
 }
