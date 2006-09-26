@@ -5,5 +5,5 @@ Bundle-SymbolicName: net.sf.paperclips.ui
 Bundle-Version: 0.6.0
 Bundle-Vendor: Woodcraft Mill & Cabinet and others
 Bundle-Localization: plugin
-Require-Bundle: net.sf.paperclips;visibility:=reexport
+Require-Bundle: net.sf.paperclips;bundle-version="0.6.0";visibility:=reexport
 Export-Package: net.sf.paperclips.ui
