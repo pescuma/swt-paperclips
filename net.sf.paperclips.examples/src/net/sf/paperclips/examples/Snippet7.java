@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.Margins;
 import net.sf.paperclips.PageNumberPageDecoration;
 import net.sf.paperclips.PagePrint;
 import net.sf.paperclips.PaperClips;
@@ -68,16 +67,17 @@ public class Snippet7 implements Print {
     final Shell shell = new Shell (display);
     shell.setText("Snippet7.java");
     shell.setBounds (100, 100, 640, 480);
-    shell.setLayout (new GridLayout(6, false));
+    shell.setLayout (new GridLayout(8, false));
 
-    Margins margins = new Margins(108); // 1 1/2" margins
-    final PrintJob printJob = new PrintJob("Snippet7.java", new Snippet7(), margins);
+    final PrintJob printJob = new PrintJob("Snippet7.java", new Snippet7()).setMargins(108); //1.5"
 
     Button hFit = new Button (shell, SWT.PUSH);
     Button vFit = new Button (shell, SWT.PUSH);
     Button bFit = new Button (shell, SWT.PUSH);
     Button prev = new Button (shell, SWT.PUSH);
     Button next = new Button (shell, SWT.PUSH);
+    Button port = new Button (shell, SWT.PUSH);
+    Button land = new Button (shell, SWT.PUSH);
     Button print = new Button (shell, SWT.PUSH);
     final PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
 
@@ -124,6 +124,24 @@ public class Snippet7 implements Print {
       }
     });
 
+    port.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    port.setText ("Portrait");
+    port.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        printJob.setOrientation(PaperClips.ORIENTATION_PORTRAIT);
+        preview.setPrintJob(printJob);
+      }
+    });
+
+    land.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    land.setText ("Landscape");
+    land.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        printJob.setOrientation(PaperClips.ORIENTATION_LANDSCAPE);
+        preview.setPrintJob(printJob);
+      }
+    });
+
     print.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     print.setText ("Print");
     print.addListener(SWT.Selection, new Listener() {
@@ -136,7 +154,7 @@ public class Snippet7 implements Print {
     });
 
     GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-    data.horizontalSpan = 6;
+    data.horizontalSpan = 8;
     preview.setLayoutData(data);
     preview.setPrintJob(printJob);
 
