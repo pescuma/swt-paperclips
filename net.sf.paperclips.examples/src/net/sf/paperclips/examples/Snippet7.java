@@ -7,8 +7,11 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -67,75 +70,148 @@ public class Snippet7 implements Print {
     final Shell shell = new Shell (display);
     shell.setText("Snippet7.java");
     shell.setBounds (100, 100, 640, 480);
-    shell.setLayout (new GridLayout(8, false));
+    shell.setLayout (new GridLayout(11, false));
 
     final PrintJob printJob = new PrintJob("Snippet7.java", new Snippet7()).setMargins(108); //1.5"
 
-    Button hFit = new Button (shell, SWT.PUSH);
-    Button vFit = new Button (shell, SWT.PUSH);
-    Button bFit = new Button (shell, SWT.PUSH);
-    Button prev = new Button (shell, SWT.PUSH);
-    Button next = new Button (shell, SWT.PUSH);
-    Button port = new Button (shell, SWT.PUSH);
-    Button land = new Button (shell, SWT.PUSH);
-    Button print = new Button (shell, SWT.PUSH);
-    final PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
+    Button fitHorz   = new Button (shell, SWT.PUSH);
+    Button fitVert   = new Button (shell, SWT.PUSH);
+    Button fitBest   = new Button (shell, SWT.PUSH);
+    Button exactSize = new Button (shell, SWT.PUSH);
+    Button zoomIn    = new Button (shell, SWT.PUSH);
+    Button zoomOut   = new Button(shell, SWT.PUSH);
+    Button prevPage  = new Button (shell, SWT.PUSH);
+    Button nextPage  = new Button (shell, SWT.PUSH);
+    Button portrait  = new Button (shell, SWT.PUSH);
+    Button landscape = new Button (shell, SWT.PUSH);
+    Button print     = new Button (shell, SWT.PUSH);
+    final ScrolledComposite scroll = new ScrolledComposite(shell,
+        SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    final PrintPreview preview = new PrintPreview(scroll, SWT.BORDER);
 
-    hFit.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    hFit.setText ("H. Fit");
-    hFit.addListener(SWT.Selection, new Listener() {
+    fitHorz.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    fitHorz.setText ("Fit Horz.");
+    fitHorz.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setFitHorizontal(true);
         preview.setFitVertical(false);
+
+        Rectangle bounds = scroll.getClientArea();
+        Point size = preview.computeSize(bounds.width, SWT.DEFAULT);
+        bounds.width = Math.max(bounds.width, size.x);
+        bounds.height = Math.max(bounds.height, size.y);
+        preview.setBounds(bounds);
       }
     });
     
-    vFit.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    vFit.setText ("V. Fit");
-    vFit.addListener(SWT.Selection, new Listener() {
+    fitVert.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    fitVert.setText ("Fit Vert.");
+    fitVert.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setFitVertical(true);
         preview.setFitHorizontal(false);
+
+        Rectangle bounds = scroll.getClientArea();
+        Point size = preview.computeSize(SWT.DEFAULT, bounds.height);
+        bounds.width = Math.max(bounds.width, size.x);
+        bounds.height = Math.max(bounds.height, size.y);
+        preview.setBounds(bounds);
       }
     });
 
-    bFit.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    bFit.setText ("Best Fit");
-    bFit.addListener(SWT.Selection, new Listener() {
+    fitBest.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    fitBest.setText ("Best Fit");
+    fitBest.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setFitVertical(true);
         preview.setFitHorizontal(true);
+
+        preview.setBounds(scroll.getClientArea());
       }
     });
 
-    prev.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    prev.setText ("<< Page");
-    prev.addListener(SWT.Selection, new Listener() {
+    exactSize.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    exactSize.setText("Exact Size");
+    exactSize.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setFitVertical(false);
+        preview.setFitHorizontal(false);
+        preview.setScale(1);
+
+        Rectangle bounds = scroll.getClientArea();
+        Point size = preview.computeSize(1);
+        bounds.width = Math.max(bounds.width, size.x);
+        bounds.height = Math.max(bounds.height, size.y);
+        preview.setBounds(bounds);
+      }
+    });
+    
+    zoomIn.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    zoomIn.setText("Zoom In");
+    zoomIn.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        float scale = preview.getAbsoluteScale();
+        scale *= 1.1;
+
+        preview.setFitVertical(false);
+        preview.setFitHorizontal(false);
+        preview.setScale(scale);
+
+        Rectangle bounds = scroll.getClientArea();
+        Point size = preview.computeSize(scale);
+        bounds.width = Math.max(bounds.width, size.x);
+        bounds.height = Math.max(bounds.height, size.y);
+        preview.setBounds(bounds);
+      }
+    });
+    
+    zoomOut.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    zoomOut.setText("Zoom Out");
+    zoomOut.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        float scale = preview.getAbsoluteScale();
+        scale /= 1.1;
+
+        preview.setFitVertical(false);
+        preview.setFitHorizontal(false);
+        preview.setScale(scale);
+
+        Rectangle bounds = scroll.getClientArea();
+        Point size = preview.computeSize(scale);
+        bounds.width = Math.max(bounds.width, size.x);
+        bounds.height = Math.max(bounds.height, size.y);
+        preview.setBounds(bounds);
+      }
+    });
+    
+    prevPage.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    prevPage.setText ("<< Page");
+    prevPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setPageIndex(Math.max(0, preview.getPageIndex()-1));
       }
     });
 
-    next.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    next.setText ("Page >>");
-    next.addListener(SWT.Selection, new Listener() {
+    nextPage.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    nextPage.setText ("Page >>");
+    nextPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setPageIndex(Math.min(preview.getPageIndex()+1, preview.getPageCount()-1));
       }
     });
 
-    port.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    port.setText ("Portrait");
-    port.addListener(SWT.Selection, new Listener() {
+    portrait.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    portrait.setText ("Portrait");
+    portrait.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         printJob.setOrientation(PaperClips.ORIENTATION_PORTRAIT);
         preview.setPrintJob(printJob);
       }
     });
 
-    land.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    land.setText ("Landscape");
-    land.addListener(SWT.Selection, new Listener() {
+    landscape.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    landscape.setText ("Landscape");
+    landscape.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         printJob.setOrientation(PaperClips.ORIENTATION_LANDSCAPE);
         preview.setPrintJob(printJob);
@@ -154,8 +230,41 @@ public class Snippet7 implements Print {
     });
 
     GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-    data.horizontalSpan = 8;
-    preview.setLayoutData(data);
+    data.horizontalSpan = 11;
+    scroll.setLayoutData(data);
+    scroll.setContent(preview);
+    scroll.setLayout(null);
+    Listener scrollListener = new Listener() {
+      public void handleEvent(Event event) {
+        Rectangle bounds = scroll.getClientArea();
+
+        scroll.getHorizontalBar().setPageIncrement(bounds.width * 2 / 3);
+        scroll.getVerticalBar().setPageIncrement(bounds.height * 2 / 3);
+
+        if (preview.isFitHorizontal()) {
+          if (preview.isFitVertical()) {
+            // fit in both directions, just use client area.
+          } else {
+            Point size = preview.computeSize(bounds.width, SWT.DEFAULT);
+            bounds.width  = Math.max(size.x, bounds.width);
+            bounds.height = Math.max(size.y, bounds.height);
+          }
+        } else if (preview.isFitVertical()) {
+          Point size = preview.computeSize(SWT.DEFAULT, bounds.height);
+          bounds.width  = Math.max(size.x, bounds.width);
+          bounds.height = Math.max(size.y, bounds.height);
+        } else {
+          Point size = preview.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+          bounds.width  = Math.max(size.x, bounds.width);
+          bounds.height = Math.max(size.y, bounds.height);
+        }
+        preview.setBounds(bounds);
+      }
+    };
+    scroll.addListener(SWT.Resize, scrollListener);
+
+    preview.setFitVertical(true);
+    preview.setFitHorizontal(true);
     preview.setPrintJob(printJob);
 
     shell.setVisible (true);
