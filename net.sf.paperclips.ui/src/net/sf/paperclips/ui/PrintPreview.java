@@ -22,8 +22,7 @@ import net.sf.paperclips.PrintPiece;
 
 /**
  * A WYSIWYG (what you see is what you get) print preview panel.  This control displays a preview
- * of what a PrintJob will look like on paper when printed on the printer indicated by the
- * printerData property.
+ * of what a PrintJob will look like on paper, depending on the selected printer.
  * <dl>
  * <dt><b>Styles:</b></dt>
  * <dd>(none)</dd>
@@ -49,8 +48,7 @@ public class PrintPreview extends Canvas {
 
     addListener(SWT.Resize, new Listener() {
       public void handleEvent(Event event) {
-        if (fitVertical || fitHorizontal)
-          paperDisplayBounds = null;
+        paperDisplayBounds = null;
         redraw();
       }
     });
@@ -337,21 +335,21 @@ public class PrintPreview extends Canvas {
   }
 
   /**
-   * Calculates the scale that the page should be displayed at on-screen.  This value is an 
-   * absolute scale based on physical measurements, and is independent of the relative DPI of the
-   * display and printer devices.  This means that the GC transform must be scaled by the value
-   * returned from this method, as well as the display DPI to printer DPI ratio.
-   * <p>
-   * <b>Note</b>: It is an error to call this method if the printerData property is null.
+   * Calculates the absolute scale that the print preview is displaying at.  If either of the
+   * fitHorizontal or fitVertical properties are true, this is the scale allows the page to fit
+   * within this control's current bounds.  Otherwise the value of the scale property is returned. 
    * @param display the display device.
    * @param printer the printer device.
-   * @return the absolute scale that the page should be displayed, based on properties. 
+   * @return the absolute scale that the print preview is displaying at.
    */
-  private float getAbsoluteScale() {
+  public float getAbsoluteScale() {
+    return getAbsoluteScale(getSize());
+  }
+
+  private float getAbsoluteScale(Point controlSize) {
     if (fitHorizontal || fitVertical) {
       Point displayDPI = getDisplay().getDPI();
       Point printerDPI = getPrinter().getDPI();
-      Point controlSize = getSize();
       Point paperSize = getPaperSize();
       controlSize.x -= BOILERPLATE_SIZE;
       controlSize.y -= BOILERPLATE_SIZE;
@@ -374,6 +372,8 @@ public class PrintPreview extends Canvas {
       float scaleY = screenHeight / paperHeight;
       return scaleY;
     }
+
+    // No 
     return scale;
   }
 
@@ -386,7 +386,7 @@ public class PrintPreview extends Canvas {
     if (paperDisplayBounds == null) {
       Point displayDPI = getDisplay().getDPI();
       Point printerDPI = printer.getDPI();
-      float absoluteScale = getAbsoluteScale();
+      float absoluteScale = getAbsoluteScale(getSize());
       float scaleX = absoluteScale * displayDPI.x / printerDPI.x;
       float scaleY = absoluteScale * displayDPI.y / printerDPI.y;
 
@@ -429,14 +429,51 @@ public class PrintPreview extends Canvas {
     disposePrinter();
   }
 
-  // TODO Implement computeSize(int, int, boolean)
+  public Point computeSize(int wHint, int hHint, boolean changed) {
+    checkWidget();
+
+    Point size = new Point(wHint, hHint);
+    double scale;
+    if (wHint != SWT.DEFAULT) {
+      if (hHint != SWT.DEFAULT) {
+        return size;
+      }
+      size.y = Integer.MAX_VALUE;
+      scale = getAbsoluteScale(size);
+    } else if (hHint != SWT.DEFAULT) {
+      size.x = Integer.MAX_VALUE;
+      scale = getAbsoluteScale(size); 
+    } else {
+      scale = this.scale;
+    }
+
+    return computeSize(scale);
+  }
+
+  /**
+   * Returns the control size needed to display a full page at the given scale.
+   * @param scale the absolute scale.  A scale of 1, for example, yields a "life size" preview.
+   * @return the control size needed to display a full page at the given scale. 
+   */
+  public Point computeSize(double scale) {
+    Point size = new Point(BOILERPLATE_SIZE, BOILERPLATE_SIZE);
+
+    Point displayDPI = getDisplay().getDPI();
+    Point printerDPI = getPrinter().getDPI();
+    Point paperSize = getPaperSize();
+
+    size.x += Math.round( scale * paperSize.x * displayDPI.x / printerDPI.x );
+    size.y += Math.round( scale * paperSize.y * displayDPI.y / printerDPI.y );
+
+    return size;
+  }
 }
 
 class RotateClockwisePrintPiece implements PrintPiece {
   private final Printer printer;
   private final PrintPiece target;
   private final Point size;
-  
+
   RotateClockwisePrintPiece(Printer printer, PrintPiece target) {
     if (printer == null || target == null)
       throw new NullPointerException();
