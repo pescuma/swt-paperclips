@@ -15,24 +15,36 @@ import org.eclipse.swt.graphics.Point;
  * A wrapper Print which splits its child print into multiple columns.
  * <p>This class is horizontally greedy.  Greedy prints take up all the available space on the
  * page.
- * <p>ColumnPrint attempts to use the minimum possible vertical space on the page.  
+ * <p>ColumnPrint attempts to use the minimum possible vertical space on the page if isCompressed()
+ * returns true (the default).  This behavior can be disabled by calling setCompressed(false).  
  * @author Matthew
  */
 public class ColumnPrint implements Print {
   final Print target;
-
   final int columns;
-
   final int spacing;
+
+  boolean compressed;
 
   /**
    * Constructs a ColumnPrint with the given target, number of columns, and
-   * column spacing (expressed in points). 72 points = 1".
+   * column spacing (expressed in points).  72 points = 1".
    * @param target the print which will be split into columns.
    * @param columns the number of columns to display
    * @param spacing the spacing between each column.
    */
   public ColumnPrint (Print target, int columns, int spacing) {
+    this(target, columns, spacing, true);
+  }
+
+  /**
+   * Constructs a ColumnPrint with the given target, column count, column spacing, and compression.
+   * @param target the print to display in columns.
+   * @param columns the number of columns to display.
+   * @param spacing the spacing between each column, expressed in points.  72 points = 1".
+   * @param compressed whether the columns on the final page are to be 
+   */
+  public ColumnPrint(Print target, int columns, int spacing, boolean compressed) {
     if (spacing < 0)
       throw new IllegalArgumentException ("columnSpacing must be >= 0");
     if (columns < 2)
@@ -43,6 +55,24 @@ public class ColumnPrint implements Print {
     this.target = target;
     this.spacing = spacing;
     this.columns = columns;
+
+    compressed = true;
+  }
+
+  /**
+   * Returns whether the columns are compressed to the smallest possible height on the last page.
+   * @return whether the columns are compressed to the smallest possible height on the last page.
+   */
+  public boolean isCompressed() {
+    return compressed;
+  }
+
+  /**
+   * Sets whether the columns are compressed to the smallest possible height on the last page.
+   * @param compressed whether to compress the columns.
+   */
+  public void setCompressed(boolean compressed) {
+    this.compressed = compressed;
   }
 
   public PrintIterator iterator (Device device, GC gc) {
@@ -52,21 +82,22 @@ public class ColumnPrint implements Print {
 
 class ColumnIterator implements PrintIterator {
   private PrintIterator target;
-
   private final int columns;
-
   private final int spacing;
+  private final boolean compressed;
 
   ColumnIterator (ColumnPrint print, Device device, GC gc) {
     this.target = print.target.iterator (device, gc);
     this.columns = print.columns;
     this.spacing = Math.round (print.spacing * device.getDPI ().x / 72f);
+    this.compressed = print.compressed;
   }
 
   ColumnIterator (ColumnIterator that) {
     this.target = that.target.copy ();
     this.columns = that.columns;
     this.spacing = that.spacing;
+    this.compressed = that.compressed;
   }
 
   public Point minimumSize () {
@@ -155,21 +186,24 @@ class ColumnIterator implements PrintIterator {
     // Compute size of columns by dividing available width equally
     int[] colSizes = computeColSizes (width);
 
-    // Leave this.target untouched, replace when we have an iteration
-    // that succeeds.
-    PrintIterator testIterator = target.copy ();
-
-    PrintPiece[] testPieces = nextColumns (testIterator, colSizes, height);
+    // Iterate on a copy in case a single column fails to iterate. 
+    PrintIterator iter = target.copy ();
+    PrintPiece[] columns = nextColumns (iter, colSizes, height);
 
     // Null indicates a failed iteration.
-    if (testPieces == null) return null;
+    if (columns == null) return null;
 
     // Iteration succeeded, and the target was not completely
     // consumed; we've filled the available area as much
     // as possible and can conclude this iteration.
-    if (testIterator.hasNext ()) {
-      this.target = testIterator;
-      return createResult (testPieces, colSizes);
+    if (iter.hasNext ()) {
+      this.target = iter;
+      return createResult (columns, colSizes);
+    }
+
+    if (!compressed) {
+      this.target = iter;
+      return createResult (columns, colSizes);
     }
 
     // TODO Evaluate the performance of the this algorithm.
@@ -180,28 +214,28 @@ class ColumnIterator implements PrintIterator {
     int largestInvalidHeight = 0;
 
     // Remember the best results
-    PrintIterator bestIteration = testIterator;
-    PrintPiece[] bestIterationPieces = testPieces;
+    PrintIterator bestIteration = iter;
+    PrintPiece[] bestIterationPieces = columns;
     int bestHeight = 0;
-    for (int i = 0; i < testPieces.length; i++)
-      bestHeight = Math.max (bestHeight, testPieces[i].getSize ().y);
+    for (int i = 0; i < columns.length; i++)
+      bestHeight = Math.max (bestHeight, columns[i].getSize ().y);
 
     while (bestHeight > largestInvalidHeight + 1) {
       int testHeight = (bestHeight + largestInvalidHeight + 1) / 2;
 
       // Get copy of the target iterator
-      testIterator = target.copy ();
+      iter = target.copy ();
       // Perform an iteration with the test height
-      testPieces = nextColumns (testIterator, colSizes, testHeight);
+      columns = nextColumns (iter, colSizes, testHeight);
 
-      if (testPieces == null) {
+      if (columns == null) {
         // Iteration failed.
         largestInvalidHeight = testHeight;
-      } else if (testIterator.hasNext ()) {
+      } else if (iter.hasNext ()) {
         // Iteration succeeded but the height was too short
         // to completely contain iterator's contents.
         largestInvalidHeight = testHeight;
-        disposePieces(testPieces);
+        disposePieces(columns);
       } else {
         // Iteration succeeded, and the height was sufficient to contain
         // all of the iterator's contents. Replace the previous best
@@ -210,8 +244,8 @@ class ColumnIterator implements PrintIterator {
         // Dispose the PrintPieces from the prior "best" iteration.
         disposePieces(bestIterationPieces);
 
-        bestIteration = testIterator;
-        bestIterationPieces = testPieces;
+        bestIteration = iter;
+        bestIterationPieces = columns;
         bestHeight = 0;
 
         for (int i = 0; i < bestIterationPieces.length; i++)
