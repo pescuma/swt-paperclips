@@ -15,7 +15,7 @@ Release checklist
 * Build example source zip
 * Upload build jar and zips
 * Upload javadocs to paperclips.sourceforge.net/api
-* Upload snippet PDFs to paperclips.sourceforge.net/pdf/
+* Upload snippets and PDFs to paperclips.sourceforge.net/pdf/
 * Create sourceforge release - notify project monitors
 * Post release announcement on paperclips.sourceforge.net
 * Post release announcement on paperclips-releases@lists.sourceforge.net
