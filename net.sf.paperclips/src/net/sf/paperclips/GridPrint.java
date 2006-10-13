@@ -9,6 +9,7 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.swt.SWT;
@@ -85,7 +86,7 @@ public final class GridPrint implements Print {
   private GridLook look;
 
   /** The columns for this grid. */
-  final GridColumn[] columns;
+  final List columns; // List<GridColumn>
 
   /** Array of column groups. */
   int[][] columnGroups = new int[0][];
@@ -119,6 +120,21 @@ public final class GridPrint implements Print {
 
   /** Column cursor - the column that the next added footer cell will go into. */
   private int footerCol = 0;
+
+  /**
+   * Constructs a GridPrint with no columns and a default look.
+   */
+  public GridPrint() {
+    this(new GridColumn[0]);
+  }
+
+  /**
+   * Constructs a GridPrint with no columns and the given look.
+   * @param look the look to apply to the constructed grid.
+   */
+  public GridPrint(GridLook look) {
+    this(new GridColumn[0], look);
+  }
 
   /**
    * Constructs a GridPrint with the given columns and a default look.
@@ -171,13 +187,13 @@ public final class GridPrint implements Print {
    * @param columns the columns for the new grid.
    */
   public GridPrint (GridColumn[] columns) {
-    if (columns.length == 0)
-      throw new IllegalArgumentException ("Must specify at least one column.");
     for (int i = 0; i < columns.length; i++)
       if (columns[i] == null)
         throw new NullPointerException();
 
-    this.columns = columns;
+    this.columns = new ArrayList();
+    for (int i = 0; i < columns.length; i++)
+      this.columns.add(columns[i]);
     this.look = defaultLook = new DefaultGridLook();
   }
 
@@ -216,6 +232,168 @@ public final class GridPrint implements Print {
   public GridPrint (GridColumn[] columns, int horizontalSpacing, int verticalSpacing) {
     this(columns);
     defaultLook.setCellSpacing(horizontalSpacing, verticalSpacing);
+  }
+
+  /**
+   * Adds the column on the right edge of the grid.  Any cells which have been added to the grid
+   * prior to adding the column will be adjusted as follows: the right-hand cell of each completed
+   * row will have it's colspan expanded to fill the added column.
+   * @param column the column to add to the grid.
+   * @see GridColumn#parse(String)
+   */
+  public void addColumn(String column) {
+    addColumn(columns.size(), GridColumn.parse(column));
+  }
+
+  /**
+   * Adds the column on the right edge of the grid.  Any cells which have been added to the grid
+   * prior to adding the column will be adjusted as follows: the right-hand cell of each completed
+   * row will have it's colspan expanded to fill the added column.
+   * @param column the column to add to the grid.
+   */
+  public void addColumn(GridColumn column) {
+    addColumn(columns.size(), column);
+  }
+
+  /**
+   * Inserts the column at the specified position in the grid.  Any cells which have been added to
+   * the grid prior to adding the column will be adjusted as follows: on each row, the cell which
+   * overlaps or whose right edge touches the insert position will be expanded to fill the added
+   * column.
+   * @param index the insert position.
+   * @param column the column to be inserted.
+   * @see GridColumn#parse(String)
+   */
+  public void addColumn(int index, String column) {
+    addColumn(index, GridColumn.parse(column));
+  }
+
+  /**
+   * Inserts the column at the specified position in the grid.  Any cells which have been added to
+   * the grid prior to adding the column will be adjusted as follows: on each row, the cell which
+   * overlaps or whose right edge touches the insert position will be expanded to fill the added
+   * column.
+   * @param index the insert position.
+   * @param column the column to be inserted.
+   */
+  public void addColumn(int index, GridColumn column) {
+    checkColumnInsert(index);
+    if (column == null) throw new NullPointerException();
+
+    this.columns.add(index, column);
+
+    adjustForColumnInsert(index, 1);
+  }
+
+  /**
+   * Adds the columns on the right edge of the grid.  Any cells which have been added to the grid
+   * prior to adding the columns will be adjusted as follows: the right-hand cell of each completed
+   * row will have it's colspan expanded to fill the added columns.
+   * @param columns the columns to add to the grid.
+   * @see GridColumn#parse(String)
+   */
+  public void addColumns(String columns) {
+    addColumns(this.columns.size(), parseColumns(columns));
+  }
+
+  /**
+   * Adds the columns on the right edge of the grid.  Any cells which have been added to the grid
+   * prior to adding the columns will be adjusted as follows: the right-hand cell of each completed
+   * row will have it's colspan expanded to fill the added columns.
+   * @param columns the columns to add to the grid.
+   */
+  public void addColumns(GridColumn[] columns) {
+    addColumns(this.columns.size(), columns);
+  }
+
+  /**
+   * Inserts the columns at the specified position in the grid.  Any cells which have been added to
+   * the grid prior to adding the columns will be adjusted as follows: on each row, the cell which
+   * overlaps or whose right edge touches the insert position will be expanded to fill the added
+   * columns.
+   * @param index the insert position.
+   * @param columns the columns to be inserted.
+   * @see GridColumn#parse(String)
+   */
+  public void addColumns(int index, String columns) {
+    addColumns(index, parseColumns(columns));
+  }
+
+  /**
+   * Inserts the columns at the specified position in the grid.  Any cells which have been added to
+   * the grid prior to adding the columns will be adjusted as follows: on each row, the cell which
+   * overlaps or whose right edge touches the insert position will be expanded to fill the added
+   * columns.
+   * @param index the insert position.
+   * @param columns the columns to be inserted.
+   * @see GridColumn#parse(String)
+   */
+  public void addColumns(int index, GridColumn[] columns) {
+    checkColumnInsert(index);
+    checkColumns(columns);
+
+    this.columns.addAll(index, Arrays.asList(columns));
+
+    adjustForColumnInsert(index, columns.length);
+  }
+
+  private void checkColumnInsert(int index) {
+    if (index < 0 || index > this.columns.size())
+      throw new IndexOutOfBoundsException(
+          "index = " + index + ", size = " + this.columns.size());
+  }
+
+  private void checkColumns(GridColumn[] columns) {
+    for (int i = 0; i < columns.length; i++)
+      if (columns[i] == null)
+        throw new NullPointerException();
+  }
+
+  private void adjustForColumnInsert(int index, int count) {
+    adjustCellsForColumnInsert(header, index, count);
+    adjustCellsForColumnInsert(body,   index, count);
+    adjustCellsForColumnInsert(footer, index, count);
+
+    adjustColumnGroupsForColumnInsert(index, count);
+
+    if (bodyCol > index)
+      bodyCol += count;
+    if (headerCol > index)
+      headerCol += count;
+    if (footerCol > index)
+      footerCol += count;
+  }
+
+  private void adjustCellsForColumnInsert(List rows, int index, int count) {
+    for (int rowI = 0; rowI < rows.size(); rowI++) {
+      List row = (List) rows.get(rowI);
+      int col = 0;
+      for (int cellI = 0; cellI < row.size(); cellI++) {
+        GridCell cell = (GridCell) row.get(cellI);
+        col += cell.colspan;
+
+        // Adjust the cell which extends through the insert point, or whose right side touches the
+        // insert point.  Except on the last row, don't adjust the final cell if it only touches the
+        // insert point (the user may be adding columns right before s/he adds column headers).
+        if (// cell overlaps insert point, or
+            (col > index) ||
+            // right side touches insert point but is not the final cell.
+            (col == index && (rowI + 1 < rows.size() || cellI + 1 < row.size()))) {
+          row.set(cellI, new GridCell(cell.target, cell.align, cell.colspan + count));
+          break;
+        }
+      }
+    }
+  }
+
+  private void adjustColumnGroupsForColumnInsert(int index, int count) {
+    for (int groupI = 0; groupI < columnGroups.length; groupI++) {
+      int[] group = columnGroups[groupI];
+      for (int i = 0; i < group.length; i++)
+        if (group[i] >= index)
+          group[i] += count;
+    }
+      
   }
 
   /**
@@ -387,20 +565,25 @@ public final class GridPrint implements Print {
                    Print print,
                    int   colspan,
                    int   alignment) {
+    // If we're at the end of a row, start a new row.
+    if (startColumn == columns.size()) startColumn = 0;
+
     // Make sure the colspan would not exceed the number of columns
-    if (startColumn + colspan > columns.length)
+    if (startColumn + colspan > columns.size())
       throw new IllegalArgumentException ("Colspan " + colspan
-          + " too wide at column " + startColumn + " (" + columns.length
+          + " too wide at column " + startColumn + " (" + columns.size()
           + " columns total)");
 
-    // Start a new row if back at column 0.
-    if (startColumn == 0) rows.add (new ArrayList ());
-
-    // Get the last row.
-    List row = (List) rows.get (rows.size () - 1); // List of GridCell
+    List row; // the row we will add the cell to.
+    if (startColumn == 0)
+      // Start a new row if back at column 0.
+      rows.add (row = new ArrayList ());
+    else
+      // Get the incomplete row.
+      row = (List) rows.get (rows.size () - 1); // List of GridCell
 
     // Convert REMAINDER to the actual # of columns
-    if (colspan == REMAINDER) colspan = columns.length - startColumn;
+    if (colspan == REMAINDER) colspan = columns.size() - startColumn;
 
     // Add the new Print
     GridCell entry = new GridCell (print, alignment, colspan);
@@ -409,11 +592,8 @@ public final class GridPrint implements Print {
     // Adjust the column cursor by the span of the added Print
     startColumn += colspan;
 
-    // If we've filled the row, the next add(...) should start a new row
-    if (startColumn == columns.length) startColumn = 0;
-
     // Make sure column number is valid.
-    if (startColumn > columns.length) {
+    if (startColumn > columns.size()) {
       // THIS SHOULD NOT HAPPEN--ABOVE LOGIC SHOULD PREVENT THIS CASE
       // ..but just in case.
 
@@ -424,7 +604,7 @@ public final class GridPrint implements Print {
 
       // Report error
       throw new IllegalArgumentException ("Colspan " + colspan
-          + " too wide at column " + startColumn + " (" + columns.length
+          + " too wide at column " + startColumn + " (" + columns.size()
           + " columns total)");
     }
 
@@ -475,10 +655,10 @@ public final class GridPrint implements Print {
       int[] group = columnGroups[groupIndex];
       for (int columnInGroupIndex = 0; columnInGroupIndex < group.length; columnInGroupIndex++) {
         int col = group[columnInGroupIndex];
-        if (col < 0 || col >= columns.length)
+        if (col < 0 || col >= columns.size())
           throw new IndexOutOfBoundsException (
               "Column index in column group must be " + "0 <= " + col + " < "
-                  + columns.length);
+                  + columns.size());
       }
     }
   }
@@ -680,7 +860,7 @@ class GridIterator implements PrintIterator {
     this.device = device;
     this.dpi    = device.getDPI();
 
-    this.columns      = grid.columns;
+    this.columns      = (GridColumn[]) grid.columns.toArray(new GridColumn[grid.columns.size()]);
     this.columnGroups = grid.getColumnGroups ();
 
     this.header = new GridCellIterator[grid.header.size ()][];
