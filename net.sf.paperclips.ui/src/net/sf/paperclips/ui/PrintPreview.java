@@ -107,8 +107,8 @@ public class PrintPreview extends Canvas {
    */
   public void setPrinterData(PrinterData printerData) {
     this.printerData = printerData;
-    this.pageIndex = -1;
-    disposePrinter(); // disposes pages
+    this.pageIndex = 0;
+    disposePrinter(); // disposes pages too
     redraw();
   }
 
