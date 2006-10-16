@@ -37,8 +37,10 @@ public class TutorialExample1 {
     display.dispose();
 
     // Print the document to the printer the user selected.
-    if (printerData != null)
-      PaperClips.print(new PrintJob("TutorialExample1.java", text).setMargins(72),
-                       printerData);
+    if (printerData != null) {
+      PrintJob job = new PrintJob("TutorialExample1.java", text);
+      job.setMargins(72);
+      PaperClips.print(job, printerData);
+    }
   }
 }

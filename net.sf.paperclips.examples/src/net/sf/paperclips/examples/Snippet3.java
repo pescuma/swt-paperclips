@@ -28,7 +28,7 @@ import net.sf.paperclips.PrintIterator;
 import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.TextPrint;
 import net.sf.paperclips.BigPrint;
-import net.sf.paperclips.ui.PrintViewer;
+import net.sf.paperclips.ui.PrintPreview;
 
 /**
  * Demonstrate use of WidePrint.
@@ -40,10 +40,15 @@ public class Snippet3 implements Print {
     // cases it is recommended to use "d" for "default" columns, which can shrink when needed.
     DefaultGridLook look = new DefaultGridLook();
     look.setCellBorder(new LineBorder());
-    GridPrint grid = new GridPrint("p, p, p, p, p, p, p, p, p, p", look);
+    GridPrint grid = new GridPrint(look);
 
-    for (int r = 0; r < 50; r++)
-      for (int c = 0; c < 10; c++)
+    final int ROWS = 60;
+    final int COLS = 10;
+
+    for (int i = 0; i < COLS; i++)
+      grid.addColumn("p");
+    for (int r = 0; r < ROWS; r++)
+      for (int c = 0; c < COLS; c++)
         grid.add(new TextPrint ("Row "+r+" Col "+c));
 
     // Give entire grid a light green background.
@@ -63,24 +68,51 @@ public class Snippet3 implements Print {
     final Shell shell = new Shell (display);
     shell.setText("Snippet3.java");
     shell.setBounds (100, 100, 640, 480);
-    shell.setLayout (new GridLayout());
+    shell.setLayout (new GridLayout(3, false));
 
-    Button button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.FILL, SWT.DEFAULT, true, false));
-    button.setText ("Print");
+    Button prevPage = new Button(shell, SWT.PUSH);
+    prevPage.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false));
+    prevPage.setText("Previous Page");
 
-    PrintViewer viewer = new PrintViewer(shell, SWT.BORDER);
-    viewer.getControl ().setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true));
-    final Print print = new Snippet3();
-    viewer.setPrint (print);
+    Button nextPage = new Button(shell, SWT.PUSH);
+    nextPage.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false));
+    nextPage.setText("Next Page");
 
-    button.addListener(SWT.Selection, new Listener() {
+    Button printButton = new Button (shell, SWT.PUSH);
+    printButton.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
+    printButton.setText ("Print");
+
+    final PrintPreview preview = new PrintPreview(shell, SWT.BORDER);
+    preview.setFitHorizontal(true);
+    preview.setFitVertical(true);
+    preview.setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true, 3, 1));
+    final PrintJob job = new PrintJob("Snippet3.java", new Snippet3());
+    job.setMargins(72);
+    preview.setPrintJob(job);
+
+    prevPage.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        int page = Math.max(preview.getPageIndex()-1, 0);
+        preview.setPageIndex(page);
+      }
+    });
+
+    nextPage.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        int page = Math.min(preview.getPageIndex()+1, preview.getPageCount()-1);
+        preview.setPageIndex(page);
+      }
+    });
+
+    printButton.addListener(SWT.Selection, new Listener() {
       public void handleEvent (Event event) {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
-        if (printerData != null)
-          PaperClips.print(new PrintJob("Snippet3.java", print).setMargins(72),
-                           printerData);
+        if (printerData != null) {
+          PaperClips.print(job, printerData);
+          // Update the preview to display according to the selected printer.
+          preview.setPrinterData(printerData);
+        }
       }
     });
 

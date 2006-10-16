@@ -87,7 +87,7 @@ public class Snippet7 implements Print {
     Button print     = new Button (shell, SWT.PUSH);
     final ScrolledComposite scroll = new ScrolledComposite(shell,
         SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    final PrintPreview preview = new PrintPreview(scroll, SWT.BORDER);
+    final PrintPreview preview = new PrintPreview(scroll, SWT.NONE);
 
     fitHorz.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     fitHorz.setText ("Fit Horz.");

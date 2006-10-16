@@ -55,10 +55,6 @@ public class Snippet1 implements Print {
 
   private Print createPrint () {
     // Create GridPrint with all columns at default size.
-    GridColumn[] cols = new GridColumn[table.getColumnCount()];
-    final GridColumn defaultColumn = GridColumn.parse("d");
-    for (int i = 0; i < cols.length; i++)
-      cols[i] = defaultColumn;
 
     DefaultGridLook look = new DefaultGridLook();
     look.setCellBorder(new LineBorder());
@@ -66,13 +62,17 @@ public class Snippet1 implements Print {
     look.setHeaderBackground (background);
     look.setFooterBackground (background);
 
-    GridPrint grid = new GridPrint(cols, look);
+    GridPrint grid = new GridPrint(look);
 
     // Add header and footer to match table column names.
     TableColumn[] columns = table.getColumns();
     for (int i = 0; i < columns.length; i++) {
       TableColumn col = columns[i];
-      Print cell = createCell(col.getImage(), col.getText());
+
+      // Add the column to the grid with alignment applied, default width, no weight
+      grid.addColumn(new GridColumn(col.getAlignment(), SWT.DEFAULT, 0));
+
+      Print cell = createCell(col.getImage(), col.getText(), SWT.CENTER);
       grid.addHeader(cell);
       grid.addFooter(cell);
     }
@@ -81,20 +81,20 @@ public class Snippet1 implements Print {
     TableItem[] items = table.getItems();
     for (int i = 0; i < items.length; i++) {
       TableItem item = items[i];
-      for (int j = 0; j < cols.length; j++)
-        grid.add(createCell(item.getImage(j), item.getText(j)));
+      for (int j = 0; j < columns.length; j++)
+        grid.add(createCell(item.getImage(j), item.getText(j), columns[j].getAlignment()));
     }
 
     return grid;
   }
 
-  private Print createCell(Image image, String text) {
+  private Print createCell(Image image, String text, int align) {
     if (image == null)
-      return new TextPrint(text);
+      return new TextPrint(text, align);
 
     GridPrint grid = new GridPrint("p, d");
     grid.add(new ImagePrint(image.getImageData (), image.getDevice ().getDPI()));
-    grid.add(new TextPrint(text));
+    grid.add(new TextPrint(text, align));
     return grid;
   }
 

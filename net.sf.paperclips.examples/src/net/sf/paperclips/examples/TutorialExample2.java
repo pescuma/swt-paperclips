@@ -69,8 +69,10 @@ public class TutorialExample2 implements Print {
     display.dispose();
 
     // Print the document to the printer the user selected.
-    if (printerData != null)
-      PaperClips.print(new PrintJob("TutorialExample2.java", createPrint()).setMargins(72),
-                       printerData);
+    if (printerData != null) {
+      PrintJob job = new PrintJob("TutorialExample2.java", createPrint());
+      job.setMargins(72);
+      PaperClips.print(job, printerData);
+    }
   }
 }
