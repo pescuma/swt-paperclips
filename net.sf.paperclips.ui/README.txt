@@ -1,5 +1,5 @@
 ==================================
-PaperClips UI 0.6.0
+PaperClips UI 0.6.1
 http://paperclips.sourceforge.net/
 ==================================
 
@@ -20,9 +20,9 @@ This copyright notice MUST APPEAR in all copies of the file!
 Introduction
 ------------
 
-Welcome to PaperClips Examples: a collection of code snippets demonstrating
-how to use various features of the PaperClips API.  This project is intended
-to be imported as a plugin project in your Eclipse IDE.
+Welcome to PaperClips UI.  Currently this project contains 2 main widgets for
+you to use to display documents: PrintPreview (a true WYSIWYG preview) and
+PrintViewer, a scrollable on-screen viewer.
 
 Requirements:
 * Java 1.4 or later.
