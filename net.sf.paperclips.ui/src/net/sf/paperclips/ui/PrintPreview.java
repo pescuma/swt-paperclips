@@ -229,11 +229,22 @@ public class PrintPreview extends Canvas {
 
       drawPaper(event);
 
-      printerImage = new Image(printer, paperDisplayBounds.width, paperDisplayBounds.height);
+      Rectangle dirtyBounds = new Rectangle(event.x, event.y, event.width, event.height);
+
+      // The portion of the dirty bounds which is displaying "paper"
+      Rectangle dirtyPaperBounds = dirtyBounds.intersection(paperDisplayBounds);
+
+      // Dirty region has no "paper"
+      if (dirtyPaperBounds.width == 0 || dirtyPaperBounds.height == 0)
+        return;
+
+      printerImage = new Image(printer, dirtyPaperBounds.width, dirtyPaperBounds.height);
       printerGC = new GC(printerImage);
       printerTransform = new Transform(printer);
 
       printerGC.getTransform(printerTransform);
+      printerTransform.translate(paperDisplayBounds.x-dirtyPaperBounds.x,
+                                 paperDisplayBounds.y-dirtyPaperBounds.y);
       printerTransform.scale(
           (float) paperDisplayBounds.width  / (float) paperSize.x,
           (float) paperDisplayBounds.height / (float) paperSize.y);
@@ -241,7 +252,7 @@ public class PrintPreview extends Canvas {
       pages[pageIndex].paint(printerGC, 0, 0);
  
       displayImage = new Image(event.display, printerImage.getImageData());
-      event.gc.drawImage(displayImage, paperDisplayBounds.x, paperDisplayBounds.y);
+      event.gc.drawImage(displayImage, dirtyPaperBounds.x, dirtyPaperBounds.y);
     } finally {
       if (printerImage != null)
         printerImage.dispose();
