@@ -4,11 +4,11 @@ Release 0.6.1:
     determine the proper sizing of the control depending on
     the viewing scale.  Snippet7 has been updated to
     demonstrate this feature.
-	* The performance problems (read: major lags) when zooming
-	  in very close are resolved.  Go ahead, zoom to
-	  ridiculous levels with confidence!  We promise not to
-	  tell anyone.
-	* Bugfix: page disappears after a call to setPrinterData.
+  * The performance problems (read: major lags) when zooming
+    in very close are resolved.  Go ahead, zoom to
+    ridiculous levels with confidence!  We promise not to
+    tell anyone.
+  * Bugfix: page disappears after a call to setPrinterData.
 * ColumnPrint behavior of compressing the last page of
   content to the minimum possible height can now be disabled
   using the "compressed" property.
