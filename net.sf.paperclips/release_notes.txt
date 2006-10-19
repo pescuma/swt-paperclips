@@ -1,50 +1,36 @@
-Release 0.6.0:
-
-Note: This release is API incompatible with previous 
-releases.  The UI controls have been moved to a different 
-package, and to a different plugin (net.sf.paperclips.ui). 
-A simple search and replace should suffice to fix 
-compilation problems.  I try to minimize changing APIs on 
-everybody, I sincerely hope this doesn't cause a big 
-problem.  However I believe that the improves clarity of the
-API will pay dividends in the long run.
-
-* JDK 1.4 compliance.
-* New WYSIWYG (what you see is what you get) PrintPreview
-  control in the net.sf.paperclips.ui plugin.
-* Other existing UI controls (in the net.sf.paperclips.swt
-  package) have been moved to the net.sf.paperclips.ui,
-  into the net.sf.paperclips.ui package.
-* The PrintUtil class has been replaced with the PaperClips
-  and PrintJob classes.
-* The new PrintJob class holds information about the job
-  name, document, page margins, and paper orientation.
-* The new PaperClips class provides a simpler API for
-  printing documents.
-* The new Margins class provides fine control over margins
-  on each edge of the paper.
-* Deprecated package net.sf.paperclips.preview has been
-  removed.
-
-The example snippets were updated to use new APIs in
-PaperClips.  Snippet7.java was added to demonstrate use of
-the new PrintPreview control.
+Release 0.6.1:
+* PrintPreview control:
+  * ComputeSize is now implemented properly, which helps
+    determine the proper sizing of the control depending on
+    the viewing scale.  Snippet7 has been updated to
+    demonstrate this feature.
+	* The performance problems (read: major lags) when zooming
+	  in very close are resolved.  Go ahead, zoom to
+	  ridiculous levels with confidence!  We promise not to
+	  tell anyone.
+	* Bugfix: page disappears after a call to setPrinterData.
+* ColumnPrint behavior of compressing the last page of
+  content to the minimum possible height can now be disabled
+  using the "compressed" property.
+* GridPrint now has addColumn and addColumns methods
+  supporting column modifications after construction.  Some
+  of the snippets were modified to use this new API.
 
 Core Plug-in
 ------------
-net.sf.paperclips_0.6.0.jar         - Binary jar
-net.sf.paperclips_0.6.0_source.zip  - Source zip
-net.sf.paperclips_0.6.0_javadoc.zip - Javadoc zip
+net.sf.paperclips_0.6.1.jar         - Binary jar
+net.sf.paperclips_0.6.1_source.zip  - Source zip
+net.sf.paperclips_0.6.1_javadoc.zip - Javadoc zip
 
 UI Plug-in
 ----------
-net.sf.paperclips.ui_0.6.0.jar          - Binary jar
-net.sf.paperclips.ui_0.6.0_source.zip   - Source zip
-net.sf.paperclips.ui_0.6.0_javadocs.zip - Javadoc zip
+net.sf.paperclips.ui_0.6.1.jar          - Binary jar
+net.sf.paperclips.ui_0.6.1_source.zip   - Source zip
+net.sf.paperclips.ui_0.6.1_javadocs.zip - Javadoc zip
 
 Examples Plugin
 ---------------
-net.sf.paperclips.examples_0.6.0_source.zip - Source zip
+net.sf.paperclips.examples_0.6.1_source.zip - Source zip
 
 The source ZIP files may be imported into Eclipse as plug-in
 projects.
