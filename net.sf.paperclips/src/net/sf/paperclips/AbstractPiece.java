@@ -24,6 +24,7 @@ public abstract class AbstractPiece implements PrintPiece {
 
   /**
    * A GC for drawing on the print device.
+   * @deprecated use the local GC in the {@link PrintPiece#paint(GC, int, int)} method instead.
    */
   protected final GC gc;
 
