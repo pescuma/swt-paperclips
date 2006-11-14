@@ -40,7 +40,8 @@ public class PaperClips {
    * <p>
    * This method is intended to be used by PrintIterator classes, as a results-checking alternative
    * to calling next(int, int) directly on the target iterator.  All PrintIterator classes in the
-   * PaperClips library use this method.
+   * PaperClips library use this method instead of directly calling the
+   * {@link PrintIterator#next(int, int)} method.
    * @param iterator the PrintIterator
    * @param width the available width.
    * @param height the available height.
@@ -86,15 +87,12 @@ public class PaperClips {
     PrintPiece[] pages = getPages(printJob, printer);
 
     // Determine the page range to print based on PrinterData.scope
-    final int startPage;
-    final int endPage;
+    int startPage = 0;
+    int endPage   = pages.length-1;
     if (printerData.scope == PrinterData.PAGE_RANGE) {
-      // Convert from PrinterData's one-based page indices to zero-based page indices 
-      startPage = Math.max(printerData.startPage-1, 0);
-      endPage   = Math.min(printerData.endPage  -1, pages.length-1);
-    } else {
-      startPage = 0;
-      endPage   = pages.length-1;
+      // PrinterData has one-based indices which must be decremented to zero-based indices here.
+      startPage = Math.max(startPage, printerData.startPage-1);
+      endPage   = Math.min(endPage,   printerData.endPage  -1);
     }
 
     // Determine the number of copies and collation.
@@ -108,6 +106,7 @@ public class PaperClips {
       collatedCopies = 1;
     }
 
+    // Dispose the unused pages (those outside the page range) up front.
     for (int i = 0; i < startPage; i++)
       pages[i].dispose();
     for (int i = endPage+1; i < pages.length; i++)

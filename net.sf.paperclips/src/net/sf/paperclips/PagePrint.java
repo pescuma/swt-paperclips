@@ -12,17 +12,17 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A decorator Print which displays page headers and footers, with page numbering capabilities.
+ * A decorator Print which displays page headers and footers around a document body, with page
+ * numbering capabilities.
  * <p>
  * PagePrint is horizontally and vertically greedy.  Greedy prints take up all the available space
- * on the page. 
+ * on the page.
  * @author Matthew
  */
 public class PagePrint implements Print {
   Print body;
 
   PageDecoration header;
-
   PageDecoration footer;
 
   int headerGap = 1; // in points
