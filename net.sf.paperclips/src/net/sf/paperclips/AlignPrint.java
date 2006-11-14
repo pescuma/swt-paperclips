@@ -9,12 +9,15 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A wrapper print that aligns its target vertically and horizontally.  This class is vertically
- * greedy for vertical alignments of SWT.CENTER or SWT.BOTTOM, and horizontally greedy for
- * horizontal alignments of SWT.CENTER and SWT.RIGHT. 
+ * A wrapper print that aligns its target vertically and/or horizontally.  An AlignPrint is
+ * vertically greedy when the vertical alignment is SWT.CENTER or SWT.BOTTOM, and horizontally
+ * greedy when the horizontal alignment is SWT.CENTER and SWT.RIGHT.
  * @author Matthew
  */
 public class AlignPrint implements Print {
+  private static final int DEFAULT_H_ALIGN = SWT.LEFT;
+  private static final int DEFAULT_V_ALIGN = SWT.TOP;
+
   final Print target;
   final int hAlign;
   final int vAlign;
@@ -22,8 +25,9 @@ public class AlignPrint implements Print {
   /**
    * Constructs a new AlignPrint.
    * @param target the print being aligned.
-   * @param hAlign the horizontal alignment.
-   * @param vAlign the vertical alignment.
+   * @param hAlign the horizontal alignment.  One of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or
+   *        SWT.DEFAULT.
+   * @param vAlign the vertical alignment.  One of SWT.TOP, SWT.CENTER, SWT.BOTTOM, or SWT.DEFAULT.
    */
   public AlignPrint (Print target, int hAlign, int vAlign) {
     if (target == null)
@@ -36,6 +40,8 @@ public class AlignPrint implements Print {
   private static int checkHAlign (int hAlign) {
     if (hAlign == SWT.LEFT || hAlign == SWT.CENTER || hAlign == SWT.RIGHT)
       return hAlign;
+    if (hAlign == SWT.DEFAULT)
+      return DEFAULT_H_ALIGN;
     throw new IllegalArgumentException (
         "hAlign must be one of SWT.LEFT, SWT.CENTER or SWT.RIGHT");
   }
@@ -43,6 +49,8 @@ public class AlignPrint implements Print {
   private static int checkVAlign (int vAlign) {
     if (vAlign == SWT.TOP || vAlign == SWT.CENTER || vAlign == SWT.BOTTOM)
       return vAlign;
+    if (vAlign == SWT.DEFAULT)
+      return DEFAULT_V_ALIGN;
     throw new IllegalArgumentException (
         "vAlign must be one of SWT.TOP, SWT.CENTER or SWT.BOTTOM");
   }
