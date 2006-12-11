@@ -24,9 +24,10 @@ import org.eclipse.swt.graphics.RGB;
 /**
  * A Print for displaying text.
  * <p>
- * TextPrints with center or right alignment are horizontally greedy.  TextPrints with left
- * alignment (the default) are not greedy.  Greedy prints take up all the available space on the
- * page.
+ * TextPrints are never greedy with layout space, even with center- or right-alignment.  (Greedy
+ * prints take up all the available space on the page.)  Therefore, when center- or right-alignment
+ * is required, it is necessary to wrap the text in a Print which will enforce the same alignment.
+ * Usually this is a center:default:grow or right:default:grow column in a GridPrint.  
  * @author Matthew
  */
 public class TextPrint implements Print {
@@ -269,9 +270,6 @@ class TextIterator extends AbstractIterator {
           col = 0;
         }
       }
-
-      if (align == SWT.CENTER || align == SWT.RIGHT)
-        maxWidth = width;
 
       return new TextPiece (device,
                             new Point (maxWidth, nextLines.size () * lineHeight),
