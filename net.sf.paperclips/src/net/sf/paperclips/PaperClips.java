@@ -154,7 +154,9 @@ public class PaperClips {
    * {@link #print(PrintJob, Printer) } method.
    * @param printer the printing device.
    * @param printJob the print job.
-   * @return an array of all pages of the print job.  Each element of the 
+   * @return an array of all pages of the print job.  Each element of the returned array represents
+   *         one page in the printed document.
+   * @throws RuntimeException if the document could not be properly laid out.
    */
   public static PrintPiece[] getPages(PrintJob printJob, Printer printer) {
     int orientation = printJob.getOrientation();
@@ -187,7 +189,7 @@ public class PaperClips {
       while (iter.hasNext()) {
         PrintPiece page = next(iter, marginBounds.width, marginBounds.height);
         if (page == null) {
-          for (Iterator it = pages.iterator(); iter.hasNext(); )
+          for (Iterator it = pages.iterator(); it.hasNext(); )
             ((PrintPiece)it.next()).dispose();
           pages.clear();
           throw new RuntimeException("Unable to layout pages");
