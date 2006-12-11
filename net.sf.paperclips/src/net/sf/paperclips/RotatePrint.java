@@ -38,7 +38,8 @@ public final class RotatePrint implements Print {
    * Constructs a RotatePrint.
    * @param target the print to rotate.
    * @param angle the angle by which the target will be rotated, expressed in degrees
-   *        counter-clockwise.  A negative number rotates clockwise.  Must be a multiple of 90.
+   *        counter-clockwise.  Positive values rotate counter-clockwise, and negative values
+   *        rotate clockwise.  Must be a multiple of 90.
    */
   public RotatePrint(Print target, int angle) {
     if (target == null)

@@ -27,6 +27,7 @@ public class LayerPrint implements Print {
    */
   public static final int DEFAULT_ALIGN = SWT.LEFT;
 
+  // List<LayerEntry>
   final List entries = new ArrayList ();
 
   /**
