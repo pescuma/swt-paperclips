@@ -90,6 +90,7 @@ public class PrintPreview extends Canvas {
     this.pageIndex = 0;
     disposePages();
     paperSize = null; // in case the orientation changed
+    paperDisplayBounds = null;
     redraw();
   }
 
@@ -195,9 +196,9 @@ public class PrintPreview extends Canvas {
   public void setScale(float scale) {
     if (scale > 0) {
       this.scale = scale;
+      paperDisplayBounds = null;
       redraw();
-    }
-    else
+    } else
       throw new IllegalArgumentException("Scale must be > 0");
   }
 
