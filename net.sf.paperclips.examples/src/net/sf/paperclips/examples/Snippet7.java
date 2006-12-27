@@ -14,9 +14,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -70,27 +72,34 @@ public class Snippet7 implements Print {
     final Shell shell = new Shell (display);
     shell.setText("Snippet7.java");
     shell.setBounds (100, 100, 640, 480);
-    shell.setLayout (new GridLayout(11, false));
+    shell.setLayout (new GridLayout(1, false));
 
     final PrintJob printJob = new PrintJob("Snippet7.java", new Snippet7()).setMargins(108); //1.5"
 
-    Button fitHorz   = new Button (shell, SWT.PUSH);
-    Button fitVert   = new Button (shell, SWT.PUSH);
-    Button fitBest   = new Button (shell, SWT.PUSH);
-    Button exactSize = new Button (shell, SWT.PUSH);
-    Button zoomIn    = new Button (shell, SWT.PUSH);
-    Button zoomOut   = new Button(shell, SWT.PUSH);
-    Button prevPage  = new Button (shell, SWT.PUSH);
-    Button nextPage  = new Button (shell, SWT.PUSH);
-    Button portrait  = new Button (shell, SWT.PUSH);
-    Button landscape = new Button (shell, SWT.PUSH);
-    Button print     = new Button (shell, SWT.PUSH);
+    Composite buttonPanel = new Composite(shell, SWT.NONE);
+    buttonPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+    RowLayout layout = new RowLayout(SWT.HORIZONTAL);
+    layout.pack = false;
+    layout.fill = true;
+    buttonPanel.setLayout(layout);
+
+    Button prevPage  = new Button (buttonPanel, SWT.PUSH);
+    Button nextPage  = new Button (buttonPanel, SWT.PUSH);
+    Button fitHorz   = new Button (buttonPanel, SWT.PUSH);
+    Button fitVert   = new Button (buttonPanel, SWT.PUSH);
+    Button fitBest   = new Button (buttonPanel, SWT.PUSH);
+    Button zoomIn    = new Button (buttonPanel, SWT.PUSH);
+    Button zoomOut   = new Button (buttonPanel, SWT.PUSH);
+    Button exactSize = new Button (buttonPanel, SWT.PUSH);
+    Button portrait  = new Button (buttonPanel, SWT.PUSH);
+    Button landscape = new Button (buttonPanel, SWT.PUSH);
+    Button print     = new Button (buttonPanel, SWT.PUSH);
+
     final ScrolledComposite scroll = new ScrolledComposite(shell,
         SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     final PrintPreview preview = new PrintPreview(scroll, SWT.NONE);
 
-    fitHorz.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    fitHorz.setText ("Fit Horz.");
+    fitHorz.setText ("Fit Width");
     fitHorz.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setFitHorizontal(true);
@@ -103,9 +112,8 @@ public class Snippet7 implements Print {
         preview.setBounds(bounds);
       }
     });
-    
-    fitVert.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
-    fitVert.setText ("Fit Vert.");
+
+    fitVert.setText ("Fit Height");
     fitVert.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         preview.setFitVertical(true);
@@ -119,7 +127,6 @@ public class Snippet7 implements Print {
       }
     });
 
-    fitBest.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     fitBest.setText ("Best Fit");
     fitBest.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -130,7 +137,6 @@ public class Snippet7 implements Print {
       }
     });
 
-    exactSize.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     exactSize.setText("Exact Size");
     exactSize.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -146,7 +152,6 @@ public class Snippet7 implements Print {
       }
     });
     
-    zoomIn.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     zoomIn.setText("Zoom In");
     zoomIn.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -165,7 +170,6 @@ public class Snippet7 implements Print {
       }
     });
     
-    zoomOut.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     zoomOut.setText("Zoom Out");
     zoomOut.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -184,7 +188,6 @@ public class Snippet7 implements Print {
       }
     });
     
-    prevPage.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     prevPage.setText ("<< Page");
     prevPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -192,7 +195,6 @@ public class Snippet7 implements Print {
       }
     });
 
-    nextPage.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     nextPage.setText ("Page >>");
     nextPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -200,7 +202,6 @@ public class Snippet7 implements Print {
       }
     });
 
-    portrait.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     portrait.setText ("Portrait");
     portrait.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -209,7 +210,6 @@ public class Snippet7 implements Print {
       }
     });
 
-    landscape.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     landscape.setText ("Landscape");
     landscape.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -218,7 +218,6 @@ public class Snippet7 implements Print {
       }
     });
 
-    print.setLayoutData (new GridData (SWT.DEFAULT, SWT.DEFAULT, false, false));
     print.setText ("Print");
     print.addListener(SWT.Selection, new Listener() {
       public void handleEvent (Event event) {
@@ -229,9 +228,7 @@ public class Snippet7 implements Print {
       }
     });
 
-    GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-    data.horizontalSpan = 11;
-    scroll.setLayoutData(data);
+    scroll.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     scroll.setContent(preview);
     scroll.setLayout(null);
     Listener scrollListener = new Listener() {
