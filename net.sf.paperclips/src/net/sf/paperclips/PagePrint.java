@@ -313,32 +313,36 @@ class PageIterator implements PrintIterator {
     // HEADER
     if (header != null) {
       Print headerPrint = header.createPrint(pageNumber);
-      PrintIterator headerIterator = headerPrint.iterator(device, gc);
-      PrintPiece headerPiece = PaperClips.next(headerIterator, width, height);
+      if (headerPrint != null) {
+        PrintIterator headerIterator = headerPrint.iterator(device, gc);
+        PrintPiece headerPiece = PaperClips.next(headerIterator, width, height);
 
-      if (headerPiece == null) return null;
+        if (headerPiece == null) return null;
 
-      entries.add (new CompositeEntry (headerPiece, new Point (0, 0)));
+        entries.add (new CompositeEntry (headerPiece, new Point (0, 0)));
 
-      int headerSize = headerPiece.getSize().y + headerGap;
-      y += headerSize;
-      height -= headerSize;
+        int headerSize = headerPiece.getSize().y + headerGap;
+        y += headerSize;
+        height -= headerSize;
+      }
     }
 
     // FOOTER
     if (footer != null) {
       Print footerPrint = footer.createPrint(pageNumber);
-      PrintIterator footerIterator = footerPrint.iterator(device, gc);
-      PrintPiece footerPiece = PaperClips.next(footerIterator, width, height);
+      if (footerPrint != null) {
+        PrintIterator footerIterator = footerPrint.iterator(device, gc);
+        PrintPiece footerPiece = PaperClips.next(footerIterator, width, height);
 
-      if (footerPiece == null) return null;
+        if (footerPiece == null) return null;
 
-      entries.add (new CompositeEntry (footerPiece, new Point (0, y + height
-          - footerPiece.getSize ().y)));
+        entries.add (new CompositeEntry (footerPiece, new Point (0, y + height
+            - footerPiece.getSize ().y)));
 
-      int footerSize = footerPiece.getSize().y + footerGap;
+        int footerSize = footerPiece.getSize().y + footerGap;
 
-      height -= footerSize;
+        height -= footerSize;
+      }
     }
 
     // BODY

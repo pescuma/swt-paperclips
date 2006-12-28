@@ -13,9 +13,11 @@ package net.sf.paperclips;
  */
 public interface PageDecoration {
   /**
-   * Returns a decorator Print for the page with the given page number.
+   * Returns a decorator Print for the page with the given page number, or null if no decoration is
+   * provided for the given page.
    * @param pageNumber the page number of the page being decorated.
-   * @return a decorator Print for the page with the given page number.
+   * @return a decorator Print for the page with the given page number, or null if no decoration is
+   *         provided for the given page.
    */
   public Print createPrint (PageNumber pageNumber);
 }
