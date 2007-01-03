@@ -194,7 +194,12 @@ public class PaperClips {
           pages.clear();
           throw new RuntimeException("Unable to layout pages");
         }
-        pages.add(new PagePiece(paperBounds, marginBounds, page));
+        PrintPiece pagePiece = new CompositePiece(
+      		new CompositeEntry[] {
+    				new CompositeEntry(page, new Point(marginBounds.x-paperBounds.x, marginBounds.y-paperBounds.y ))
+  				},
+      		new Point(paperBounds.width, paperBounds.height));
+        pages.add(pagePiece);
       }
     } finally {
       gc.dispose();
@@ -251,31 +256,5 @@ public class PaperClips {
       bottom = printableBounds.y + printableBounds.height;
 
     return new Rectangle(left, top, right-left, bottom-top);
-  }
-}
-
-class PagePiece implements PrintPiece {
-  private final Point size;
-  private final Point offset;
-  private final PrintPiece target;
-
-  PagePiece(Rectangle paperBounds, Rectangle marginBounds, PrintPiece target) {
-    if (paperBounds == null || marginBounds == null || target == null)
-      throw new NullPointerException();
-    this.size = new Point(paperBounds.width, paperBounds.height);
-    this.offset = new Point(marginBounds.x-paperBounds.x, marginBounds.y-paperBounds.y);
-    this.target = target;
-  }
-
-  public void dispose() {
-    target.dispose();
-  }
-
-  public Point getSize() {
-    return new Point(size.x, size.y);
-  }
-
-  public void paint(GC gc, int x, int y) {
-    target.paint(gc, x+offset.x, x+offset.y);
   }
 }
