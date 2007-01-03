@@ -379,7 +379,7 @@ public final class GridPrint implements Print {
             (col > index) ||
             // right side touches insert point but is not the final cell.
             (col == index && (rowI + 1 < rows.size() || cellI + 1 < row.size()))) {
-          row.set(cellI, new GridCell(cell.target, cell.align, cell.colspan + count));
+          row.set(cellI, new GridCell(cell.hAlignment, cell.vAlignment, cell.target, cell.colspan + count));
           break;
         }
       }
@@ -413,33 +413,83 @@ public final class GridPrint implements Print {
   }
 
   /**
-   * Adds the Print to the grid header, with the default alignment and a colspan of 1.
-   * @param print the print to add.
+   * Adds the Print to the grid header, with default alignment and a colspan of 1.
+   * @param cell the print to add.
    */
-  public void addHeader (Print print) {
-    headerCol = add (header, headerCol, print, 1, SWT.DEFAULT);
+  public void addHeader (Print cell) {
+    headerCol = add (header, headerCol, SWT.DEFAULT, SWT.DEFAULT, cell, 1);
+  }
+
+  /**
+   * Adds the Print to the grid header, using the given alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param cell the print to add.
+   */
+  public void addHeader(int hAlignment, Print cell) {
+  	headerCol = add (header, headerCol, hAlignment, SWT.DEFAULT, cell, 1);
+  }
+
+  /**
+   * Adds the Print to the grid header, using the given alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   * @param cell the print to add.
+   */
+  public void addHeader(int hAlignment, int vAlignment, Print cell) {
+  	headerCol = add (header, headerCol, hAlignment, vAlignment, cell, 1);
   }
 
   /**
    * Adds the Print to the grid header, with the given colspan and the default alignment.
-   * @param print the print to add.
+   * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
    */
-  public void addHeader (Print print, int colspan) {
-    headerCol = add (header, headerCol, print, colspan, SWT.DEFAULT);
+  public void addHeader (Print cell, int colspan) {
+    headerCol = add (header, headerCol, SWT.DEFAULT, SWT.DEFAULT, cell, colspan);
   }
 
   /**
    * Adds the Print to the grid header, using the given colspan and alignment.
-   * @param print the print to add.
+   * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
-   * @param alignment the alignment of the print within the grid cell. One of {@link SWT#LEFT },
-   *        {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    */
-  public void addHeader (Print print, int colspan, int alignment) {
-    headerCol = add (header, headerCol, print, colspan, alignment);
+  public void addHeader(int hAlignment, Print cell, int colspan) {
+  	headerCol = add (header, headerCol, hAlignment, SWT.DEFAULT, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid header, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   */
+  public void addHeader(int hAlignment, int vAlignment, Print cell, int colspan) {
+  	headerCol = add (header, headerCol, hAlignment, vAlignment, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid header, using the given colspan and alignment.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @deprecated Use {@link #addHeader(int, Print, int)} instead.  GridPrint's addHeader method signatures have been
+   *             rearranged to coincide with the GridColumn column spec format: [alignment]:content:[colspan]
+   */
+  public void addHeader (Print cell, int colspan, int hAlignment) {
+    headerCol = add (header, headerCol, hAlignment, SWT.DEFAULT, cell, colspan);
   }
 
   /**
@@ -463,32 +513,82 @@ public final class GridPrint implements Print {
 
   /**
    * Adds the Print to the grid body, with the default alignment and a colspan of 1.
-   * @param print the print to add.
+   * @param cell the print to add.
    */
-  public void add (Print print) {
-    bodyCol = add (body, bodyCol, print, 1, SWT.DEFAULT);
-  }
-
-  /**
-   * Adds the Print to the grid body, with the given colspan and the default alignment.
-   * @param print the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
-   *        of the row.
-   */
-  public void add (Print print, int colspan) {
-    bodyCol = add (body, bodyCol, print, colspan, SWT.DEFAULT);
+  public void add (Print cell) {
+    bodyCol = add (body, bodyCol, SWT.DEFAULT, SWT.DEFAULT, cell, 1);
   }
 
   /**
    * Adds the Print to the grid body, using the given colspan and alignment.
-   * @param print the print to add.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param cell the print to add.
+   */
+  public void add (int hAlignment, Print cell) {
+  	bodyCol = add (body, bodyCol, hAlignment, SWT.DEFAULT, cell, 1);
+  }
+
+  /**
+   * Adds the Print to the grid body, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   * @param cell the print to add.
+   */
+  public void add (int hAlignment, int vAlignment, Print cell) {
+  	bodyCol = add (body, bodyCol, hAlignment, vAlignment, cell, 1);
+  }
+
+  /**
+   * Adds the Print to the grid body, with the given colspan and the default alignment.
+   * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
-   * @param alignment the alignment of the print within the grid cell. One of {@link SWT#LEFT },
-   *        {@link SWT#CENTER } or {@link SWT#RIGHT }.
    */
-  public void add (Print print, int colspan, int alignment) {
-    bodyCol = add (body, bodyCol, print, colspan, alignment);
+  public void add (Print cell, int colspan) {
+    bodyCol = add (body, bodyCol, SWT.DEFAULT, SWT.DEFAULT, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid body, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   */
+  public void add (int hAlignment, Print cell, int colspan) {
+  	bodyCol = add (body, bodyCol, hAlignment, SWT.DEFAULT, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid body, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   */
+  public void add (int hAlignment, int vAlignment, Print cell, int colspan) {
+  	bodyCol = add (body, bodyCol, hAlignment, vAlignment, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid body, using the given colspan and alignment.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @deprecated Use {@link #add(int, Print, int)} instead.  GridPrint's add method signatures have been rearranged to
+   *             coincide with the GridColumn column spec format: [alignment]:content:[colspan]
+   */
+  public void add (Print cell, int colspan, int hAlignment) {
+    bodyCol = add (body, bodyCol, hAlignment, SWT.DEFAULT, cell, colspan);
   }
 
   /**
@@ -512,32 +612,82 @@ public final class GridPrint implements Print {
 
   /**
    * Adds the Print to the grid footer, with the default alignment and a colspan of 1.
-   * @param print the print to add.
+   * @param cell the print to add.
    */
-  public void addFooter (Print print) {
-    footerCol = add (footer, footerCol, print, 1, SWT.DEFAULT);
-  }
-
-  /**
-   * Adds the Print to the grid footer, with the given colspan and the default alignment.
-   * @param print the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
-   *        of the row.
-   */
-  public void addFooter (Print print, int colspan) {
-    footerCol = add (footer, footerCol, print, colspan, SWT.DEFAULT);
+  public void addFooter (Print cell) {
+    footerCol = add (footer, footerCol, SWT.DEFAULT, SWT.DEFAULT, cell, 1);
   }
 
   /**
    * Adds the Print to the grid footer, using the given colspan and alignment.
-   * @param print the print to add.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param cell the print to add.
+   */
+  public void addFooter (int hAlignment, Print cell) {
+  	footerCol = add (footer, footerCol, hAlignment, SWT.DEFAULT, cell, 1);
+  }
+
+  /**
+   * Adds the Print to the grid footer, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   * @param cell the print to add.
+   */
+  public void addFooter (int hAlignment, int vAlignment, Print cell) {
+  	footerCol = add (footer, footerCol, hAlignment, vAlignment, cell, 1);
+  }
+
+  /**
+   * Adds the Print to the grid footer, with the given colspan and the default alignment.
+   * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
-   * @param alignment the alignment of the print within the grid cell. One of {@link SWT#LEFT },
-   *        {@link SWT#CENTER } or {@link SWT#RIGHT }.
    */
-  public void addFooter (Print print, int colspan, int alignment) {
-    footerCol = add (footer, footerCol, print, colspan, alignment);
+  public void addFooter (Print cell, int colspan) {
+    footerCol = add (footer, footerCol, SWT.DEFAULT, SWT.DEFAULT, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid footer, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   */
+  public void addFooter (int hAlignment, Print cell, int colspan) {
+  	footerCol = add (footer, footerCol, hAlignment, SWT.DEFAULT, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid footer, using the given colspan and alignment.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   */
+  public void addFooter (int hAlignment, int vAlignment, Print cell, int colspan) {
+  	footerCol = add (footer, footerCol, hAlignment, vAlignment, cell, colspan);
+  }
+
+  /**
+   * Adds the Print to the grid footer, using the given colspan and alignment.
+   * @param cell the print to add.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
+   *        of the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
+   *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @deprecated Use {@link #addFooter(int, Print, int)} instead.  GridPrint's addFooter method signatures have been
+   *             rearranged to coincide with the GridColumn column spec format: [alignment]:content:[colspan]
+   */
+  public void addFooter (Print cell, int colspan, int hAlignment) {
+    footerCol = add (footer, footerCol, hAlignment, SWT.DEFAULT, cell, colspan);
   }
 
   /**
@@ -562,9 +712,10 @@ public final class GridPrint implements Print {
   /* Returns the column number that we've advanced to, after adding the new cell. */
   private int add (List  rows, // List of List of GridCell
                    int   startColumn,
-                   Print print,
-                   int   colspan,
-                   int   alignment) {
+                   int   hAlignment,
+                   int   vAlignment,
+                   Print cell,
+                   int   colspan) {
     // If we're at the end of a row, start a new row.
     if (startColumn == columns.size()) startColumn = 0;
 
@@ -586,7 +737,7 @@ public final class GridPrint implements Print {
     if (colspan == REMAINDER) colspan = columns.size() - startColumn;
 
     // Add the new Print
-    GridCell entry = new GridCell (print, alignment, colspan);
+    GridCell entry = new GridCell (hAlignment, vAlignment, cell, colspan);
     row.add (entry);
 
     // Adjust the column cursor by the span of the added Print
@@ -757,16 +908,48 @@ public final class GridPrint implements Print {
 }
 
 class GridCell {
+  final int   hAlignment;
+  final int   vAlignment;
   final Print target;
-  final int align;
-  final int colspan;
+  final int   colspan;
 
-  GridCell (Print target, int align, int colspan) {
+  GridCell (int hAlignment, int vAlignment, Print target, int colspan) {
     if (target == null)
       throw new NullPointerException();
-    this.target  = target;
-    this.align   = checkAlign (align);
-    this.colspan = checkColspan (colspan);
+    this.hAlignment = checkHorizontalAlignment(hAlignment);
+    this.vAlignment = checkVerticalAlignment(vAlignment);
+    this.target     = target;
+    this.colspan    = checkColspan(colspan);
+  }
+
+  private static int checkHorizontalAlignment (int hAlignment) {
+    if ((hAlignment & SWT.DEFAULT) == SWT.DEFAULT)
+      return SWT.DEFAULT;
+    else if ((hAlignment & SWT.LEFT) == SWT.LEFT)
+      return SWT.LEFT;
+    else if ((hAlignment & SWT.CENTER) == SWT.CENTER)
+      return SWT.CENTER;
+    else if ((hAlignment & SWT.RIGHT) == SWT.RIGHT)
+      return SWT.RIGHT;
+    else
+      throw new IllegalArgumentException (
+          "Align must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT");
+  }
+
+  private static int checkVerticalAlignment (int vAlignment) {
+    if ((vAlignment & SWT.DEFAULT) == SWT.DEFAULT)
+      return SWT.DEFAULT;
+    else if ((vAlignment & SWT.TOP) == SWT.TOP)
+      return SWT.TOP;
+    else if ((vAlignment & SWT.CENTER) == SWT.CENTER)
+      return SWT.CENTER;
+    else if ((vAlignment & SWT.BOTTOM) == SWT.BOTTOM)
+      return SWT.BOTTOM;
+    else if ((vAlignment & SWT.FILL) == SWT.FILL)
+    	return SWT.FILL;
+    else
+      throw new IllegalArgumentException (
+          "Align must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or SWT.FILL");
   }
 
   private int checkColspan (int colspan) {
@@ -776,40 +959,29 @@ class GridCell {
         "colspan must be a positive number or GridPrint.REMAINDER");
   }
 
-  private int checkAlign (int align) {
-    if ((align & SWT.DEFAULT) == SWT.DEFAULT)
-      return SWT.DEFAULT;
-    else if ((align & SWT.LEFT) == SWT.LEFT)
-      return SWT.LEFT;
-    else if ((align & SWT.CENTER) == SWT.CENTER)
-      return SWT.CENTER;
-    else if ((align & SWT.RIGHT) == SWT.RIGHT)
-      return SWT.RIGHT;
-    else
-      throw new IllegalArgumentException (
-          "Align must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT");
-  }
-
   GridCellIterator iterator (Device device, GC gc) {
     return new GridCellIterator(this, device, gc);
   }
 }
 
 class GridCellIterator {
+  final int           hAlignment;
+  final int           vAlignment;
   final PrintIterator target;
-  final int align;
-  final int colspan;
+  final int           colspan;
 
   GridCellIterator(GridCell cell, Device device, GC gc) {
-    this.target  = cell.target.iterator (device, gc);
-    this.align   = cell.align;
-    this.colspan = cell.colspan;
+    this.hAlignment = cell.hAlignment;
+    this.vAlignment = cell.vAlignment;
+    this.target     = cell.target.iterator (device, gc);
+    this.colspan    = cell.colspan;
   }
 
   GridCellIterator(GridCellIterator that) {
-    this.target  = that.target.copy();
-    this.align   = that.align;
-    this.colspan = that.colspan;
+    this.hAlignment = that.hAlignment;
+    this.vAlignment = that.vAlignment;
+    this.target     = that.target.copy();
+    this.colspan    = that.colspan;
   }
 
   GridCellIterator copy() {
@@ -1452,9 +1624,16 @@ class GridIterator implements PrintIterator {
                                final int[] rowHeight,
                                final boolean[] hasNext) {
 
+  	// Fail now if the bottom border is open and there are non-default vertical alignments in the row.
+  	if (bottomOpen)
+  		for (int i = 0; i < row.length; i++)
+  			if (row[i].vAlignment != SWT.DEFAULT && row[i].vAlignment != SWT.TOP)
+  				return null;
+
     final GridMargins margins = look.getMargins();
 
     int[] xOffsets = new int[row.length];
+    int[] yOffsets = new int[row.length];
     int[] widths = new int[row.length];
     PrintPiece[] rowPieces = new PrintPiece[row.length];
 
@@ -1465,13 +1644,14 @@ class GridIterator implements PrintIterator {
 
     for (int cellIndex = 0; cellIndex < row.length; cellIndex++) {
       xOffsets[cellIndex] = x;
+      yOffsets[cellIndex] = y;
 
-      GridCellIterator entry = row[cellIndex];
-      PrintIterator iter = row[cellIndex].target;
+      GridCellIterator cell = row[cellIndex];
+      PrintIterator iter = cell.target;
 
       // Determine width of the cell span, including spacing between cells.
-      int cellspanWidth = (entry.colspan - 1) * margins.getHorizontalSpacing();
-      for (int j = 0; j < entry.colspan; j++)
+      int cellspanWidth = (cell.colspan - 1) * margins.getHorizontalSpacing();
+      for (int j = 0; j < cell.colspan; j++)
         cellspanWidth += colSizes[col+j];
       widths[cellIndex] = cellspanWidth;
 
@@ -1479,8 +1659,20 @@ class GridIterator implements PrintIterator {
       if (!iter.hasNext ()) {
         // But advance the column cursor
         x += cellspanWidth + margins.getHorizontalSpacing();
-        col += entry.colspan;
+        col += cell.colspan;
         continue;
+      }
+
+      // Skip for now if this cell has SWT.FILL vertical alignment (indicating vertical greediness)
+      if (cell.vAlignment == SWT.FILL) {
+      	// Check the minimum size just in case
+      	Point minSize = iter.minimumSize();
+      	rowHeight[0] = Math.max(rowHeight[0], minSize.y);
+
+      	// Advance the column cursor
+      	x += cellspanWidth + margins.getHorizontalSpacing();
+      	col += cell.colspan;
+      	continue;
       }
 
       // Iterate the current cell.
@@ -1517,14 +1709,14 @@ class GridIterator implements PrintIterator {
       hasNext[0] = hasNext[0] || iter.hasNext();
 
       // Determine the alignment for this cell.
-      int align = entry.align;
-      if (align == SWT.DEFAULT) align = columns[col].align;
+      int hAlignment = cell.hAlignment;
+      if (hAlignment == SWT.DEFAULT) hAlignment = columns[col].align;
 
       // Calculate the X offset of the PrintPiece within the cellspan, according to the alignment.
       int offset = 0;
-      if (align == SWT.CENTER)
+      if (hAlignment == SWT.CENTER)
         offset = (cellspanWidth - piece.getSize ().x) / 2;
-      else if (align == SWT.RIGHT)
+      else if (hAlignment == SWT.RIGHT)
         offset = cellspanWidth - piece.getSize ().x;
       xOffsets[cellIndex] += offset;
 
@@ -1533,7 +1725,56 @@ class GridIterator implements PrintIterator {
 
       // Adjust x offset and column number.
       x += cellspanWidth + margins.getHorizontalSpacing();
-      col += entry.colspan;
+      col += cell.colspan;
+    }
+
+    // Now that we have the final row height, loop through again to determine the y offsets of each cell, and to layout
+    // any cells with SWT.FILL vertical alignment (which were skipped the first time through).
+    for (int cellIndex = 0; cellIndex < row.length; cellIndex++) {
+    	GridCellIterator cell = row[cellIndex];
+
+    	// Skip cell if vertical alignment is TOP or DEFAULT
+    	if (cell.vAlignment == SWT.DEFAULT || cell.vAlignment == SWT.TOP)
+    		continue;
+
+    	PrintIterator iter = cell.target;
+
+    	int offset = 0;
+    	if (cell.vAlignment == SWT.FILL) {
+    		PrintPiece piece = rowPieces[cellIndex] = PaperClips.next(iter, widths[cellIndex], rowHeight[0]);
+
+    		if (piece == null || iter.hasNext()) {
+    			if (piece != null)
+    				piece.dispose();
+    			for (int j = 0; j <= row.length; j++)
+    				if (rowPieces[j] != null)
+    					rowPieces[j].dispose();
+    			return null;
+    		}
+
+    		if (piece.getSize().x > widths[cellIndex] || piece.getSize().y > rowHeight[0]) {
+    			piece.dispose();
+    			for (int j = 0; j < row.length; j++)
+    				if (rowPieces[j] != null)
+    					rowPieces[j].dispose();
+          System.err.println(rowPieces[cellIndex] + " iterated a larger piece than allowed: " +
+              new Point(widths[cellIndex], height) + " available, but " + piece.getSize() + " used.");
+    			return null;
+    		}
+
+    		if (cell.hAlignment == SWT.CENTER)
+    			offset = (widths[cellIndex] - piece.getSize().x)/2;
+    		else if (cell.hAlignment == SWT.RIGHT)
+    			offset = widths[cellIndex] - piece.getSize().x;
+    		xOffsets[cellIndex] += offset;
+    	} else {
+    		if (cell.vAlignment == SWT.CENTER) {
+    			offset = (rowHeight[0] - rowPieces[cellIndex].getSize().y)/2;
+    		} else if (cell.vAlignment == SWT.BOTTOM) {
+    			offset = rowHeight[0] - rowPieces[cellIndex].getSize().y;
+    		}
+      	yOffsets[cellIndex] += offset;
+    	}
     }
 
     // Construct and return the result.
@@ -1541,7 +1782,7 @@ class GridIterator implements PrintIterator {
     for (int cellIndex = 0; cellIndex < rowPieces.length; cellIndex++)
       if (rowPieces[cellIndex] != null)
         result.add(new CompositeEntry ( rowPieces[cellIndex],
-                                        new Point (xOffsets[cellIndex], y)));
+                                        new Point (xOffsets[cellIndex], yOffsets[cellIndex])));
 
     return (CompositeEntry[]) result.toArray(new CompositeEntry[result.size()]);
   }
