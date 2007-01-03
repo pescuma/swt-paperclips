@@ -68,7 +68,7 @@ public class Snippet7 implements Print {
    * @param args command-line args.
    */
   public static void main(String[] args) {
-    Display display = Display.getDefault ();
+    final Display display = Display.getDefault ();
     final Shell shell = new Shell (display);
     shell.setText("Snippet7.java");
     shell.setBounds (100, 100, 640, 480);
@@ -95,8 +95,7 @@ public class Snippet7 implements Print {
     Button landscape = new Button (buttonPanel, SWT.PUSH);
     Button print     = new Button (buttonPanel, SWT.PUSH);
 
-    final ScrolledComposite scroll = new ScrolledComposite(shell,
-        SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    final ScrolledComposite scroll = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     final PrintPreview preview = new PrintPreview(scroll, SWT.NONE);
 
     fitHorz.setText ("Fit Width");
@@ -106,10 +105,7 @@ public class Snippet7 implements Print {
         preview.setFitVertical(false);
 
         Rectangle bounds = scroll.getClientArea();
-        Point size = preview.computeSize(bounds.width, SWT.DEFAULT);
-        bounds.width = Math.max(bounds.width, size.x);
-        bounds.height = Math.max(bounds.height, size.y);
-        preview.setBounds(bounds);
+        scroll.setMinSize(preview.computeSize(bounds.width, SWT.DEFAULT));
       }
     });
 
@@ -120,10 +116,7 @@ public class Snippet7 implements Print {
         preview.setFitHorizontal(false);
 
         Rectangle bounds = scroll.getClientArea();
-        Point size = preview.computeSize(SWT.DEFAULT, bounds.height);
-        bounds.width = Math.max(bounds.width, size.x);
-        bounds.height = Math.max(bounds.height, size.y);
-        preview.setBounds(bounds);
+        scroll.setMinSize(preview.computeSize(SWT.DEFAULT, bounds.height));
       }
     });
 
@@ -132,8 +125,7 @@ public class Snippet7 implements Print {
       public void handleEvent(Event event) {
         preview.setFitVertical(true);
         preview.setFitHorizontal(true);
-
-        preview.setBounds(scroll.getClientArea());
+        scroll.setMinSize(0, 0);
       }
     });
 
@@ -143,30 +135,21 @@ public class Snippet7 implements Print {
         preview.setFitVertical(false);
         preview.setFitHorizontal(false);
         preview.setScale(1);
-
-        Rectangle bounds = scroll.getClientArea();
-        Point size = preview.computeSize(1);
-        bounds.width = Math.max(bounds.width, size.x);
-        bounds.height = Math.max(bounds.height, size.y);
-        preview.setBounds(bounds);
+        scroll.setMinSize(preview.computeSize(1));
       }
     });
-    
+
     zoomIn.setText("Zoom In");
     zoomIn.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         float scale = preview.getAbsoluteScale();
-        scale *= 1.1;
+        scale *= 1.1f;
 
+        preview.setScale(scale);
         preview.setFitVertical(false);
         preview.setFitHorizontal(false);
-        preview.setScale(scale);
 
-        Rectangle bounds = scroll.getClientArea();
-        Point size = preview.computeSize(scale);
-        bounds.width = Math.max(bounds.width, size.x);
-        bounds.height = Math.max(bounds.height, size.y);
-        preview.setBounds(bounds);
+        scroll.setMinSize(preview.computeSize(scale));
       }
     });
     
@@ -174,20 +157,15 @@ public class Snippet7 implements Print {
     zoomOut.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
         float scale = preview.getAbsoluteScale();
-        scale /= 1.1;
+        scale /= 1.1f;
 
+        preview.setScale(scale);
         preview.setFitVertical(false);
         preview.setFitHorizontal(false);
-        preview.setScale(scale);
 
-        Rectangle bounds = scroll.getClientArea();
-        Point size = preview.computeSize(scale);
-        bounds.width = Math.max(bounds.width, size.x);
-        bounds.height = Math.max(bounds.height, size.y);
-        preview.setBounds(bounds);
-      }
+        scroll.setMinSize(preview.computeSize(scale));      }
     });
-    
+
     prevPage.setText ("<< Page");
     prevPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -207,6 +185,21 @@ public class Snippet7 implements Print {
       public void handleEvent(Event event) {
         printJob.setOrientation(PaperClips.ORIENTATION_PORTRAIT);
         preview.setPrintJob(printJob);
+
+        Rectangle bounds = scroll.getClientArea();
+        if (preview.isFitHorizontal()) {
+        	if (preview.isFitVertical()) { // best fit
+        		scroll.setMinSize(0, 0);
+        	} else { // fit to width
+        		scroll.setMinSize(preview.computeSize(bounds.width, SWT.DEFAULT));
+        	}
+        } else {
+        	if (preview.isFitVertical()) { // fit to height
+        		scroll.setMinSize(preview.computeSize(SWT.DEFAULT, bounds.height));
+        	} else { // custom scale
+        		scroll.setMinSize(preview.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        	}
+        }
       }
     });
 
@@ -215,6 +208,21 @@ public class Snippet7 implements Print {
       public void handleEvent(Event event) {
         printJob.setOrientation(PaperClips.ORIENTATION_LANDSCAPE);
         preview.setPrintJob(printJob);
+
+        Rectangle bounds = scroll.getClientArea();
+        if (preview.isFitHorizontal()) {
+        	if (preview.isFitVertical()) { // best fit
+        		scroll.setMinSize(0, 0);
+        	} else { // fit to width
+        		scroll.setMinSize(preview.computeSize(bounds.width, SWT.DEFAULT));
+        	}
+        } else {
+        	if (preview.isFitVertical()) { // fit to height
+        		scroll.setMinSize(preview.computeSize(SWT.DEFAULT, bounds.height));
+        	} else { // custom scale
+        		scroll.setMinSize(preview.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        	}
+        }
       }
     });
 
@@ -230,8 +238,9 @@ public class Snippet7 implements Print {
 
     scroll.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     scroll.setContent(preview);
-    scroll.setLayout(null);
-    Listener scrollListener = new Listener() {
+    scroll.setExpandHorizontal(true);
+    scroll.setExpandVertical(true);
+    Listener resizeListener = new Listener() {
       public void handleEvent(Event event) {
         Rectangle bounds = scroll.getClientArea();
 
@@ -239,30 +248,65 @@ public class Snippet7 implements Print {
         scroll.getVerticalBar().setPageIncrement(bounds.height * 2 / 3);
 
         if (preview.isFitHorizontal()) {
-          if (preview.isFitVertical()) {
-            // fit in both directions, just use client area.
-          } else {
-            Point size = preview.computeSize(bounds.width, SWT.DEFAULT);
-            bounds.width  = Math.max(size.x, bounds.width);
-            bounds.height = Math.max(size.y, bounds.height);
+          if (preview.isFitVertical()) { // Best fit
+          	scroll.setMinSize(0, 0);
+          } else { // Fit to width
+          	scroll.setMinSize(preview.computeSize(bounds.width, SWT.DEFAULT));
           }
-        } else if (preview.isFitVertical()) {
-          Point size = preview.computeSize(SWT.DEFAULT, bounds.height);
-          bounds.width  = Math.max(size.x, bounds.width);
-          bounds.height = Math.max(size.y, bounds.height);
-        } else {
-          Point size = preview.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-          bounds.width  = Math.max(size.x, bounds.width);
-          bounds.height = Math.max(size.y, bounds.height);
+        } else if (preview.isFitVertical()) { // Fit to height
+        	scroll.setMinSize(preview.computeSize(SWT.DEFAULT, bounds.height));;
+        } else { // 
+        	scroll.setMinSize(preview.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         }
-        preview.setBounds(bounds);
       }
     };
-    scroll.addListener(SWT.Resize, scrollListener);
+    scroll.addListener(SWT.Resize, resizeListener);
 
     preview.setFitVertical(true);
     preview.setFitHorizontal(true);
     preview.setPrintJob(printJob);
+
+    Listener dragListener = new Listener() {
+    	private boolean dragEnabled = false;
+    	private Point dragOrigin = null;
+    	private Point dragAnchor = null;
+			public void handleEvent(Event event) {
+				switch (event.type) {
+				case SWT.Resize:
+					Rectangle bounds = scroll.getClientArea();
+					Point size = preview.getSize();
+					dragEnabled = size.x > bounds.width || size.y > bounds.height;
+					if (!dragEnabled) {
+						dragOrigin = null;
+						dragAnchor = null;
+					}
+					break;
+				case SWT.MouseDown:
+					if (dragEnabled && event.button == 1) {
+						dragOrigin = scroll.getOrigin();
+						dragAnchor = preview.toDisplay(event.x, event.y);
+					}
+					break;
+				case SWT.MouseMove:
+					if (dragAnchor != null && dragOrigin != null) {
+						Point point = preview.toDisplay(event.x, event.y);
+						scroll.setOrigin(dragOrigin.x + dragAnchor.x - point.x,
+														 dragOrigin.y + dragAnchor.y - point.y);
+					}
+					break;
+				case SWT.MouseUp:
+					if (dragEnabled) {
+						dragAnchor = null;
+						dragOrigin = null;
+					}
+					break;
+				}
+			}
+    };
+    scroll .addListener(SWT.Resize,    dragListener);
+    preview.addListener(SWT.MouseDown, dragListener);
+    preview.addListener(SWT.MouseMove, dragListener);
+    preview.addListener(SWT.MouseUp,   dragListener);
 
     shell.setVisible (true);
 
