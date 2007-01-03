@@ -4,8 +4,7 @@
 package net.sf.paperclips;
 
 /**
- * An interface for reporting the current page number and the total number of
- * pages.
+ * Instances of this class represent a page index in the output of a PagePrint.
  * @author Matthew
  */
 public interface PageNumber {
@@ -16,8 +15,8 @@ public interface PageNumber {
   public int getPageNumber ();
 
   /**
-   * Returns the total number of pages. Note that this method may not return an
-   * accurate page count until the PagePrint has finished iterating.
+   * Returns the total number of pages. Note that this method may not return an accurate value until all pages have
+   * been laid out.  Therefore this method should not be used inside {@link PageDecoration#createPrint(PageNumber)}.
    * @return the total number of pages.
    */
   public int getPageCount ();

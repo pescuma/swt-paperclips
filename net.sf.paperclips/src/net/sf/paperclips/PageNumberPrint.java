@@ -215,15 +215,9 @@ class PageNumberIterator extends AbstractIterator {
       gc.setFont (font);
 
       size = gc.textExtent (format.format (new PageNumber () {
-        public int getPageCount () {
-          return 9999;
-        }
-
-        public int getPageNumber () {
-          return pageNumber.getPageNumber();
-        }
+        public int getPageCount () { return 9999; }
+        public int getPageNumber() { return 9998; } // (zero-based index) 
       }));
-
     } finally {
       gc.setFont (oldFont);
       if (font != null) font.dispose ();

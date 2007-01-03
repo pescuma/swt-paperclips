@@ -184,26 +184,21 @@ class PageNumberer {
 
 class PageIterator implements PrintIterator {
   final Device device;
-
   final GC gc;
-
   final Point dpi;
+
+  final PageDecoration header;
+  final int headerGap; // pixels
 
   final PrintIterator body;
 
-  final PageDecoration header;
-
-  final int headerGap; // pixels
-
   final PageDecoration footer;
-
   final int footerGap; // pixels
 
   final PageNumberer numberer;
 
-  final Point minimumSize;
-
-  final Point preferredSize;
+  Point minimumSize;
+  Point preferredSize;
 
   PageIterator (PagePrint print, Device device, GC gc) {
     this.device = device;
@@ -215,55 +210,6 @@ class PageIterator implements PrintIterator {
     headerGap = header == null ? 0 : print.headerGap * dpi.y / 72;
     footer = print.footer;
     footerGap = footer == null ? 0 : print.footerGap * dpi.y / 72;
-
-    // Calculate the minimum and preferred size.
-    Point bodyMinSize = body.minimumSize ();
-    Point bodyPrefSize = body.preferredSize ();
-
-    PageNumber samplePageNumber = new PageNumber () {
-      public int getPageCount () {
-        return 9999;
-      }
-
-      public int getPageNumber () {
-        return 9999;
-      }
-    };
-
-    if (header != null) {
-      PrintIterator iter = header.createPrint (samplePageNumber).iterator (
-          device, gc);
-
-      bodyMinSize.y += headerGap;
-      bodyPrefSize.y += headerGap;
-
-      Point minSize = iter.minimumSize ();
-      bodyMinSize.y += minSize.y;
-      bodyMinSize.x = Math.max (bodyMinSize.x, minSize.x);
-
-      Point prefSize = iter.preferredSize ();
-      bodyPrefSize.y += prefSize.y;
-      bodyPrefSize.x = Math.max (bodyPrefSize.x, prefSize.x);
-    }
-
-    if (footer != null) {
-      PrintIterator iter = footer.createPrint (samplePageNumber).iterator (
-          device, gc);
-
-      bodyMinSize.y += footerGap;
-      bodyPrefSize.y += footerGap;
-
-      Point minSize = iter.minimumSize ();
-      bodyMinSize.y += minSize.y;
-      bodyMinSize.x = Math.max (bodyMinSize.x, minSize.x);
-
-      Point prefSize = iter.preferredSize ();
-      bodyPrefSize.y += prefSize.y;
-      bodyPrefSize.x = Math.max (bodyPrefSize.x, prefSize.x);
-    }
-
-    this.minimumSize = bodyMinSize;
-    this.preferredSize = bodyPrefSize;
 
     this.numberer = new PageNumberer ();
   }
@@ -280,9 +226,62 @@ class PageIterator implements PrintIterator {
     this.footerGap = that.footerGap;
 
     this.numberer = that.numberer.copy ();
+    this.pageNumber = that.pageNumber;
 
     this.minimumSize = that.minimumSize;
     this.preferredSize = that.preferredSize;
+  }
+
+  private void computeSizes() {
+  	if (minimumSize != null && preferredSize != null) return;
+
+    // Calculate the minimum and preferred size.
+    Point minSize = body.minimumSize ();
+    Point prefSize = body.preferredSize ();
+
+    PageNumber samplePageNumber = new PageNumber () {
+      public int getPageCount () { return 1; }
+      public int getPageNumber() { return 0; }
+    };
+
+    if (header != null) {
+    	Print headerPrint = header.createPrint(samplePageNumber);
+    	if (headerPrint != null) {
+        PrintIterator iter = headerPrint.iterator (device, gc);
+
+        minSize.y += headerGap;
+        prefSize.y += headerGap;
+
+        Point headerMinSize = iter.minimumSize ();
+        minSize.y += headerMinSize.y;
+        minSize.x = Math.max (minSize.x, headerMinSize.x);
+
+        Point headerPrefSize = iter.preferredSize ();
+        prefSize.y += headerPrefSize.y;
+        prefSize.x = Math.max (prefSize.x, headerPrefSize.x);
+    	}
+    }
+
+    if (footer != null) {
+    	Print footerPrint = footer.createPrint(samplePageNumber);
+    	if (footerPrint != null) {
+        PrintIterator iter = footerPrint.iterator (device, gc);
+
+        minSize.y += footerGap;
+        prefSize.y += footerGap;
+
+        Point footerMinSize = iter.minimumSize ();
+        minSize.y += footerMinSize.y;
+        minSize.x = Math.max (minSize.x, footerMinSize.x);
+
+        Point footerPrefSize = iter.preferredSize ();
+        prefSize.y += footerPrefSize.y;
+        prefSize.x = Math.max (prefSize.x, footerPrefSize.x);
+    	}
+    }
+
+    this.minimumSize = minSize;
+    this.preferredSize = prefSize;
   }
 
   public boolean hasNext () {
@@ -290,14 +289,18 @@ class PageIterator implements PrintIterator {
   }
 
   public Point minimumSize () {
+  	if (minimumSize == null)
+  		computeSizes();
     return minimumSize;
   }
 
   public Point preferredSize () {
+  	if (preferredSize == null)
+  		computeSizes();
     return preferredSize;
   }
 
-  PageNumber pageNumber = null;
+  private PageNumber pageNumber = null;
 
   public PrintPiece next (int width, int height) {
     // Remembering the page number in an instance field--this way if the
