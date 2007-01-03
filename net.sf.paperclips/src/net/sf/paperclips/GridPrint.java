@@ -435,7 +435,9 @@ public final class GridPrint implements Print {
    * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
    *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.  A value of FILL
+   *        indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest
+   *        non-FILL cell in the row.
    * @param cell the print to add.
    */
   public void addHeader(int hAlignment, int vAlignment, Print cell) {
@@ -469,7 +471,9 @@ public final class GridPrint implements Print {
    * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
    *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.  A value of FILL
+   *        indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest
+   *        non-FILL cell in the row.
    * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
@@ -534,7 +538,9 @@ public final class GridPrint implements Print {
    * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
    *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.  A value of FILL
+   *        indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest
+   *        non-FILL cell in the row.
    * @param cell the print to add.
    */
   public void add (int hAlignment, int vAlignment, Print cell) {
@@ -568,7 +574,9 @@ public final class GridPrint implements Print {
    * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
    *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.  A value of FILL
+   *        indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest
+   *        non-FILL cell in the row.
    * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
@@ -633,7 +641,9 @@ public final class GridPrint implements Print {
    * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
    *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.  A value of FILL
+   *        indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest
+   *        non-FILL cell in the row.
    * @param cell the print to add.
    */
   public void addFooter (int hAlignment, int vAlignment, Print cell) {
@@ -667,7 +677,9 @@ public final class GridPrint implements Print {
    * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
    *        {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
    * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.
+   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }.  A value of FILL
+   *        indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest
+   *        non-FILL cell in the row.
    * @param cell the print to add.
    * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest
    *        of the row.
