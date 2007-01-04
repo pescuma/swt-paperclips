@@ -377,16 +377,16 @@ class DefaultGridLookPainter implements GridLookPainter {
       if (headerPresent) {
         Y += margins.getHeaderTop();
 
-        for (int row = 0; row < headerRows.length; row++) {
+        for (int rowIndex = 0; rowIndex < headerRows.length; rowIndex++) {
           X = x + margins.getLeft();
 
           int col = 0;
 
           // Height of all cells on current row.
-          final int H = headerRows[row];
+          final int H = headerRows[rowIndex];
 
-          for (int i = 0; i < headerCellSpans[row].length; i++) {
-            int cellSpan = headerCellSpans[row][i];
+          for (int cellIndex = 0; cellIndex < headerCellSpans[rowIndex].length; cellIndex++) {
+            int cellSpan = headerCellSpans[rowIndex][cellIndex];
 
             // Compute cellspan width.
             int W = (cellSpan - 1) * margins.getHorizontalSpacing();
@@ -395,7 +395,7 @@ class DefaultGridLookPainter implements GridLookPainter {
 
             // Paint background
             Color background =
-              getColor(colorMap, headerBackground.getCellBackground(row, col, cellSpan));
+              getColor(colorMap, headerBackground.getCellBackground(rowIndex, col, cellSpan));
             if (background != null) {
               Color oldBackground = gc.getBackground ();
               gc.setBackground(background);
@@ -429,19 +429,19 @@ class DefaultGridLookPainter implements GridLookPainter {
 
       // BODY LOOK
       Y += margins.getBodyTop(headerPresent, topOpen);
-      for (int row = 0; row < bodyRows.length; row++) {
+      for (int rowIndex = 0; rowIndex < bodyRows.length; rowIndex++) {
         X = x + margins.getLeft();
 
         int col = 0;
 
         // Height of all cells on current row.
-        final int H = bodyRows[row];
+        final int H = bodyRows[rowIndex];
 
-        final boolean rowTopOpen = row == 0 ? topOpen : false;
-        final boolean rowBottomOpen = row == bodyRows.length - 1 ? bottomOpen : false;
+        final boolean rowTopOpen = rowIndex == 0 ? topOpen : false;
+        final boolean rowBottomOpen = rowIndex == bodyRows.length - 1 ? bottomOpen : false;
 
-        for (int i = 0; i < bodyCellSpans[row].length; i++) {
-          int cellSpan = bodyCellSpans[row][i];
+        for (int cellIndex = 0; cellIndex < bodyCellSpans[rowIndex].length; cellIndex++) {
+          int cellSpan = bodyCellSpans[rowIndex][cellIndex];
 
           // Compute cellspan width.
           int W = (cellSpan - 1) * margins.getHorizontalSpacing();
@@ -450,7 +450,7 @@ class DefaultGridLookPainter implements GridLookPainter {
 
           // Paint background
           Color background = getColor(colorMap,
-              bodyBackground.getCellBackground(firstRowIndex + row, col, cellSpan));
+              bodyBackground.getCellBackground(firstRowIndex + rowIndex, col, cellSpan));
           if (background != null) {
             Color oldBackground = gc.getBackground ();
             gc.setBackground(background);
@@ -483,15 +483,15 @@ class DefaultGridLookPainter implements GridLookPainter {
 
       // FOOTER LOOK
       if (footerPresent) {
-        for (int row = 0; row < footerRows.length; row++) {
+        for (int rowIndex = 0; rowIndex < footerRows.length; rowIndex++) {
           X = x + margins.getLeft();
 
           int col = 0;
 
           // Height of all cells on current row.
-          final int H = footerRows[row];
-          for (int i = 0; i < footerCellSpans[row].length; i++) {
-            int cellSpan = footerCellSpans[row][i];
+          final int H = footerRows[rowIndex];
+          for (int cellIndex = 0; cellIndex < footerCellSpans[rowIndex].length; cellIndex++) {
+            int cellSpan = footerCellSpans[rowIndex][cellIndex];
 
             // Compute cellspan width.
             int W = (cellSpan - 1) * margins.getHorizontalSpacing();
@@ -500,7 +500,7 @@ class DefaultGridLookPainter implements GridLookPainter {
 
             // Paint background
             Color background =
-              getColor(colorMap, footerBackground.getCellBackground(row, col, cellSpan));
+              getColor(colorMap, footerBackground.getCellBackground(rowIndex, col, cellSpan));
             if (background != null) {
               Color oldBackground = gc.getBackground ();
               gc.setBackground(background);
