@@ -36,7 +36,7 @@ public class TutorialExample2 implements Print {
     GridPrint grid = new GridPrint("p, d:g", new DefaultGridLook(5, 5));
 
     // Now populate the grid with the text and lines
-    grid.add(new TextPrint("VITAL STATISTICS"), GridPrint.REMAINDER, SWT.CENTER);
+    grid.add(SWT.CENTER, new TextPrint("VITAL STATISTICS"), GridPrint.REMAINDER);
 
     grid.add(new LinePrint(SWT.HORIZONTAL), GridPrint.REMAINDER);
 

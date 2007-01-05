@@ -35,8 +35,8 @@ public class PaperClipsExample {
     grid.add(new TextPrint("This is in column 1 on the 2nd row"));
     grid.add(new TextPrint("Often is it useful for a document element "+
         "to span several cells in a grid."), 3);
-    grid.add(new TextPrint("And sometimes you may want to override the "+
-        "default alignment", SWT.RIGHT), 4, SWT.RIGHT);
+    grid.add(SWT.RIGHT, new TextPrint("And sometimes you may want to override the "+
+        "default alignment", SWT.RIGHT), 4);
     grid.add(new TextPrint("A handy shorthand for 'the rest of the row' is "+
         "to use GridPrint.REMAINDER as the colSpan argument."),
         GridPrint.REMAINDER);

@@ -60,7 +60,7 @@ public class GridPrintExample extends FactoryPrint {
     ImagePrint image = new ImagePrint(imageData);
     image.setDPI(300, 300);
 
-    grid.add(image, GridPrint.REMAINDER, SWT.CENTER);
+    grid.add(SWT.CENTER, image, GridPrint.REMAINDER);
 
     FontData fontData = new FontData("Arial", 10, SWT.BOLD);
 
@@ -70,13 +70,13 @@ public class GridPrintExample extends FactoryPrint {
     grid.add(new TextPrint("This is another default width column", fontData, SWT.CENTER));
     grid.add(new TextPrint("Default width column", fontData, SWT.RIGHT), GridPrint.REMAINDER);
     grid.add(new LinePrint(), GridPrint.REMAINDER);
-    grid.add(new TextPrint("LOTS AND LOTS AND LOTS AND LOTS AND LOTS OF TEXT", fontData, SWT.CENTER), GridPrint.REMAINDER, SWT.CENTER);
+    grid.add(SWT.CENTER, new TextPrint("LOTS AND LOTS AND LOTS AND LOTS AND LOTS OF TEXT", fontData, SWT.CENTER), GridPrint.REMAINDER);
 
     GridPrint child = new GridPrint("d:g, d:g", new DefaultGridLook(10, 10));
     child.add(new TextPrint("This is a line with some text.", fontData));
     child.add(new TextPrint("This is a line with lots of text.  Where is all this text coming from??", fontData));
 
-    grid.add(child, GridPrint.REMAINDER, SWT.LEFT);
+    grid.add(SWT.LEFT, child, GridPrint.REMAINDER);
 
     return grid;
   }
