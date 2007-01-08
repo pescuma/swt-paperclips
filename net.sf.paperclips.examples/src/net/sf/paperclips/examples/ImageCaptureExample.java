@@ -86,7 +86,7 @@ public class ImageCaptureExample {
   }
 
   private static String getImageName(int index) {
-  	return "capture_image_"+index+".tif";
+  	return "capture_image_"+index+".jpg";
   }
 
   /**
@@ -116,7 +116,7 @@ public class ImageCaptureExample {
 
         // Do something with the image
       	imageLoader.data = new ImageData[] { pageImage };
-      	imageLoader.save(getImageName(i), SWT.IMAGE_TIFF);
+      	imageLoader.save(getImageName(i), SWT.IMAGE_JPEG);
       }
 
     } finally {
