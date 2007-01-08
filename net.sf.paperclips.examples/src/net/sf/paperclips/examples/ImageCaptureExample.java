@@ -8,12 +8,16 @@ import net.sf.paperclips.PrintJob;
 import net.sf.paperclips.PrintPiece;
 import net.sf.paperclips.TextPrint;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Demonstrate capturing the pages of a print job to in-memory images.
@@ -47,19 +51,42 @@ public class ImageCaptureExample {
    * Captures the page to an image and returns it.
    * @param printer the printer device.
    * @param page the page to capture.
+   * @param imageSize the size of the returned image
    * @return an image of the captured page.
    */
-  public static Image captureImage(Printer printer, PrintPiece page) {
-    GC gc = new GC(printer);
+  public static ImageData captureImageData(Printer printer, PrintPiece page, Point imageSize) {
+  	Point pageSize = page.getSize();
+
+    Image image = null;
+    GC gc = null;
+    Transform transform = null;
 
     try {
-      Point size = page.getSize();
-      Image image = new Image(printer, size.x, size.y);
+    	image = new Image(printer, imageSize.x, imageSize.y);
+    	gc = new GC(image);
+    	transform = new Transform(printer);
+
+    	// Scale from the page size to the image size
+      gc.getTransform(transform);
+      transform.scale((float) imageSize.x / (float) pageSize.x,
+      								(float) imageSize.y / (float) pageSize.y);
+      gc.setTransform(transform);
+
       page.paint(gc, 0, 0);
-      return image;
+
+      return image.getImageData();
     } finally {
-      gc.dispose();
+    	if (transform != null)
+    		transform.dispose();
+    	if (gc != null)
+    		gc.dispose();
+    	if (image != null)
+    		image.dispose();
     }
+  }
+
+  private static String getImageName(int index) {
+  	return "capture_image_"+index+".tif";
   }
 
   /**
@@ -67,18 +94,31 @@ public class ImageCaptureExample {
    * @param args command-line arguments (ignored)
    */
   public static void main(String[] args) {
+  	Display display = new Display();
+  	Point displayDPI = display.getDPI();
+  	display.dispose();
+
     Printer printer = new Printer(new PrinterData());
+    Point printerDPI = printer.getDPI();
 
     try {
       PrintJob job = new PrintJob("ImageCapture.java", createPrint());
 
       PrintPiece[] pages = PaperClips.getPages(job, printer);
-      ImageData[] pageImages = new ImageData[pages.length];
 
-      for (int i = 0; i < pages.length; i++)
-        pageImages[i] = captureImage(printer, pages[i]).getImageData();
+    	ImageLoader imageLoader = new ImageLoader();
+      for (int i = 0; i < pages.length; i++) {
+      	PrintPiece page = pages[i];
+      	Point pageSize = page.getSize();
+      	pageSize.x = pageSize.x * displayDPI.x / printerDPI.x;
+      	pageSize.y = pageSize.y * displayDPI.y / printerDPI.y;
+      	ImageData pageImage = captureImageData(printer, page, pageSize);
 
-      // Now go ahead and do whatever you were planning to do with the image.
+        // Do something with the image
+      	imageLoader.data = new ImageData[] { pageImage };
+      	imageLoader.save(getImageName(i), SWT.IMAGE_TIFF);
+      }
+
     } finally {
       printer.dispose();
     }
