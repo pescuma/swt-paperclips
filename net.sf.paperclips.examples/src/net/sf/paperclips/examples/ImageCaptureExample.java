@@ -64,6 +64,8 @@ public class ImageCaptureExample {
     try {
     	image = new Image(printer, imageSize.x, imageSize.y);
     	gc = new GC(image);
+    	gc.setAntialias(SWT.ON);
+    	gc.setTextAntialias(SWT.ON);
     	transform = new Transform(printer);
 
     	// Scale from the page size to the image size
@@ -86,7 +88,7 @@ public class ImageCaptureExample {
   }
 
   private static String getImageName(int index) {
-  	return "capture_image_"+index+".jpg";
+  	return "capture_image_"+index+".png";
   }
 
   /**
@@ -115,8 +117,10 @@ public class ImageCaptureExample {
       	ImageData pageImage = captureImageData(printer, page, pageSize);
 
         // Do something with the image
+      	pageImage.scanlinePad = 1;
+      	
       	imageLoader.data = new ImageData[] { pageImage };
-      	imageLoader.save(getImageName(i), SWT.IMAGE_JPEG);
+      	imageLoader.save(getImageName(i), SWT.IMAGE_PNG);
       }
 
     } finally {
