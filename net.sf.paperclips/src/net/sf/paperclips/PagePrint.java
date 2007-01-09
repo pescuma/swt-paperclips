@@ -321,6 +321,10 @@ class PageIterator implements PrintIterator {
         PrintPiece headerPiece = PaperClips.next(headerIterator, width, height);
 
         if (headerPiece == null) return null;
+        if (headerIterator.hasNext()) {
+        	headerPiece.dispose();
+        	return null;
+        }
 
         entries.add (new CompositeEntry (headerPiece, new Point (0, 0)));
 
@@ -337,7 +341,8 @@ class PageIterator implements PrintIterator {
         PrintIterator footerIterator = footerPrint.iterator(device, gc);
         PrintPiece footerPiece = PaperClips.next(footerIterator, width, height);
 
-        if (footerPiece == null) {
+        if (footerPiece == null || footerIterator.hasNext()) {
+        	if (footerPiece != null) footerPiece.dispose();
           for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
             CompositeEntry entry = (CompositeEntry) iter.next();
             entry.piece.dispose();
