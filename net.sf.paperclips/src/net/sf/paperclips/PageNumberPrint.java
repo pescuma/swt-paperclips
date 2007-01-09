@@ -13,12 +13,19 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * A print for displaying the page number.
+ * Displays the page number and page count within the context of a {@link PagePrint}.  To properly display page
+ * numbers, instances of this class should be created using the {@link PageNumber} argument which is passed to the
+ * {@link PageDecoration#createPrint(PageNumber)} method by PagePrint.
  * <p>
- * This class is intended to be used in a page header or footer ({@link PageDecoration}) of a
- * PagePrint.
+ * PageNumberPrints are never greedy with layout space, even with center- or right-alignment.  (Greedy
+ * prints take up all the available space on the page.)  Therefore, when center- or right-alignment
+ * is required, it is necessary to wrap the page number in a Print which will enforce the same alignment.
+ * Usually this is a center:default:grow or right:default:grow column in a GridPrint.
  * 
  * @author Matthew
+ * @see PagePrint
+ * @see PageDecoration
+ * @see PageNumber
  * @see PageNumberFormat
  * @see DefaultPageNumberFormat
  */
@@ -250,8 +257,14 @@ class PageNumberIterator extends AbstractIterator {
   public PrintPiece next (int width, int height) {
     if (width < size.x || height < size.y) return null;
 
-    Point size = new Point(width, this.size.y);
-    return new PageNumberPiece (this, size);
+    Point size = new Point(this.size.x, this.size.y);
+    if (align == SWT.CENTER || align == SWT.RIGHT)
+    	size.x = width;
+
+    PageNumberPiece piece = new PageNumberPiece (this, size);
+    hasNext = false;
+
+    return piece;
   }
 
   public PrintIterator copy () {
