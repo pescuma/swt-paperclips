@@ -19,7 +19,7 @@ PaperClips depends on the SWT library, a project of the Eclipse Foundation. The 
 
 Project web page: http://paperclips.sourceforge.net/
 Download page: http://sourceforge.net/project/showfiles.php?group_id=148509
-Subversion: https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
+Subversion: https://paperclips.svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
 
 CHANGELOG:
 
