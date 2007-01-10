@@ -1,12 +1,15 @@
-PaperClips 0.6.1 released
+PaperClips 1.0.0 released
+
+After fourteen months of development, we are happy to announce the 1.0 release of the PaperClips printing library.
 
 Features and changes in this release:
-* PrintPreview control:
-  * ComputeSize is now implemented properly, which helps determine the proper sizing of the control depending on the viewing scale.  Snippet7 has been updated to demonstrate this feature.
-  * The performance problems (read: major lags) when zooming in very close are resolved.  Go ahead, zoom to ridiculous levels with confidence!  We promise not to tell anyone.
-  * Bugfix: page disappears after a call to setPrinterData.
-* ColumnPrint behavior of compressing the last page of content to the minimum possible height can now be disabled using the "compressed" property.
-* GridPrint now has addColumn and addColumns methods supporting column modifications after construction.  Some of the snippets were modified to use this new API.
+* Vertical cell alignment in GridPrint, including SWT.FILL alignment to allow embedding vertically greedy prints like SWT.VERTICAL ~LinePrints.
+* SidewaysPrint - a non-greedy version of RotatePrint.  Very handy for putting sideways text in grids.
+* TextPrint's and PageNumberPrint's horizontally greedy behavior had to be removed in order for SidewaysPrint to work correctly.  This will not cause any compilation problems, however you may see some unexpected layout behavior.
+* Updated Snippet7 (print preview example) in examples plug-in to clean up some of the odd behavior when resizing the window in Fit-to-Width or Fit-to-Height mode.  Also added code for scrolling around the page using mouse drag.
+* Bug fix: PaperClips.getPages() throws the wrong exception when a document fails to lay out properly.
+* Bug fix: PrintPreview does not redraw when setScale is called to change the display scale.
+* Bug fix: Headers/footers in a PagePrint do not display any contents after the page number.
 
 PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what you want to print instead of how you're going to print it.
 
@@ -19,6 +22,15 @@ Download page: http://sourceforge.net/project/showfiles.php?group_id=148509
 Subversion: https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
 
 CHANGELOG:
+
+Version 1.0.0
+* Vertical cell alignment in GridPrint, including SWT.FILL alignment to allow embedding vertically greedy prints like SWT.VERTICAL ~LinePrints.
+* SidewaysPrint - a non-greedy version of RotatePrint.  Very handy for putting sideways text in grids.
+* TextPrint's and PageNumberPrint's horizontally greedy behavior had to be removed in order for SidewaysPrint to work correctly.  This will not cause any compilation problems, however you may see some unexpected layout behavior.
+* Updated Snippet7 (print preview example) in examples plug-in to clean up some of the odd behavior when resizing the window in Fit-to-Width or Fit-to-Height mode.  Also added code for scrolling around the page using mouse drag.
+* Bug fix: PaperClips.getPages() throws the wrong exception when a document fails to lay out properly.
+* Bug fix: PrintPreview does not redraw when setScale is called to change the display scale.
+* Bug fix: Headers/footers in a PagePrint do not display any contents after the page number.
 
 Version 0.6.1
 * PrintPreview control:

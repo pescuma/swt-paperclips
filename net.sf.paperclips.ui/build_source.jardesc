@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252"?>
 <jardesc>
-<jar path="C:/Documents and Settings/Administrator/Desktop/Eclipse Exports/PaperClips/net.sf.paperclips.ui_0.6.1_source.zip"/>
+<jar path="C:/Documents and Settings/Matthew Hall/My Documents/My Workspaces/Builds/PaperClips/net.sf.paperclips.ui_1.0.0_source.zip"/>
 <options buildIfNeeded="true" compress="true" descriptionLocation="/net.sf.paperclips.ui/build_source.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="true"/>
 <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
 <selectedProjects/>

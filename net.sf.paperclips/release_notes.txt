@@ -1,36 +1,42 @@
-Release 0.6.1:
-* PrintPreview control:
-  * ComputeSize is now implemented properly, which helps
-    determine the proper sizing of the control depending on
-    the viewing scale.  Snippet7 has been updated to
-    demonstrate this feature.
-  * The performance problems (read: major lags) when zooming
-    in very close are resolved.  Go ahead, zoom to
-    ridiculous levels with confidence!  We promise not to
-    tell anyone.
-  * Bugfix: page disappears after a call to setPrinterData.
-* ColumnPrint behavior of compressing the last page of
-  content to the minimum possible height can now be disabled
-  using the "compressed" property.
-* GridPrint now has addColumn and addColumns methods
-  supporting column modifications after construction.  Some
-  of the snippets were modified to use this new API.
+Release 1.0.0:
+* Vertical cell alignment in GridPrint, including SWT.FILL
+  alignment to allow embedding vertically greedy prints like
+  SWT.VERTICAL ~LinePrints.
+* SidewaysPrint - a non-greedy version of RotatePrint.  Very
+  handy for putting sideways text in grids.
+* TextPrint's and PageNumberPrint's horizontally greedy
+  behavior had to be removed in order for SidewaysPrint to
+  work correctly.  This will not cause any compilation
+  problems, however you may see some unexpected layout
+  behavior.
+* Updated Snippet7 (print preview example) in examples
+  plug-in to clean up some of the odd behavior when resizing
+  the window in Fit-to-Width or Fit-to-Height mode.  Also
+  added code for scrolling around the page using mouse drag.
+* Bug fix: PaperClips.getPages() throws the wrong exception
+  when a document fails to lay out properly.
+* Bug fix: PrintPreview does not redraw when setScale is
+  called to change the display scale.
+* Bug fix: Headers/footers in a PagePrint do not display any
+  contents after the page number.
 
 Core Plug-in
 ------------
-net.sf.paperclips_0.6.1.jar         - Binary jar
-net.sf.paperclips_0.6.1_source.zip  - Source zip
-net.sf.paperclips_0.6.1_javadoc.zip - Javadoc zip
+net.sf.paperclips_1.0.0.jar         - Binary jar
+net.sf.paperclips_1.0.0_source.zip  - Source zip
 
 UI Plug-in
 ----------
-net.sf.paperclips.ui_0.6.1.jar          - Binary jar
-net.sf.paperclips.ui_0.6.1_source.zip   - Source zip
-net.sf.paperclips.ui_0.6.1_javadocs.zip - Javadoc zip
+net.sf.paperclips.ui_1.0.0.jar          - Binary jar
+net.sf.paperclips.ui_1.0.0_source.zip   - Source zip
 
 Examples Plugin
 ---------------
-net.sf.paperclips.examples_0.6.1_source.zip - Source zip
+net.sf.paperclips.examples_1.0.0_source.zip - Source zip
+
+API Documentation
+-----------------
+net.sf.paperclips_1.0.0_javadoc.zip - Javadoc zip
 
 The source ZIP files may be imported into Eclipse as plug-in
 projects.
