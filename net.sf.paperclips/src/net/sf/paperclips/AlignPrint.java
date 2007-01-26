@@ -37,6 +37,22 @@ public class AlignPrint implements Print {
     this.vAlign = checkVAlign (vAlign);
   }
 
+  /**
+   * Returns the wrapped print being aligned
+   * @return the wrapped print being aligned
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
+   * Returns a Point with the x and y fields set to the horizontal and vertical alignment, respectively.
+   * @return a Point with the x and y fields set to the horizontal and vertical alignment, respectively.
+   */
+  public Point getAlignment() {
+  	return new Point(hAlign, vAlign);
+  }
+
   private static int checkHAlign (int hAlign) {
     if (hAlign == SWT.LEFT || hAlign == SWT.CENTER || hAlign == SWT.RIGHT)
       return hAlign;

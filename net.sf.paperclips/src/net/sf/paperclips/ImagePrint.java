@@ -42,6 +42,14 @@ public class ImagePrint implements Print {
   }
 
   /**
+   * Returns the ImageData of the image being printed.
+   * @return the ImageData of the image being printed.
+   */
+  public ImageData getImageData() {
+  	return imageData;
+  }
+
+  /**
    * Sets the ImagePrint to render the image at the given size, in points. 72
    * points = 1".
    * @param size the explicit size, in points, that the image be printed at.

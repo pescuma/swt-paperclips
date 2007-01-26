@@ -33,6 +33,14 @@ public class BackgroundPrint implements Print {
   }
 
   /**
+   * Returns the wrapped print to which the background color is being applied.
+   * @return the wrapped print to which the background color is being applied.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
    * Returns the background color.
    * @return the background color.
    */

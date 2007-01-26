@@ -39,7 +39,7 @@ public class ScalePrint implements Print {
    * Constructs a ScalePrint which scales it's target by the given factor.
    * @param target
    * @param scale the scale factor (must be >0).  A value of 2.0 draws at double the size, and a
-   *        value of 0.5 draws at twice the size.  A null value automatically scales down so the
+   *        value of 0.5 draws at half the size.  A null value automatically scales down so the
    *        target is rendered at it's preferred size.
    * @throws IllegalArgumentException if scale is not > 0.
    */
@@ -51,6 +51,22 @@ public class ScalePrint implements Print {
 
     this.target = target;
     this.scale = scale;
+  }
+
+  /**
+   * Returns the print being scaled.
+   * @return the print being scaled.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
+   * Returns the scale by which the target will be scaled, or null (indicating automatic scale down to fit).
+   * @return the scale by which the target will be scaled, or null (indicating automatic scale down to fit).
+   */
+  public Double getScale() {
+  	return scale;
   }
 
   public PrintIterator iterator (Device device, GC gc) {

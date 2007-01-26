@@ -60,6 +60,30 @@ public class ColumnPrint implements Print {
   }
 
   /**
+   * Returns the target print being split into columns.
+   * @return the target print being split into columns.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
+   * Returns the number of columns per page.
+   * @return the number of columns per page.
+   */
+  public int getColumnCount() {
+  	return columns;
+  }
+
+  /**
+   * Returns the spacing between columns, in points.  72 points = 1".
+   * @return the spacing between columns, in points.
+   */
+  public int getColumnSpacing() {
+  	return spacing;
+  }
+
+  /**
    * Returns whether the columns are compressed to the smallest possible height on the last page.
    * @return whether the columns are compressed to the smallest possible height on the last page.
    */

@@ -17,6 +17,13 @@ import org.eclipse.swt.graphics.Point;
  * @author Matthew
  */
 public class BreakPrint implements Print {
+	/**
+	 * Constructs a BreakPrint.
+	 */
+	public BreakPrint() {
+		// Nothing to do
+	}
+
   public PrintIterator iterator (Device device, GC gc) {
     return new BreakIterator();
   }

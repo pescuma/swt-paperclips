@@ -19,7 +19,7 @@ import org.eclipse.swt.graphics.Transform;
  * with on-screen viewing.
  * <p>
  * RotatePrints are horizontally and vertically greedy.  Greedy prints take up all the available
- * space on the page.  
+ * space on the page.
  * @author Matthew
  */
 public final class RotatePrint implements Print {
@@ -48,16 +48,30 @@ public final class RotatePrint implements Print {
     this.angle = checkAngle(angle);
   }
 
+  /**
+   * Returns the print to be rotated.
+   * @return the print to be rotated.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
+   * Returns the angle by which the target will be rotated (one of 0, 90, 180, or 270).
+   * @return the angle by which the target will be rotated.
+   */
+  public int getAngle() {
+  	return angle;
+  }
+
   private static int checkAngle(int angle) {
     // Make sure angle is a multiple of 90.
     if (Math.abs(angle) % 90 != 0)
       throw new IllegalArgumentException("Angle must be a multiple of 90 degrees");
 
-    // Bring angle within the range [0, 360) 
-    if (angle < 0)
-      angle = 360 - angle;
-    if (angle >= 360)
-      angle -= (angle / 360) * 360;
+    // Bring angle within the range [0, 360)
+    while (angle < 0) angle += 360;
+    while (angle >= 360) angle -= 360;
 
     return angle;
   }

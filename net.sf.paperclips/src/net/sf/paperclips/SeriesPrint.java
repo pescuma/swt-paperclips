@@ -17,40 +17,41 @@ import org.eclipse.swt.graphics.Point;
 
 /**
  * A Print which displays its child prints in series. Each element in the series
- * is displayed one at a time (no more than one child per iteration, although
- * one Print may span several iterations). Use this class as the top-level Print
- * when several distinct Prints should be batched into one print job, but
- * printed on separate pages.
+ * is displayed one at a time (no more than one child per page, although
+ * one Print may span several pages).
+ * <p>
+ * Use this class as the top-level Print when several distinct Prints should be
+ * batched into one print job, but printed on separate pages.
  * @author Matthew
  */
 public class SeriesPrint implements Print {
-  final List prints = new ArrayList ();
+  final List items = new ArrayList ();
 
   /**
    * Adds the given prints to this SeriesPrint.
-   * @param prints the Prints to add
+   * @param items the Prints to add
    */
-  public void add (Print[] prints) {
+  public void add (Print[] items) {
     // Check for nulls first.
-    if (prints == null)
+    if (items == null)
       throw new NullPointerException();
-    for (int i = 0; i < prints.length; i++)
-      if (prints[i] == null)
+    for (int i = 0; i < items.length; i++)
+      if (items[i] == null)
         throw new NullPointerException();
 
     // OK, add all
-    for (int i = 0; i < prints.length; i++)
-      this.prints.add (prints[i]);
+    for (int i = 0; i < items.length; i++)
+      this.items.add (items[i]);
   }
 
   /**
    * Adds the given print to this SeriesPrint.
-   * @param print the Print to add
+   * @param item the Print to add
    */
-  public void add (Print print) {
-    if (print == null)
+  public void add (Print item) {
+    if (item == null)
       throw new NullPointerException();
-    prints.add (print);
+    items.add (item);
   }
 
   /**
@@ -58,7 +59,15 @@ public class SeriesPrint implements Print {
    * @return the number of Prints that have been added to this SeriesPrint.
    */
   public int size () {
-    return prints.size ();
+    return items.size ();
+  }
+
+  /**
+   * Returns an array of items in the series.
+   * @return an array of items in the series.
+   */
+  public Print[] getItems() {
+  	return (Print[]) items.toArray(new Print[items.size()]);
   }
 
   public PrintIterator iterator (Device device, GC gc) {
@@ -73,9 +82,9 @@ class SeriesIterator implements PrintIterator {
   int index;
 
   SeriesIterator (SeriesPrint print, Device device, GC gc) {
-    this.iters = new PrintIterator[print.prints.size ()];
+    this.iters = new PrintIterator[print.items.size ()];
     for (int i = 0; i < iters.length; i++) {
-      iters[i] = ((Print) print.prints.get (i)).iterator (device, gc);
+      iters[i] = ((Print) print.items.get (i)).iterator (device, gc);
     }
     this.index = 0;
   }

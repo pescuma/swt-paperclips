@@ -54,64 +54,58 @@ public class LayerPrint implements Print {
     entries.add (new LayerEntry (print, align));
   }
 
+  /**
+   * Returns an array of entries in this LayerPrint.
+   * @return an array of entries in this LayerPrint.
+   */
+  public LayerEntry[] getEntries() {
+  	return (LayerEntry[]) entries.toArray(new LayerEntry[entries.size()]);
+  }
+
   public PrintIterator iterator (Device device, GC gc) {
     return new LayerIterator (this, device, gc);
   }
 }
 
-class LayerEntry {
-  final Print print;
-  final int align;
-  PrintIterator iterator;
+class LayerEntryIterator {
+	final PrintIterator target;
+	final int alignment;
 
-  LayerEntry (Print print, int align) {
-    if (print == null) throw new NullPointerException();
-    this.print = print;
-    this.align = checkAlign (align);
-  }
+	LayerEntryIterator(LayerEntry entry, Device device, GC gc) {
+		this.target = entry.target.iterator(device, gc);
+		this.alignment = entry.getHorizontalAlignment();
+	}
 
-  LayerEntry (LayerEntry that) {
-    this.print = that.print;
-    this.align = that.align;
-    this.iterator = that.iterator;
-    if (iterator != null)
-      iterator = iterator.copy();
-  }
+	LayerEntryIterator(LayerEntryIterator that) {
+		this.target = that.target.copy();
+		this.alignment = that.alignment;
+	}
 
-  private static int checkAlign (int align) {
-    if (align == SWT.LEFT || align == SWT.CENTER || align == SWT.RIGHT)
-      return align;
-
-    throw new IllegalArgumentException (
-        "Alignment must be one of SWT.LEFT, SWT.CENTER, or SWT.RIGHT");
-  }
-
-  LayerEntry copy () {
-    return new LayerEntry (this);
-  }
+	LayerEntryIterator copy() {
+		return new LayerEntryIterator(this);
+	}
 }
 
 class LayerIterator implements PrintIterator {
-  LayerEntry[] entries;
+  LayerEntryIterator[] entries;
 
   LayerIterator (LayerPrint print, Device device, GC gc) {
-    entries = new LayerEntry[print.entries.size ()];
-
+    entries = new LayerEntryIterator[print.entries.size ()];
+    LayerEntry[] e = print.getEntries();
     for (int i = 0; i < entries.length; i++) {
-      entries[i] = ((LayerEntry) print.entries.get (i)).copy ();
-      entries[i].iterator = entries[i].print.iterator (device, gc);
+      entries[i] = e[i].iterator(device, gc);
     }
   }
 
   LayerIterator (LayerIterator that) {
-    this.entries = (LayerEntry[]) that.entries.clone ();
+    this.entries = (LayerEntryIterator[]) that.entries.clone ();
     for (int i = 0; i < entries.length; i++)
       entries[i] = entries[i].copy();
   }
 
   public boolean hasNext () {
     for (int i = 0; i < entries.length; i++)
-      if (entries[i].iterator.hasNext ())
+      if (entries[i].target.hasNext ())
         return true;
     return false;
   }
@@ -119,12 +113,12 @@ class LayerIterator implements PrintIterator {
   public PrintPiece next (int width, int height) {
     if (!hasNext ()) throw new IllegalStateException ();
     List pieces = new ArrayList ();
-    LayerEntry[] entries = (LayerEntry[]) this.entries.clone();
+    LayerEntryIterator[] entries = (LayerEntryIterator[]) this.entries.clone();
 
     for (int i = 0; i < entries.length; i++) {
-      LayerEntry entry = entries[i];
-      if (entry.iterator.hasNext ()) {
-        PrintPiece piece = PaperClips.next(entry.iterator, width, height);
+      LayerEntryIterator entry = entries[i];
+      if (entry.target.hasNext ()) {
+        PrintPiece piece = PaperClips.next(entry.target, width, height);
 
         if (piece == null) {
           for (Iterator iter = pieces.iterator(); iter.hasNext(); )
@@ -133,7 +127,7 @@ class LayerIterator implements PrintIterator {
         }
 
         CompositeEntry c_entry;
-        switch (entry.align) {
+        switch (entry.alignment) {
         case SWT.CENTER:
           c_entry = new CompositeEntry (piece, new Point ((width - piece
               .getSize ().x) / 2, 0));
@@ -160,8 +154,8 @@ class LayerIterator implements PrintIterator {
   Point computeSize (PrintSizeStrategy strategy) {
     Point size = new Point (0, 0);
     for (int i = 0; i < entries.length; i++) {
-      LayerEntry entry = entries[i];
-      Point entrySize = strategy.computeSize (entry.iterator);
+      LayerEntryIterator entry = entries[i];
+      Point entrySize = strategy.computeSize (entry.target);
       size.x = Math.max (size.x, entrySize.x);
       size.y = Math.max (size.y, entrySize.y);
     }

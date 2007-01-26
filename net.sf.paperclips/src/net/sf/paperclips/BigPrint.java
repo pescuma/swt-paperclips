@@ -40,6 +40,14 @@ public final class BigPrint implements Print {
     this.target = target;
   }
 
+  /**
+   * Returns the wrapped print which is being split across pages.
+   * @return the wrapped print which is being split across pages.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
   public PrintIterator iterator (Device device, GC gc) {
     return new BigIterator(target, device, gc);
   }

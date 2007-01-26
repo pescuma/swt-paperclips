@@ -31,6 +31,22 @@ public class BorderPrint implements Print {
     this.border = border;
   }
 
+  /**
+   * Returns the wrapped print to which the border is being applied.
+   * @return the wrapped print to which the border is being applied.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
+   * Returns the border being applied to the target.
+   * @return the border being applied to the target.
+   */
+  public Border getBorder() {
+  	return border;
+  }
+
   public PrintIterator iterator (Device device, GC gc) {
     return new BorderIterator (this, device, gc);
   }

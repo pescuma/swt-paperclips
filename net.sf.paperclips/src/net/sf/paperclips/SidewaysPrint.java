@@ -54,12 +54,26 @@ public final class SidewaysPrint implements Print {
       throw new IllegalArgumentException("Angle must be a multiple of 90 degrees");
 
     // Bring angle within the range [0, 360)
-    while (angle < 0)
-      angle += 360;
-    while (angle >= 360)
-      angle -= 360;
+    while (angle < 0) angle += 360;
+    while (angle >= 360) angle -= 360;
 
     return angle;
+  }
+
+  /**
+   * Returns the print to be rotated.
+   * @return the print to be rotated.
+   */
+  public Print getTarget() {
+  	return target;
+  }
+
+  /**
+   * Returns the angle by which the target will be rotated (one of 0, 90, 180, or 270).
+   * @return the angle by which the target will be rotated.
+   */
+  public int getAngle() {
+  	return angle;
   }
 
   public PrintIterator iterator (Device device, GC gc) {

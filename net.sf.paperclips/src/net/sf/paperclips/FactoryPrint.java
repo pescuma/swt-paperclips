@@ -18,20 +18,32 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * Helper class for creating composed Prints.
+ * An ill-conceived class I wish I could take back.
  * @author Matthew
  */
 public abstract class FactoryPrint implements Print {
+	private Print print;
+
   /**
    * Default constructor.
    */
   public FactoryPrint () {}
 
   /**
+   * Returns the Print created by this factory.
+   * @return the Print created by this factory.
+   */
+  public Print getPrint() {
+  	if (print == null)
+  		print = createPrint();
+  	return print;
+  }
+
+  /**
    * Returns a PrintIterator for the Print returned from a call to createPrint().
    */
   public PrintIterator iterator (Device device, GC gc) {
-    return createPrint().iterator(device, gc);
+    return getPrint().iterator(device, gc);
   }
 
   /**
@@ -263,9 +275,7 @@ public abstract class FactoryPrint implements Print {
    * @see GridColumn#parse(String)
    */
   protected GridPrint grid (String columns, int spacing) {
-    GridPrint grid = new GridPrint(columns);
-    grid.setLook(new DefaultGridLook(spacing, spacing));
-    return grid;
+    return new GridPrint(columns, new DefaultGridLook(spacing, spacing));
   }
 
   /**

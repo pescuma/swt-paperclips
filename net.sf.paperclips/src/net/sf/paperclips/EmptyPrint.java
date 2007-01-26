@@ -38,6 +38,22 @@ public class EmptyPrint implements Print {
     this.height = checkDimension (height);
   }
 
+  /**
+   * Constructs an EmptyPrint with the given size.
+   * @param size the size, in points (72pts = 1").
+   */
+  public EmptyPrint(Point size) {
+  	this(size.x, size.y);
+  }
+
+  /**
+   * Returns the size of the empty space.
+   * @return the size of the empty space.
+   */
+  public Point getSize() {
+  	return new Point(width, height);
+  }
+
   private int checkDimension (int dim) {
     if (dim >= 0) return dim;
 

@@ -54,6 +54,14 @@ public class LinePrint implements Print {
     this.thickness = checkThickness(thickness);
   }
 
+  /**
+   * Returns the line orientation (one of {@link SWT#HORIZONTAL} or {@link SWT#VERTICAL}).
+   * @return the line orientation.
+   */
+  public int getOrientation() {
+  	return orientation;
+  }
+
   private int checkOrientation (int orientation) {
     if ((orientation & SWT.HORIZONTAL) == SWT.HORIZONTAL)
       return SWT.HORIZONTAL;

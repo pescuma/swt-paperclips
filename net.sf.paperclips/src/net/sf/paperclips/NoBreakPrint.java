@@ -18,7 +18,7 @@ import org.eclipse.swt.graphics.Point;
  * 
  * <p>Care must be taken when using this class to avoid unprintable documents.
  * If the target of a NoBreakPrint does not fit in the available space on the
- * print device, the entire document will not print.
+ * print device, the entire document will fail to print.
  * @author Matthew
  */
 public class NoBreakPrint implements Print {
@@ -32,6 +32,14 @@ public class NoBreakPrint implements Print {
     if (target == null)
       throw new NullPointerException();
     this.target = target;
+  }
+
+  /**
+   * Returns the print which will not be broken across pages.
+   * @return the print which will not be broken across pages.
+   */
+  public Print getTarget() {
+  	return target;
   }
 
   public PrintIterator iterator (Device device, GC gc) {

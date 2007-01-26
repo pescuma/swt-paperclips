@@ -413,6 +413,14 @@ public final class GridPrint implements Print {
   }
 
   /**
+   * Returns an array of <code>GridColumn</code>s which are the columns in the receiver. 
+   * @return an array of <code>GridColumn</code>s which are the columns in the receiver.
+   */
+  public GridColumn[] getColumns() {
+  	return (GridColumn[]) columns.toArray(new GridColumn[columns.size()]);
+  }
+
+  /**
    * Adds the Print to the grid header, with default alignment and a colspan of 1.
    * @param cell the print to add.
    */
@@ -494,6 +502,42 @@ public final class GridPrint implements Print {
    */
   public void addHeader (Print cell, int colspan, int hAlignment) {
     headerCol = add (header, headerCol, hAlignment, SWT.DEFAULT, cell, colspan);
+  }
+
+  /**
+   * Returns an array containing the header cells in this grid.  Each inner array represents one row in the header.
+   * @return an array containing the header cells in this grid.
+   */
+  public GridCell[][] getHeaderCells() {
+  	return getGridCellArray(header);
+  }
+
+  /**
+   * Returns an array containing the body cells in the grid.  Each inner array represents one row in the body.
+   * @return an array containing the body cells in the grid.
+   */
+  public GridCell[][] getBodyCells() {
+  	return getGridCellArray(body);
+  }
+
+  /**
+   * Returns an array containing the footer cells in the grid.  Each inner array represents one row in the footer.
+   * @return an array containing the footer cells in the grid.
+   */
+  public GridCell[][] getFooterCells() {
+  	return getGridCellArray(footer);
+  }
+
+  private static GridCell[][] getGridCellArray(List list) {
+  	GridCell[][] cells = new GridCell[list.size()][];
+  	for (int rowIndex = 0; rowIndex < cells.length; rowIndex++) {
+  		List row = (List) list.get(rowIndex);
+  		GridCell[] rowCells = new GridCell[row.size()];
+  		for (int cellIndex = 0; cellIndex < rowCells.length; cellIndex++)
+  			rowCells[cellIndex] = (GridCell) row.get(cellIndex);
+  		cells[rowIndex] = rowCells;
+  	}
+  	return cells;
   }
 
   /**
@@ -916,63 +960,6 @@ public final class GridPrint implements Print {
 
   public PrintIterator iterator (Device device, GC gc) {
     return new GridIterator (this, device, gc);
-  }
-}
-
-class GridCell {
-  final int   hAlignment;
-  final int   vAlignment;
-  final Print target;
-  final int   colspan;
-
-  GridCell (int hAlignment, int vAlignment, Print target, int colspan) {
-    if (target == null)
-      throw new NullPointerException();
-    this.hAlignment = checkHorizontalAlignment(hAlignment);
-    this.vAlignment = checkVerticalAlignment(vAlignment);
-    this.target     = target;
-    this.colspan    = checkColspan(colspan);
-  }
-
-  private static int checkHorizontalAlignment (int hAlignment) {
-    if ((hAlignment & SWT.DEFAULT) == SWT.DEFAULT)
-      return SWT.DEFAULT;
-    else if ((hAlignment & SWT.LEFT) == SWT.LEFT)
-      return SWT.LEFT;
-    else if ((hAlignment & SWT.CENTER) == SWT.CENTER)
-      return SWT.CENTER;
-    else if ((hAlignment & SWT.RIGHT) == SWT.RIGHT)
-      return SWT.RIGHT;
-    else
-      throw new IllegalArgumentException (
-          "Align must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT");
-  }
-
-  private static int checkVerticalAlignment (int vAlignment) {
-    if ((vAlignment & SWT.DEFAULT) == SWT.DEFAULT)
-      return SWT.DEFAULT;
-    else if ((vAlignment & SWT.TOP) == SWT.TOP)
-      return SWT.TOP;
-    else if ((vAlignment & SWT.CENTER) == SWT.CENTER)
-      return SWT.CENTER;
-    else if ((vAlignment & SWT.BOTTOM) == SWT.BOTTOM)
-      return SWT.BOTTOM;
-    else if ((vAlignment & SWT.FILL) == SWT.FILL)
-    	return SWT.FILL;
-    else
-      throw new IllegalArgumentException (
-          "Align must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or SWT.FILL");
-  }
-
-  private int checkColspan (int colspan) {
-    if (colspan > 0 || colspan == GridPrint.REMAINDER) return colspan;
-
-    throw new IllegalArgumentException (
-        "colspan must be a positive number or GridPrint.REMAINDER");
-  }
-
-  GridCellIterator iterator (Device device, GC gc) {
-    return new GridCellIterator(this, device, gc);
   }
 }
 
