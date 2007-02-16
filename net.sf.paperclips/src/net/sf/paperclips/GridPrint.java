@@ -1060,8 +1060,8 @@ class GridIterator implements PrintIterator {
 
     look = grid.getLook().getPainter(device, gc);
 
-    this.minimumColSizes   = computeColumnSizes (PrintSizeStrategy.MINIMUM, gc);
-    this.preferredColSizes = computeColumnSizes (PrintSizeStrategy.PREFERRED, gc);
+    this.minimumColSizes   = computeColumnSizes (PrintSizeStrategy.MINIMUM);
+    this.preferredColSizes = computeColumnSizes (PrintSizeStrategy.PREFERRED);
 
     this.minimumSize   = computeSize (PrintSizeStrategy.MINIMUM,   minimumColSizes);
     this.preferredSize = computeSize (PrintSizeStrategy.PREFERRED, preferredColSizes);
@@ -1097,8 +1097,7 @@ class GridIterator implements PrintIterator {
   /** Compute the size of a column, respecting the constraints of the GridColumn. */
   int computeColumnSize (GridCellIterator entry,
                          GridColumn col,
-                         PrintSizeStrategy strategy,
-                         GC gc) {
+                         PrintSizeStrategy strategy) {
     if (col.size == SWT.DEFAULT)
       return strategy.computeSize (entry.target).x;
     if (col.size == GridPrint.PREFERRED)
@@ -1150,7 +1149,7 @@ class GridIterator implements PrintIterator {
     return false;
   }
 
-  int[] computeColumnSizes (PrintSizeStrategy strategy, GC gc) {
+  int[] computeColumnSizes (PrintSizeStrategy strategy) {
     GridCellIterator[][] rows =
       new GridCellIterator[this.body.length + this.header.length + this.footer.length][];
     int offset = 0;
@@ -1181,7 +1180,7 @@ class GridIterator implements PrintIterator {
         if (entry.colspan == 1 && !isExplicitSize (columns[col])) { 
           colSizes[col] = Math.max (
               colSizes[col],
-              computeColumnSize (entry, columns[col], strategy, gc));
+              computeColumnSize (entry, columns[col], strategy));
         }
         col += entry.colspan;
       }
