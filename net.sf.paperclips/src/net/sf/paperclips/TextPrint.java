@@ -306,8 +306,8 @@ class TextIterator extends AbstractIterator {
 
       return new Point (maxWidth, fm.getHeight ());
     } finally {
-      if (font != null) font.dispose ();
       gc.setFont (font_old);
+      if (font != null) font.dispose ();
     }
   }
 
