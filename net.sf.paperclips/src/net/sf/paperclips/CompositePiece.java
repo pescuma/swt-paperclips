@@ -88,12 +88,16 @@ public class CompositePiece implements PrintPiece {
   }
 
   public void paint (GC gc, int x, int y) {
-    Rectangle clip = gc.getClipping ();
-    for (int i = 0; i < entries.length; i++) {
+  	Rectangle clip = gc.getClipping ();
+
+  	// Bug in SWT on OSX: GC.getClipping() always returns [0,0,0,0]. 
+  	boolean ignoreClip = (clip.width == 0 || clip.height == 0);
+
+  	for (int i = 0; i < entries.length; i++) {
       CompositeEntry entry = entries[i];
       Point size = entry.piece.getSize ();
-      if (clip.intersects (x + entry.offset.x, y + entry.offset.y, size.x,
-          size.y))
+      if (ignoreClip ||
+      		clip.intersects (x + entry.offset.x, y + entry.offset.y, size.x, size.y))
         entry.piece.paint (gc, x + entry.offset.x, y + entry.offset.y);
     }
   }
