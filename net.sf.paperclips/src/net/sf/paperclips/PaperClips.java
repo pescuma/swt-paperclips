@@ -80,17 +80,44 @@ public class PaperClips {
    * Prints the print job to the given printer.
    * @param printJob the print job.
    * @param printer the printer device.
+   * @throws RuntimeException if the document could not be printed for any reason.
    */
   public static void print(PrintJob printJob, Printer printer) {
+  	// Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by default.
+  	if (!printer.startJob(printJob.getName()))
+  		throw new RuntimeException("Unable to start print job");
+
+		try {
+	  	GC gc = new GC(printer);
+			try {
+				print(printJob, printer, gc);
+			} finally {
+				gc.dispose();
+			}
+			printer.endJob();
+  	} catch (RuntimeException e) {
+  		printer.cancelJob();
+  		throw e;
+  	}
+  }
+
+  /**
+   * Prints the print job to the specified printer using the GC.  This method does not manage the print job lifecycle
+   * (it does not call startJob or endJob).
+   * @param printJob the print job
+   * @param printer the printer
+   * @param gc the GC
+   */
+  private static void print(PrintJob printJob, Printer printer, final GC gc) {
     final PrinterData printerData = printer.getPrinterData();
 
-    PrintPiece[] pages = getPages(printJob, printer);
+    PrintPiece[] pages = getPages(printJob, printer, gc);
 
     // Determine the page range to print based on PrinterData.scope
     int startPage = 0;
     int endPage   = pages.length-1;
     if (printerData.scope == PrinterData.PAGE_RANGE) {
-      // PrinterData has one-based indices which must be decremented to zero-based indices here.
+      // Convert from PrinterData's one-based indices to our zero-based indices
       startPage = Math.max(startPage, printerData.startPage-1);
       endPage   = Math.min(endPage,   printerData.endPage  -1);
     }
@@ -112,35 +139,45 @@ public class PaperClips {
     for (int i = endPage+1; i < pages.length; i++)
       pages[i].dispose();
 
-    GC gc = new GC(printer);
-
     Rectangle paperBounds = getPaperBounds(printer);
     final int x = paperBounds.x;
     final int y = paperBounds.y;
 
     try {
-      if (printer.startJob(printJob.getName())) {
-        for (int collated = 0; collated < collatedCopies; collated++)
-          for (int i = startPage; i <= endPage; i++)
-            for (int noncollated = 0; noncollated < noncollatedCopies; noncollated++)
-              if (printer.startPage()) {
-                pages[i].paint(gc, x, y);
-                pages[i].dispose();
-                printer.endPage();
-              } else {
-                printer.cancelJob();
-                break;
-              }
-        printer.endJob();
+      for (int collated = 0; collated < collatedCopies; collated++) {
+        for (int pageIndex = startPage; pageIndex <= endPage; pageIndex++) {
+          for (int noncollated = 0; noncollated < noncollatedCopies; noncollated++) {
+            if (printer.startPage()) {
+              pages[pageIndex].paint(gc, x, y);
+              pages[pageIndex].dispose();
+              printer.endPage();
+            } else {
+            	throw new RuntimeException("Unable to start page "+pageIndex);
+            }
+          }
+        }
       }
-    } catch (RuntimeException re) {
-      printer.cancelJob();
-      throw re;
     } finally {
-      gc.dispose();
       for (int i = 0; i < pages.length; i++)
         pages[i].dispose();
     }
+  }
+
+  private static PrintJob applyOrientation(PrintJob printJob, Printer printer) {
+  	int orientation = printJob.getOrientation();
+
+  	Rectangle paperBounds = getPaperBounds(printer);
+  	if (((orientation == ORIENTATION_LANDSCAPE) &&
+  			 (paperBounds.width < paperBounds.height)) ||
+  			((orientation == ORIENTATION_PORTRAIT) &&
+  			 (paperBounds.height < paperBounds.width))) {
+  		String name = printJob.getName();
+  		Print document = new RotatePrint(printJob.getDocument());
+  		Margins margins = printJob.getMargins().rotate();
+  		printJob = new PrintJob(name, document).setMargins(margins).setOrientation(ORIENTATION_DEFAULT);
+  	}
+
+  	return printJob;
   }
 
   /**
@@ -156,56 +193,60 @@ public class PaperClips {
    * @param printJob the print job.
    * @return an array of all pages of the print job.  Each element of the returned array represents
    *         one page in the printed document.
-   * @throws RuntimeException if the document could not be properly laid out.
+   * @throws RuntimeException if the document could not be properly laid out for any reason.
    */
   public static PrintPiece[] getPages(PrintJob printJob, Printer printer) {
-    int orientation = printJob.getOrientation();
-    Margins margins = printJob.getMargins();
-    Print document = printJob.getDocument();
+  	// Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by default.
+  	if (!printer.startJob(""))
+  		throw new RuntimeException("Unable to start print job");
 
+  	try {
+    	GC gc = new GC(printer);
+    	try {
+    		return getPages(printJob, printer, gc);
+    	} finally {
+    		gc.dispose();
+    	}
+  	} finally {
+			printer.cancelJob();
+  	}
+  }
+
+  private static PrintPiece[] getPages(PrintJob printJob, Printer printer, GC gc) {
     // Rotate the document (and margins with it) depending on print job orientation.
+  	printJob = applyOrientation(printJob, printer);
+    Margins margins = printJob.getMargins();
+
+    Rectangle marginBounds = getMarginBounds(margins, printer);
     Rectangle paperBounds = getPaperBounds(printer);
-    switch (orientation) {
-      case ORIENTATION_LANDSCAPE:
-        if (paperBounds.width < paperBounds.height) {
-          margins = margins.rotate();
-          document = new RotatePrint(document);
-        }
-        break;
-      case ORIENTATION_PORTRAIT:
-        if (paperBounds.height < paperBounds.width) {
-          margins = margins.rotate();
-          document = new RotatePrint(document);
-        }
-        break;
-    }
-    final Rectangle marginBounds = getMarginBounds(margins, printer);
 
-    GC gc = new GC(printer);
+    PrintIterator iterator = printJob.getDocument().iterator(printer, gc);
     List pages = new ArrayList();
-    PrintIterator iter = document.iterator(printer, gc);
-
-    try {
-      while (iter.hasNext()) {
-        PrintPiece page = next(iter, marginBounds.width, marginBounds.height);
-        if (page == null) {
-          for (Iterator it = pages.iterator(); it.hasNext(); )
-            ((PrintPiece)it.next()).dispose();
-          pages.clear();
-          throw new RuntimeException("Unable to layout pages");
-        }
-        PrintPiece pagePiece = new CompositePiece(
-      		new CompositeEntry[] {
-    				new CompositeEntry(page, new Point(marginBounds.x-paperBounds.x, marginBounds.y-paperBounds.y ))
-  				},
-      		new Point(paperBounds.width, paperBounds.height));
-        pages.add(pagePiece);
+    while (iterator.hasNext()) {
+      PrintPiece page = next(iterator, marginBounds.width, marginBounds.height);
+      if (page == null) {
+        for (Iterator it = pages.iterator(); it.hasNext(); )
+          ((PrintPiece)it.next()).dispose();
+        pages.clear();
+        throw new RuntimeException("Unable to layout page "+(pages.size()+1));
       }
-    } finally {
-      gc.dispose();
+      pages.add(createPagePiece(page, marginBounds, paperBounds));
     }
 
     return (PrintPiece[]) pages.toArray(new PrintPiece[pages.size()]);
+  }
+
+  private static PrintPiece createPagePiece(PrintPiece page, Rectangle marginBounds, Rectangle paperBounds) {
+  	return new CompositePiece(
+  		new CompositeEntry[] {
+				new CompositeEntry(
+						page,
+						new Point(
+								marginBounds.x-paperBounds.x,
+								marginBounds.y-paperBounds.y ))
+			},
+  		new Point(paperBounds.width, paperBounds.height)
+		);
   }
 
   /**
