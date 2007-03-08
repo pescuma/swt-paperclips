@@ -347,8 +347,6 @@ public class PrintPreview extends Canvas {
    * Calculates the absolute scale that the print preview is displaying at.  If either of the
    * fitHorizontal or fitVertical properties are true, this is the scale allows the page to fit
    * within this control's current bounds.  Otherwise the value of the scale property is returned. 
-   * @param display the display device.
-   * @param printer the printer device.
    * @return the absolute scale that the print preview is displaying at.
    */
   public float getAbsoluteScale() {
