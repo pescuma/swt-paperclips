@@ -88,7 +88,7 @@ public class PrintPreview extends Canvas {
   public void setPrintJob(PrintJob printJob) {
     this.printJob = printJob;
     this.pageIndex = 0;
-    disposePages();
+    disposePrinter(); // disposes pages too
     paperSize = null; // in case the orientation changed
     paperDisplayBounds = null;
     redraw();
@@ -202,8 +202,8 @@ public class PrintPreview extends Canvas {
       throw new IllegalArgumentException("Scale must be > 0");
   }
 
-  void paint(PaintEvent event) {
-    Image printerImage = null;
+  private void paint(PaintEvent event) {
+  	Image printerImage = null;
     GC printerGC = null;
     Transform printerTransform = null;
 
@@ -230,12 +230,9 @@ public class PrintPreview extends Canvas {
 
       drawPaper(event);
 
+      // Check whether any "paper" is in the dirty region
       Rectangle dirtyBounds = new Rectangle(event.x, event.y, event.width, event.height);
-
-      // The portion of the dirty bounds which is displaying "paper"
       Rectangle dirtyPaperBounds = dirtyBounds.intersection(paperDisplayBounds);
-
-      // Dirty region has no "paper"
       if (dirtyPaperBounds.width == 0 || dirtyPaperBounds.height == 0)
         return;
 
@@ -256,7 +253,7 @@ public class PrintPreview extends Canvas {
       event.gc.drawImage(displayImage, dirtyPaperBounds.x, dirtyPaperBounds.y);
     } finally {
       if (printerImage != null)
-        printerImage.dispose();
+      	printerImage.dispose();
       if (displayImage != null)
         displayImage.dispose();
       if (printerGC != null)
