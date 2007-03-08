@@ -1,6 +1,10 @@
+Version 1.0.1
+* Resolved printing problems on Mac OS X.
+* Added public accessor APIs for all Print classes.
+
 Version 1.0.0
 * Vertical cell alignment in GridPrint, including SWT.FILL alignment to allow
-  embedding vertically greedy prints like SWT.VERTICAL ~LinePrints.
+  embedding vertically greedy prints like SWT.VERTICAL LinePrints.
 * SidewaysPrint - a non-greedy version of RotatePrint.  Very handy for putting
   sideways text in grids.
 * TextPrint's and PageNumberPrint's horizontally greedy behavior had to be

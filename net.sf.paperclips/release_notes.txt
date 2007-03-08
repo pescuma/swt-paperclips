@@ -1,3 +1,7 @@
+Release 1.0.1:
+* Resolved printing problems on Mac OS X.
+* Added public accessor APIs for all Print classes.
+
 Release 1.0.0:
 * Vertical cell alignment in GridPrint, including SWT.FILL
   alignment to allow embedding vertically greedy prints like
@@ -22,21 +26,21 @@ Release 1.0.0:
 
 Core Plug-in
 ------------
-net.sf.paperclips_1.0.0.jar         - Binary jar
-net.sf.paperclips_1.0.0_source.zip  - Source zip
+net.sf.paperclips_1.0.1.jar         - Binary jar
+net.sf.paperclips_1.0.1_source.zip  - Source zip
 
 UI Plug-in
 ----------
-net.sf.paperclips.ui_1.0.0.jar          - Binary jar
-net.sf.paperclips.ui_1.0.0_source.zip   - Source zip
+net.sf.paperclips.ui_1.0.1.jar          - Binary jar
+net.sf.paperclips.ui_1.0.1_source.zip   - Source zip
 
 Examples Plugin
 ---------------
-net.sf.paperclips.examples_1.0.0_source.zip - Source zip
+net.sf.paperclips.examples_1.0.1_source.zip - Source zip
 
 API Documentation
 -----------------
-net.sf.paperclips_1.0.0_javadoc.zip - Javadoc zip
+net.sf.paperclips_1.0.1_javadoc.zip - Javadoc zip
 
 The source ZIP files may be imported into Eclipse as plug-in
 projects.

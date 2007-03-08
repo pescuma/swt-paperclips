@@ -1,5 +1,5 @@
 ==================================
-PaperClips UI 1.0.0
+PaperClips UI 1.0.1
 http://paperclips.sourceforge.net/
 ==================================
 

@@ -1,5 +1,5 @@
 ==================================
-PaperClips Core 1.0.0
+PaperClips Core 1.0.1
 http://paperclips.sourceforge.net/
 ==================================
 
