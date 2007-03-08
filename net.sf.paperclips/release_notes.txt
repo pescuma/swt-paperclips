@@ -2,28 +2,6 @@ Release 1.0.1:
 * Resolved printing problems on Mac OS X.
 * Added public accessor APIs for all Print classes.
 
-Release 1.0.0:
-* Vertical cell alignment in GridPrint, including SWT.FILL
-  alignment to allow embedding vertically greedy prints like
-  SWT.VERTICAL ~LinePrints.
-* SidewaysPrint - a non-greedy version of RotatePrint.  Very
-  handy for putting sideways text in grids.
-* TextPrint's and PageNumberPrint's horizontally greedy
-  behavior had to be removed in order for SidewaysPrint to
-  work correctly.  This will not cause any compilation
-  problems, however you may see some unexpected layout
-  behavior.
-* Updated Snippet7 (print preview example) in examples
-  plug-in to clean up some of the odd behavior when resizing
-  the window in Fit-to-Width or Fit-to-Height mode.  Also
-  added code for scrolling around the page using mouse drag.
-* Bug fix: PaperClips.getPages() throws the wrong exception
-  when a document fails to lay out properly.
-* Bug fix: PrintPreview does not redraw when setScale is
-  called to change the display scale.
-* Bug fix: Headers/footers in a PagePrint do not display any
-  contents after the page number.
-
 Core Plug-in
 ------------
 net.sf.paperclips_1.0.1.jar         - Binary jar
