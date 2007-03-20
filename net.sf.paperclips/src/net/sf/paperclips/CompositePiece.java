@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 
 /**
  * A composite PrintPiece for displaying child PrintPieces. This class is
@@ -88,17 +87,16 @@ public class CompositePiece implements PrintPiece {
   }
 
   public void paint (GC gc, int x, int y) {
-  	Rectangle clip = gc.getClipping ();
-
-  	// Bug in SWT on OSX: GC.getClipping() always returns [0,0,0,0]. 
-  	boolean ignoreClip = (clip.width == 0 || clip.height == 0);
+  	// SWT on OSX has problems with the clipping.  A GC(Printer) always returns a clipping
+  	// rectangle of [0,0,0,0] so that throws off the ability to check each entry against the hit
+  	// rectangle.  In addition it appears that a GC(Image(Printer))'s clipping on OSX is not
+  	// affected by the GC's transform, so that throws off the hit clip as well.  For this reason we
+  	// are no longer checking entries to see if they intersect the clipping region before drawing
+  	// them.
 
   	for (int i = 0; i < entries.length; i++) {
       CompositeEntry entry = entries[i];
-      Point size = entry.piece.getSize ();
-      if (ignoreClip ||
-      		clip.intersects (x + entry.offset.x, y + entry.offset.y, size.x, size.y))
-        entry.piece.paint (gc, x + entry.offset.x, y + entry.offset.y);
+      entry.piece.paint (gc, x + entry.offset.x, y + entry.offset.y);
     }
   }
 
