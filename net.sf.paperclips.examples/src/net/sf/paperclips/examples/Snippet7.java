@@ -152,7 +152,7 @@ public class Snippet7 implements Print {
         scroll.setMinSize(preview.computeSize(scale));
       }
     });
-    
+
     zoomOut.setText("Zoom Out");
     zoomOut.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -267,38 +267,61 @@ public class Snippet7 implements Print {
     preview.setPrintJob(printJob);
 
     Listener dragListener = new Listener() {
-    	private boolean dragEnabled = false;
-    	private Point dragOrigin = null;
-    	private Point dragAnchor = null;
+    	private boolean canScroll = false;
+    	private Point dragStartScrollOrigin = null;
+    	private Point dragStartMouseAnchor = null;
 			public void handleEvent(Event event) {
 				switch (event.type) {
 				case SWT.Resize:
 					Rectangle bounds = scroll.getClientArea();
 					Point size = preview.getSize();
-					dragEnabled = size.x > bounds.width || size.y > bounds.height;
-					if (!dragEnabled) {
-						dragOrigin = null;
-						dragAnchor = null;
+					canScroll = size.x > bounds.width || size.y > bounds.height;
+					if (!canScroll) {
+						dragStartScrollOrigin = null;
+						dragStartMouseAnchor = null;
 					}
 					break;
 				case SWT.MouseDown:
-					if (dragEnabled && event.button == 1) {
-						dragOrigin = scroll.getOrigin();
-						dragAnchor = preview.toDisplay(event.x, event.y);
+					if (canScroll && event.button == 1) {
+						dragStartScrollOrigin = scroll.getOrigin();
+						dragStartMouseAnchor = preview.toDisplay(event.x, event.y);
 					}
 					break;
 				case SWT.MouseMove:
-					if (dragAnchor != null && dragOrigin != null) {
+					if (dragStartMouseAnchor != null && dragStartScrollOrigin != null) {
 						Point point = preview.toDisplay(event.x, event.y);
-						scroll.setOrigin(dragOrigin.x + dragAnchor.x - point.x,
-														 dragOrigin.y + dragAnchor.y - point.y);
+						scroll.setOrigin(dragStartScrollOrigin.x + dragStartMouseAnchor.x - point.x,
+														 dragStartScrollOrigin.y + dragStartMouseAnchor.y - point.y);
 					}
 					break;
 				case SWT.MouseUp:
-					if (dragEnabled) {
-						dragAnchor = null;
-						dragOrigin = null;
+					if (canScroll) {
+						dragStartMouseAnchor = null;
+						dragStartScrollOrigin = null;
 					}
+					break;
+				case SWT.MouseEnter:
+					if (canScroll)
+						display.addFilter(SWT.MouseWheel, this);
+					break;
+				case SWT.MouseWheel:
+					if (canScroll && event.stateMask == SWT.NONE && dragStartScrollOrigin == null) {
+						bounds = scroll.getClientArea();
+						size = preview.getSize();
+						Point origin = scroll.getOrigin();
+						int direction = event.count == 0 ? 0 : event.count > 0 ? -1 : 1; 
+						if (size.y > bounds.height) { // prefer vertical over horizontal scrolling
+							origin.y += direction * bounds.height / 20;
+						} else if (size.x > bounds.width) {
+							origin.x += direction * bounds.width / 20;
+						}
+						scroll.setOrigin(origin);
+						event.type = SWT.None;
+					}
+					break;
+				case SWT.MouseExit:
+					if (canScroll)
+						display.removeFilter(SWT.MouseWheel, this);
 					break;
 				}
 			}
@@ -307,6 +330,10 @@ public class Snippet7 implements Print {
     preview.addListener(SWT.MouseDown, dragListener);
     preview.addListener(SWT.MouseMove, dragListener);
     preview.addListener(SWT.MouseUp,   dragListener);
+
+    // These are for mouse wheel handling
+    preview.addListener(SWT.MouseEnter, dragListener);
+    preview.addListener(SWT.MouseExit,  dragListener);
 
     shell.setVisible (true);
 
