@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
@@ -98,6 +99,29 @@ public class Snippet7 implements Print {
     final ScrolledComposite scroll = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     final PrintPreview preview = new PrintPreview(scroll, SWT.NONE);
 
+    final Label pageNumber = new Label(shell, SWT.NONE);
+    final Runnable pageNumberUpdater = new Runnable() {
+			public void run() {
+		    pageNumber.setText("Page "+(preview.getPageIndex()+1)+" of "+preview.getPageCount());
+			}
+    };
+
+    prevPage.setText ("<< Page");
+    prevPage.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setPageIndex(Math.max(0, preview.getPageIndex()-1));
+        pageNumberUpdater.run();
+      }
+    });
+
+    nextPage.setText ("Page >>");
+    nextPage.addListener(SWT.Selection, new Listener() {
+      public void handleEvent(Event event) {
+        preview.setPageIndex(Math.min(preview.getPageIndex()+1, preview.getPageCount()-1));
+        pageNumberUpdater.run();
+      }
+    });
+
     fitHorz.setText ("Fit Width");
     fitHorz.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -166,20 +190,6 @@ public class Snippet7 implements Print {
         scroll.setMinSize(preview.computeSize(scale));      }
     });
 
-    prevPage.setText ("<< Page");
-    prevPage.addListener(SWT.Selection, new Listener() {
-      public void handleEvent(Event event) {
-        preview.setPageIndex(Math.max(0, preview.getPageIndex()-1));
-      }
-    });
-
-    nextPage.setText ("Page >>");
-    nextPage.addListener(SWT.Selection, new Listener() {
-      public void handleEvent(Event event) {
-        preview.setPageIndex(Math.min(preview.getPageIndex()+1, preview.getPageCount()-1));
-      }
-    });
-
     portrait.setText ("Portrait");
     portrait.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
@@ -200,6 +210,8 @@ public class Snippet7 implements Print {
         		scroll.setMinSize(preview.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         	}
         }
+
+        pageNumberUpdater.run();
       }
     });
 
@@ -223,6 +235,8 @@ public class Snippet7 implements Print {
         		scroll.setMinSize(preview.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         	}
         }
+
+        pageNumberUpdater.run();
       }
     });
 
@@ -265,6 +279,7 @@ public class Snippet7 implements Print {
     preview.setFitVertical(true);
     preview.setFitHorizontal(true);
     preview.setPrintJob(printJob);
+    pageNumberUpdater.run();
 
     Listener dragListener = new Listener() {
     	private boolean canScroll = false;
@@ -334,6 +349,9 @@ public class Snippet7 implements Print {
     // These are for mouse wheel handling
     preview.addListener(SWT.MouseEnter, dragListener);
     preview.addListener(SWT.MouseExit,  dragListener);
+
+    pageNumber.setAlignment(SWT.RIGHT);
+    pageNumber.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
     shell.setVisible (true);
 

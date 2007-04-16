@@ -137,12 +137,13 @@ public class PrintPreview extends Canvas {
   }
 
   /**
-   * Returns the number of pages.  This method may return 0 if the selected page has not yet been
-   * displayed.
+   * Returns the number of pages.  This method returns 0 when {@link #getPrintJob()} is null or
+   * {@link #getPrinterData()} is null.
    * @return the number of pages.
    */
   public int getPageCount() {
   	checkWidget();
+  	getPages();
     return pages == null ? 0 : pages.length;
   }
 
@@ -312,7 +313,7 @@ public class PrintPreview extends Canvas {
   }
 
   private PrintPiece[] getPages() {
-    if (pages == null && printJob != null) {
+    if (pages == null && printJob != null && printerData != null) {
       pages = PaperClips.getPages(printJob, getPrinter());
       if (orientationRequiresRotate())
         for (int i = 0; i < pages.length; i++)
