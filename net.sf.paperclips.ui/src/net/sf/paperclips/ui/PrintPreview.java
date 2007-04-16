@@ -78,6 +78,7 @@ public class PrintPreview extends Canvas {
    * @return the print job.
    */
   public PrintJob getPrintJob() {
+  	checkWidget();
     return printJob;
   }
 
@@ -86,6 +87,7 @@ public class PrintPreview extends Canvas {
    * @param printJob the print job to preview.
    */
   public void setPrintJob(PrintJob printJob) {
+  	checkWidget();
     this.printJob = printJob;
     this.pageIndex = 0;
     disposePrinter(); // disposes pages too
@@ -99,6 +101,7 @@ public class PrintPreview extends Canvas {
    * @return the PrinterData for the printer to preview on.
    */
   public PrinterData getPrinterData() {
+  	checkWidget();
     return printerData;
   }
 
@@ -107,6 +110,7 @@ public class PrintPreview extends Canvas {
    * @param printerData the PrinterData for the printer to preview on.
    */
   public void setPrinterData(PrinterData printerData) {
+  	checkWidget();
     this.printerData = printerData;
     this.pageIndex = 0;
     disposePrinter(); // disposes pages too
@@ -118,6 +122,7 @@ public class PrintPreview extends Canvas {
    * @return the page index.
    */
   public int getPageIndex() {
+  	checkWidget();
     return pageIndex;
   }
 
@@ -126,6 +131,7 @@ public class PrintPreview extends Canvas {
    * @param pageIndex the new page index.
    */
   public void setPageIndex(int pageIndex) {
+  	checkWidget();
     this.pageIndex = pageIndex;
     redraw();
   }
@@ -136,6 +142,7 @@ public class PrintPreview extends Canvas {
    * @return the number of pages.
    */
   public int getPageCount() {
+  	checkWidget();
     return pages == null ? 0 : pages.length;
   }
 
@@ -144,6 +151,7 @@ public class PrintPreview extends Canvas {
    * @return whether the page scales to fit the document horizontally.
    */
   public boolean isFitHorizontal() {
+  	checkWidget();
     return fitHorizontal;
   }
 
@@ -152,6 +160,7 @@ public class PrintPreview extends Canvas {
    * @param fitHorizontal whether the page scales to fit the document horizontally.
    */
   public void setFitHorizontal(boolean fitHorizontal) {
+  	checkWidget();
     if (this.fitHorizontal != fitHorizontal) {
       this.fitHorizontal = fitHorizontal;
       paperDisplayBounds = null;
@@ -164,6 +173,7 @@ public class PrintPreview extends Canvas {
    * @return whether the page scales to fit the document vertically.
    */
   public boolean isFitVertical() {
+  	checkWidget();
     return fitVertical;
   }
 
@@ -172,6 +182,7 @@ public class PrintPreview extends Canvas {
    * @param fitVertical whether the page scales to fit the document vertically.
    */
   public void setFitVertical(boolean fitVertical) {
+  	checkWidget();
     if (this.fitVertical != fitVertical) {
       this.fitVertical = fitVertical;
       paperDisplayBounds = null;
@@ -185,6 +196,7 @@ public class PrintPreview extends Canvas {
    * @return the view scale.  
    */
   public float getScale() {
+  	checkWidget();
     return scale;
   }
 
@@ -194,6 +206,7 @@ public class PrintPreview extends Canvas {
    *        computer screen.
    */
   public void setScale(float scale) {
+  	checkWidget();
     if (scale > 0) {
       this.scale = scale;
       paperDisplayBounds = null;
@@ -273,7 +286,7 @@ public class PrintPreview extends Canvas {
   private Printer getPrinter() {
     if (printer == null && printerData != null) {
       printer = new Printer(printerData);
-      disposePages();
+      disposePages(); // just in case
       paperDisplayBounds = null;
     }
     return printer;
@@ -350,6 +363,7 @@ public class PrintPreview extends Canvas {
    * @return the absolute scale that the print preview is displaying at.
    */
   public float getAbsoluteScale() {
+  	checkWidget();
     return getAbsoluteScale(getSize());
   }
 
@@ -431,7 +445,7 @@ public class PrintPreview extends Canvas {
     }
   }
 
-  void disposeResources() {
+  private void disposeResources() {
     disposePages();
     disposePrinter();
   }
@@ -463,6 +477,8 @@ public class PrintPreview extends Canvas {
    * @return the control size needed to display a full page at the given scale. 
    */
   public Point computeSize(double scale) {
+  	checkWidget();
+
     Point size = new Point(BOILERPLATE_SIZE, BOILERPLATE_SIZE);
 
     Point displayDPI = getDisplay().getDPI();
