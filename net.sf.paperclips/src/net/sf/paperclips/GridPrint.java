@@ -111,6 +111,8 @@ public final class GridPrint implements Print {
   /** Column cursor - the column that the next added print will go into. */
   private int bodyCol = 0;
 
+  boolean cellClippingEnabled = true;
+
   /**
    * Two-dimension list of all footer cells.  Each element of this list represents a row in the
    * footer.  Each element of a row represents a cellspan in that row.
@@ -663,6 +665,23 @@ public final class GridPrint implements Print {
   }
 
   /**
+   * Returns whether individual body cells in the grid may be broken across pages.  Defaults to
+   * true.
+   * @return whether individual body cells in the grid may be broken across pages.
+   */
+  public boolean isCellClippingEnabled() {
+		return cellClippingEnabled;
+	}
+
+  /**
+   * Sets whether individual body cells in the grid may be broken across pages. 
+   * @param cellClippingEnabled whether to enabled cell clipping.
+   */
+	public void setCellClippingEnabled(boolean cellClippingEnabled) {
+		this.cellClippingEnabled = cellClippingEnabled;
+	}
+
+	/**
    * Adds the Print to the grid footer, with the default alignment and a colspan of 1.
    * @param cell the print to add.
    */
@@ -1015,6 +1034,8 @@ class GridIterator implements PrintIterator {
   final GridCellIterator[][] body;
   final GridCellIterator[][] footer;
 
+  final boolean cellClippingEnabled;
+
   final int[] minimumColSizes;   // PIXELS
   final int[] preferredColSizes; // PIXELS
 
@@ -1058,7 +1079,9 @@ class GridIterator implements PrintIterator {
         footer[rowIndex][cellIndex] = ((GridCell) row.get(cellIndex)).iterator (device, gc);
     }
 
-    look = grid.getLook().getPainter(device, gc);
+    this.cellClippingEnabled = grid.cellClippingEnabled;
+    
+    this.look = grid.getLook().getPainter(device, gc);
 
     this.minimumColSizes   = computeColumnSizes (PrintSizeStrategy.MINIMUM);
     this.preferredColSizes = computeColumnSizes (PrintSizeStrategy.PREFERRED);
@@ -1081,6 +1104,8 @@ class GridIterator implements PrintIterator {
     this.header = that.header;                     // never directly modified, clone not necessary
     this.body   = cloneRows (that.body, that.row); // Only need to deep copy the unconsumed rows.
     this.footer = that.footer;                     // never directly modified, clone not necessary
+
+    this.cellClippingEnabled = that.cellClippingEnabled;
 
     this.look = that.look;
 
@@ -1936,7 +1961,7 @@ class GridIterator implements PrintIterator {
 
       // If the iteration failed, or the row has more content (which it shouldn't when the bottom
       // border is closed) then try the iteration again with an the bottom border open.
-      if (rowEntries == null || hasNext[0]) {
+      if ((rowEntries == null || hasNext[0]) && cellClippingEnabled) {
         rowHeight[0] = 0;
         hasNext[0] = false;
         thisRow = cloneRow(body[row]);
