@@ -245,8 +245,10 @@ public class Snippet7 implements Print {
       public void handleEvent (Event event) {
         PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
         PrinterData printerData = dialog.open ();
-        if (printerData != null)
+        if (printerData != null) {
           PaperClips.print(printJob, printerData);
+          preview.setPrinterData(printerData);
+        }
       }
     });
 
