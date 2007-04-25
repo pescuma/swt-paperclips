@@ -369,7 +369,9 @@ public class PrintPreview extends Canvas {
   }
 
   private float getAbsoluteScale(Point controlSize) {
-    if (fitHorizontal || fitVertical) {
+  	float result = scale;
+
+    if (getPrinter() != null && (fitHorizontal || fitVertical)) {
       Point displayDPI = getDisplay().getDPI();
       Point printerDPI = getPrinter().getDPI();
       Point paperSize = getPaperSize();
@@ -384,19 +386,18 @@ public class PrintPreview extends Canvas {
           float screenHeight = (float) controlSize.y / (float) displayDPI.y; // inches
           float paperHeight  = (float) paperSize.y   / (float) printerDPI.y; // inches
           float scaleY = screenHeight / paperHeight;
-          return Math.min(scaleX, scaleY);
+          result = Math.min(scaleX, scaleY);
+        } else {
+        	result = scaleX;
         }
-        return scaleX;
+      } else {
+      	float screenHeight = (float) controlSize.y / (float) displayDPI.y; // inches
+      	float paperHeight  = (float) paperSize.y   / (float) printerDPI.y; // inches
+      	float scaleY = screenHeight / paperHeight;
+      	result = scaleY;
       }
-      // fitVertical == true
-      float screenHeight = (float) controlSize.y / (float) displayDPI.y; // inches
-      float paperHeight  = (float) paperSize.y   / (float) printerDPI.y; // inches
-      float scaleY = screenHeight / paperHeight;
-      return scaleY;
     }
-
-    // No 
-    return scale;
+    return result;
   }
 
   /**
@@ -455,8 +456,6 @@ public class PrintPreview extends Canvas {
 
   public Point computeSize(int wHint, int hHint, boolean changed) {
     checkWidget();
-
-    if (getPrinter() == null) return new Point(BOILERPLATE_SIZE, BOILERPLATE_SIZE);
 
     Point size = new Point(wHint, hHint);
     double scale;
