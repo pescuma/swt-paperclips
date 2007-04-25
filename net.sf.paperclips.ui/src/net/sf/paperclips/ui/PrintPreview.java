@@ -61,7 +61,7 @@ public class PrintPreview extends Canvas {
   }
 
   PrintJob    printJob      = null;
-  PrinterData printerData   = new PrinterData();
+  PrinterData printerData   = Printer.getDefaultPrinterData();
   int         pageIndex     = 0;
   boolean     fitHorizontal = true;
   boolean     fitVertical   = true;
@@ -456,6 +456,8 @@ public class PrintPreview extends Canvas {
   public Point computeSize(int wHint, int hHint, boolean changed) {
     checkWidget();
 
+    if (getPrinter() == null) return new Point(BOILERPLATE_SIZE, BOILERPLATE_SIZE);
+
     Point size = new Point(wHint, hHint);
     double scale;
     if (wHint != SWT.DEFAULT) {
@@ -466,7 +468,7 @@ public class PrintPreview extends Canvas {
       scale = getAbsoluteScale(size);
     } else if (hHint != SWT.DEFAULT) {
       size.x = Integer.MAX_VALUE;
-      scale = getAbsoluteScale(size); 
+      scale = getAbsoluteScale(size);
     } else {
       scale = this.scale;
     }
@@ -484,12 +486,14 @@ public class PrintPreview extends Canvas {
 
     Point size = new Point(BOILERPLATE_SIZE, BOILERPLATE_SIZE);
 
-    Point displayDPI = getDisplay().getDPI();
-    Point printerDPI = getPrinter().getDPI();
-    Point paperSize = getPaperSize();
-
-    size.x += Math.round( scale * paperSize.x * displayDPI.x / printerDPI.x );
-    size.y += Math.round( scale * paperSize.y * displayDPI.y / printerDPI.y );
+    if (getPrinter() != null) {
+    	Point displayDPI = getDisplay().getDPI();
+    	Point printerDPI = getPrinter().getDPI();
+    	Point paperSize = getPaperSize();
+    	
+    	size.x += Math.round( scale * paperSize.x * displayDPI.x / printerDPI.x );
+    	size.y += Math.round( scale * paperSize.y * displayDPI.y / printerDPI.y );
+    }
 
     return size;
   }
