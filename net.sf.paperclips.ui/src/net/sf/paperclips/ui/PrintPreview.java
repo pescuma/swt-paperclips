@@ -60,14 +60,14 @@ public class PrintPreview extends Canvas {
     });
   }
 
-  private PrintJob    printJob        = null;
-  private PrinterData printerData     = Printer.getDefaultPrinterData();
-  private int         pageIndex       = 0;
-  private boolean     fitHorizontal   = true;
-  private boolean     fitVertical     = true;
-  private float       scale           = 1.0f;
-  private int         horizontalPages = 1;
-  private int         verticalPages   = 1;
+  private PrintJob    printJob            = null;
+  private PrinterData printerData         = Printer.getDefaultPrinterData();
+  private int         pageIndex           = 0;
+  private boolean     fitHorizontal       = true;
+  private boolean     fitVertical         = true;
+  private float       scale               = 1.0f;
+  private int         horizontalPageCount = 1;
+  private int         verticalPageCount   = 1;
 
   private Printer printer   = null;
   private Point   paperSize = null; // The bounds of the paper on the printer device.
@@ -220,24 +220,24 @@ public class PrintPreview extends Canvas {
       throw new IllegalArgumentException("Scale must be > 0");
   }
 
-  public int getHorizontalPages() {
-  	return horizontalPages;
+  public int getHorizontalPageCount() {
+  	return horizontalPageCount;
   }
 
-  public void setHorizontalPages(int horizontalPages) {
+  public void setHorizontalPageCount(int horizontalPages) {
   	if (horizontalPages < 1) horizontalPages = 1;
-  	this.horizontalPages = horizontalPages;
+  	this.horizontalPageCount = horizontalPages;
   	invalidatePageDisplayBounds();
   	redraw();
   }
 
-  public int getVerticalPages() {
-  	return verticalPages;
+  public int getVerticalPageCount() {
+  	return verticalPageCount;
   }
 
-  public void setVerticalPages(int verticalPages) {
+  public void setVerticalPageCount(int verticalPages) {
   	if (verticalPages < 1) verticalPages = 1;
-  	this.verticalPages = verticalPages;
+  	this.verticalPageCount = verticalPages;
   	invalidatePageDisplayBounds();
   	redraw();
   }
@@ -268,7 +268,7 @@ public class PrintPreview extends Canvas {
         pageIndex < 0 || pageIndex >= pages.length)
       return;
 
-    int count = Math.min(verticalPages * horizontalPages, pages.length - pageIndex);
+    int count = Math.min(verticalPageCount * horizontalPageCount, pages.length - pageIndex);
     for (int i = 0; i < count; i++)
     	paintPage(event, pages[pageIndex+i], pageDisplayLocations[i]);
   }
@@ -411,8 +411,8 @@ public class PrintPreview extends Canvas {
 
   private Point getBoilerplateSize() {
   	return new Point(
-  			2*PAPER_MARGIN + horizontalPages*PAPER_BOILERPLATE + (horizontalPages-1)*PAPER_SPACING,
-  			2*PAPER_MARGIN + verticalPages  *PAPER_BOILERPLATE + (verticalPages  -1)*PAPER_SPACING);
+  			2*PAPER_MARGIN + horizontalPageCount*PAPER_BOILERPLATE + (horizontalPageCount-1)*PAPER_SPACING,
+  			2*PAPER_MARGIN + verticalPageCount  *PAPER_BOILERPLATE + (verticalPageCount  -1)*PAPER_SPACING);
   }
 
   private float getAbsoluteScale(Point controlSize) {
@@ -424,9 +424,9 @@ public class PrintPreview extends Canvas {
       Point paperSize = getPaperSize();
       Point boilerplate = getBoilerplateSize();
       controlSize.x -= boilerplate.x;
-      controlSize.x /= horizontalPages;
+      controlSize.x /= horizontalPageCount;
       controlSize.y -= boilerplate.y;
-      controlSize.y /= verticalPages;
+      controlSize.y /= verticalPageCount;
 
       if (fitHorizontal) {
         float screenWidth = (float) controlSize.x / (float) displayDPI.x; // inches
@@ -472,17 +472,17 @@ public class PrintPreview extends Canvas {
   		Point size = getSize();
   		int x0 = PAPER_MARGIN + PAPER_BORDER_WIDTH;
   		size.x -= getBoilerplateSize().x;
-  		size.x -= (pageDisplaySize.x * horizontalPages);
+  		size.x -= (pageDisplaySize.x * horizontalPageCount);
   		if (size.x > 0)
   			x0 += size.x/2;
 
-  		pageDisplayLocations = new Point[horizontalPages * verticalPages];
+  		pageDisplayLocations = new Point[horizontalPageCount * verticalPageCount];
 
   		int y = PAPER_MARGIN + PAPER_BORDER_WIDTH;
-  		for (int r = 0; r < verticalPages; r++) {
+  		for (int r = 0; r < verticalPageCount; r++) {
   			int x = x0;
-  			for (int c = 0; c < horizontalPages; c++) {
-  				pageDisplayLocations[r*horizontalPages+c] = new Point(x, y);
+  			for (int c = 0; c < horizontalPageCount; c++) {
+  				pageDisplayLocations[r*horizontalPageCount+c] = new Point(x, y);
   				x += pageDisplaySize.x + PAPER_BOILERPLATE + PAPER_SPACING;
   			}
   			y += pageDisplaySize.y + PAPER_BOILERPLATE + PAPER_SPACING;
@@ -560,8 +560,8 @@ public class PrintPreview extends Canvas {
     	Point printerDPI = getPrinter().getDPI();
     	Point paperSize = getPaperSize();
 
-    	size.x += horizontalPages * (int) ( scale * paperSize.x * displayDPI.x / printerDPI.x );
-    	size.y += verticalPages   * (int) ( scale * paperSize.y * displayDPI.y / printerDPI.y );
+    	size.x += horizontalPageCount * (int) ( scale * paperSize.x * displayDPI.x / printerDPI.x );
+    	size.y += verticalPageCount   * (int) ( scale * paperSize.y * displayDPI.y / printerDPI.y );
     }
 
     return size;

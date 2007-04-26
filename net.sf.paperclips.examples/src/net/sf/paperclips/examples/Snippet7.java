@@ -112,7 +112,7 @@ public class Snippet7 implements Print {
     prevPage.setText ("<< Page");
     prevPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
-      	int visiblePages = preview.getHorizontalPages() * preview.getVerticalPages();
+      	int visiblePages = preview.getHorizontalPageCount() * preview.getVerticalPageCount();
         preview.setPageIndex(Math.max(0, preview.getPageIndex()-visiblePages));
         pageNumberUpdater.run();
       }
@@ -122,7 +122,7 @@ public class Snippet7 implements Print {
     nextPage.setText ("Page >>");
     nextPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
-      	int visiblePages = preview.getHorizontalPages() * preview.getVerticalPages();
+      	int visiblePages = preview.getHorizontalPageCount() * preview.getVerticalPageCount();
         preview.setPageIndex(Math.min(
     				preview.getPageIndex()+visiblePages,
     				Math.max(0, preview.getPageCount()-visiblePages)));
@@ -274,7 +274,7 @@ public class Snippet7 implements Print {
     horzPages.setMaximum(99);
     horzPages.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
-				preview.setHorizontalPages(horzPages.getSelection());
+				preview.setHorizontalPageCount(horzPages.getSelection());
 
 				Rectangle clientArea = scroll.getClientArea();
 				int wHint = preview.isFitHorizontal() ? clientArea.width  : SWT.DEFAULT;
@@ -288,7 +288,7 @@ public class Snippet7 implements Print {
     vertPages.setMaximum(99);
     vertPages.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
-				preview.setVerticalPages(vertPages.getSelection());
+				preview.setVerticalPageCount(vertPages.getSelection());
 
 				Rectangle clientArea = scroll.getClientArea();
 				int wHint = preview.isFitHorizontal() ? clientArea.width  : SWT.DEFAULT;
