@@ -48,10 +48,10 @@ public class PrintPreview extends Canvas {
 
     addListener(SWT.Resize, new Listener() {
       public void handleEvent(Event event) {
-        paperDisplayBounds = null;
-        redraw();
+    		invalidatePageDisplayBounds();
+    		redraw();
       }
-    });
+   });
 
     addListener(SWT.Dispose, new Listener() {
       public void handleEvent(Event event) {
@@ -60,18 +60,21 @@ public class PrintPreview extends Canvas {
     });
   }
 
-  PrintJob    printJob      = null;
-  PrinterData printerData   = Printer.getDefaultPrinterData();
-  int         pageIndex     = 0;
-  boolean     fitHorizontal = true;
-  boolean     fitVertical   = true;
-  float       scale         = 1.0f;
+  private PrintJob    printJob        = null;
+  private PrinterData printerData     = Printer.getDefaultPrinterData();
+  private int         pageIndex       = 0;
+  private boolean     fitHorizontal   = true;
+  private boolean     fitVertical     = true;
+  private float       scale           = 1.0f;
+  private int         horizontalPages = 1;
+  private int         verticalPages   = 1;
 
-  Printer printer   = null;
-  Point   paperSize = null; // The bounds of the paper on the printer device.
+  private Printer printer   = null;
+  private Point   paperSize = null; // The bounds of the paper on the printer device.
 
-  PrintPiece[] pages              = null;
-  Rectangle    paperDisplayBounds = null; // Where the paper is drawn within this control.
+  private PrintPiece[] pages                = null;
+  private Point        pageDisplaySize      = null;
+  private Point[]      pageDisplayLocations = null;
 
   /**
    * Returns the print job.
@@ -91,9 +94,8 @@ public class PrintPreview extends Canvas {
     this.printJob = printJob;
     this.pageIndex = 0;
     disposePrinter(); // disposes pages too
-    paperSize = null; // in case the orientation changed
-    paperDisplayBounds = null;
-    redraw();
+    invalidatePageDisplayBounds();
+		redraw();
   }
 
   /**
@@ -164,7 +166,7 @@ public class PrintPreview extends Canvas {
   	checkWidget();
     if (this.fitHorizontal != fitHorizontal) {
       this.fitHorizontal = fitHorizontal;
-      paperDisplayBounds = null;
+      invalidatePageDisplayBounds();
       redraw();
     }
   }
@@ -186,7 +188,7 @@ public class PrintPreview extends Canvas {
   	checkWidget();
     if (this.fitVertical != fitVertical) {
       this.fitVertical = fitVertical;
-      paperDisplayBounds = null;
+      invalidatePageDisplayBounds();
       redraw();
     }
   }
@@ -210,58 +212,95 @@ public class PrintPreview extends Canvas {
   	checkWidget();
     if (scale > 0) {
       this.scale = scale;
-      paperDisplayBounds = null;
-      redraw();
+      if (!(fitVertical || fitHorizontal)) {
+        invalidatePageDisplayBounds();
+      	redraw();
+      }
     } else
       throw new IllegalArgumentException("Scale must be > 0");
   }
 
+  public int getHorizontalPages() {
+  	return horizontalPages;
+  }
+
+  public void setHorizontalPages(int horizontalPages) {
+  	if (horizontalPages < 1) horizontalPages = 1;
+  	this.horizontalPages = horizontalPages;
+  	invalidatePageDisplayBounds();
+  	redraw();
+  }
+
+  public int getVerticalPages() {
+  	return verticalPages;
+  }
+
+  public void setVerticalPages(int verticalPages) {
+  	if (verticalPages < 1) verticalPages = 1;
+  	this.verticalPages = verticalPages;
+  	invalidatePageDisplayBounds();
+  	redraw();
+  }
+
+	private void invalidatePageDisplayBounds() {
+		pageDisplaySize = null;
+		pageDisplayLocations = null;
+	}
+
   private void paint(PaintEvent event) {
+    drawBackground(event);
+
+    if (printJob == null || printerData == null)
+      return;
+
+    getPrinter();
+    getPaperSize();
+    getPages();
+
+    getPageDisplaySize();
+    getPageDisplayLocations();
+
+    if (printer              == null ||
+        paperSize            == null ||
+        pages                == null ||
+        pageDisplaySize      == null ||
+        pageDisplayLocations == null ||
+        pageIndex < 0 || pageIndex >= pages.length)
+      return;
+
+    int count = Math.min(verticalPages * horizontalPages, pages.length - pageIndex);
+    for (int i = 0; i < count; i++)
+    	paintPage(event, pages[pageIndex+i], pageDisplayLocations[i]);
+  }
+
+  private void paintPage(PaintEvent event, PrintPiece page, Point location) {
+    drawPageOutline(event, location);
+
+    // Check whether any "paper" is in the dirty region
+    Rectangle rectangle = new Rectangle(location.x, location.y, pageDisplaySize.x, pageDisplaySize.y);
+  	Rectangle dirtyBounds = new Rectangle(event.x, event.y, event.width, event.height);
+  	Rectangle dirtyPaperBounds = dirtyBounds.intersection(rectangle);
+  	if (dirtyPaperBounds.width == 0 || dirtyPaperBounds.height == 0)
+  		return;
+
   	Image printerImage = null;
     GC printerGC = null;
     Transform printerTransform = null;
-
     Image displayImage = null;
 
     try {
-      drawBackground(event);
-
-      if (printJob == null || printerData == null)
-        return;
-
-      getPrinter();
-      getPaperSize();
-      getPages();
-      getPaperDisplayBounds();
-
-      if (printer == null ||
-          paperSize == null ||
-          pages == null ||
-          paperDisplayBounds == null ||
-          pageIndex < 0 ||
-          pageIndex >= pages.length)
-        return;
-
-      drawPaper(event);
-
-      // Check whether any "paper" is in the dirty region
-      Rectangle dirtyBounds = new Rectangle(event.x, event.y, event.width, event.height);
-      Rectangle dirtyPaperBounds = dirtyBounds.intersection(paperDisplayBounds);
-      if (dirtyPaperBounds.width == 0 || dirtyPaperBounds.height == 0)
-        return;
-
       printerImage = new Image(printer, dirtyPaperBounds.width, dirtyPaperBounds.height);
       printerGC = new GC(printerImage);
       printerTransform = new Transform(printer);
 
       printerGC.getTransform(printerTransform);
-      printerTransform.translate(paperDisplayBounds.x-dirtyPaperBounds.x,
-                                 paperDisplayBounds.y-dirtyPaperBounds.y);
+      printerTransform.translate(rectangle.x-dirtyPaperBounds.x,
+                                 rectangle.y-dirtyPaperBounds.y);
       printerTransform.scale(
-          (float) paperDisplayBounds.width  / (float) paperSize.x,
-          (float) paperDisplayBounds.height / (float) paperSize.y);
+          (float) rectangle.width  / (float) paperSize.x,
+          (float) rectangle.height / (float) paperSize.y);
       printerGC.setTransform(printerTransform);
-      pages[pageIndex].paint(printerGC, 0, 0);
+      page.paint(printerGC, 0, 0);
  
       displayImage = new Image(event.display, printerImage.getImageData());
       event.gc.drawImage(displayImage, dirtyPaperBounds.x, dirtyPaperBounds.y);
@@ -277,18 +316,12 @@ public class PrintPreview extends Canvas {
     }
   }
 
-  private static final int PAPER_MARGIN = 10;
-  private static final int PAPER_BORDER_WIDTH = 1;
-  private static final int PAPER_SHADOW_WIDTH = 3;
-
-  private final int BOILERPLATE_SIZE =
-    2*PAPER_MARGIN + 2*PAPER_BORDER_WIDTH + PAPER_SHADOW_WIDTH;
-
   private Printer getPrinter() {
     if (printer == null && printerData != null) {
       printer = new Printer(printerData);
       disposePages(); // just in case
-      paperDisplayBounds = null;
+      pageDisplaySize = null;
+      pageDisplayLocations = null;
     }
     return printer;
   }
@@ -334,27 +367,33 @@ public class PrintPreview extends Canvas {
     }
   }
 
-  private void drawPaper(PaintEvent event) {
-    if (paperDisplayBounds == null) return;
+  private static final int PAPER_MARGIN = 10;
+  private static final int PAPER_BORDER_WIDTH = 1;
+  private static final int PAPER_SHADOW_WIDTH = 3;
+  private static final int PAPER_SPACING = 10;
+
+  private void drawPageOutline(PaintEvent event, Point location) {
+    if (location == null) return;
 
     Color black  = event.display.getSystemColor(SWT.COLOR_BLACK);
     Color shadow = event.display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW);
 
     // Drop shadow
     event.gc.setBackground(shadow);
-    event.gc.fillRectangle(paperDisplayBounds.x+PAPER_SHADOW_WIDTH,
-                     paperDisplayBounds.y+PAPER_SHADOW_WIDTH,
-                     paperDisplayBounds.width+PAPER_BORDER_WIDTH,
-                     paperDisplayBounds.height+PAPER_BORDER_WIDTH);
-    shadow.dispose();
+    event.gc.fillRectangle(
+    		location.x - PAPER_BORDER_WIDTH + PAPER_SHADOW_WIDTH,
+    		location.y - PAPER_BORDER_WIDTH + PAPER_SHADOW_WIDTH,
+    		pageDisplaySize.x  + PAPER_BORDER_WIDTH * 2,
+    		pageDisplaySize.y + PAPER_BORDER_WIDTH * 2);
 
     // Page border
     event.gc.setForeground(black);
     for (int i = 1; i <= PAPER_BORDER_WIDTH; i++)
-      event.gc.drawRectangle(paperDisplayBounds.x-i,
-                             paperDisplayBounds.y-i,
-                             paperDisplayBounds.width+2*i-1,
-                             paperDisplayBounds.height+2*i-1);
+      event.gc.drawRectangle(
+      		location.x-i,
+      		location.y-i,
+      		pageDisplaySize.x+2*i-1,
+      		pageDisplaySize.y+2*i-1);
   }
 
   /**
@@ -368,6 +407,14 @@ public class PrintPreview extends Canvas {
     return getAbsoluteScale(getSize());
   }
 
+  private static final int PAPER_BOILERPLATE = PAPER_BORDER_WIDTH * 2 + PAPER_SHADOW_WIDTH;
+
+  private Point getBoilerplateSize() {
+  	return new Point(
+  			2*PAPER_MARGIN + horizontalPages*PAPER_BOILERPLATE + (horizontalPages-1)*PAPER_SPACING,
+  			2*PAPER_MARGIN + verticalPages  *PAPER_BOILERPLATE + (verticalPages  -1)*PAPER_SPACING);
+  }
+
   private float getAbsoluteScale(Point controlSize) {
   	float result = scale;
 
@@ -375,8 +422,11 @@ public class PrintPreview extends Canvas {
       Point displayDPI = getDisplay().getDPI();
       Point printerDPI = getPrinter().getDPI();
       Point paperSize = getPaperSize();
-      controlSize.x -= BOILERPLATE_SIZE;
-      controlSize.y -= BOILERPLATE_SIZE;
+      Point boilerplate = getBoilerplateSize();
+      controlSize.x -= boilerplate.x;
+      controlSize.x /= horizontalPages;
+      controlSize.y -= boilerplate.y;
+      controlSize.y /= verticalPages;
 
       if (fitHorizontal) {
         float screenWidth = (float) controlSize.x / (float) displayDPI.x; // inches
@@ -400,33 +450,45 @@ public class PrintPreview extends Canvas {
     return result;
   }
 
-  /**
-   * Returns the bounding rectangle where the paper is drawn on the control.  The paper border and
-   * drop shadow are drawn immediately outside this rectangle.
-   * @return the bounding rectangle where the paper is drawn on the control.
-   */
-  private Rectangle getPaperDisplayBounds() {
-    if (paperDisplayBounds == null) {
-      Point displayDPI = getDisplay().getDPI();
-      Point printerDPI = printer.getDPI();
-      float absoluteScale = getAbsoluteScale(getSize());
-      float scaleX = absoluteScale * displayDPI.x / printerDPI.x;
-      float scaleY = absoluteScale * displayDPI.y / printerDPI.y;
+  private Point getPageDisplaySize() {
+  	if (pageDisplaySize == null) {
+  		Point size = getSize();
+  		Point displayDPI = getDisplay().getDPI();
+  		Point printerDPI = printer.getDPI();
+  		float absoluteScale = getAbsoluteScale(size);
+  		float scaleX = absoluteScale * displayDPI.x / printerDPI.x;
+  		float scaleY = absoluteScale * displayDPI.y / printerDPI.y;
 
-      int x = PAPER_MARGIN + PAPER_BORDER_WIDTH;
-      int y = PAPER_MARGIN + PAPER_BORDER_WIDTH;
-      int width  = (int) Math.ceil(scaleX * paperSize.x);
-      int height = (int) Math.ceil(scaleY * paperSize.y);
+  		pageDisplaySize = new Point(
+  				(int) (scaleX * paperSize.x),
+  				(int) (scaleY * paperSize.y));
+  	}
+  	return pageDisplaySize;
+  }
 
-      // Center the paper horizontally if needed 
-      Point size = getSize();
-      size.x -= (width + BOILERPLATE_SIZE);
-      if (size.x > 0)
-        x += size.x/2;
+  private Point[] getPageDisplayLocations() {
+  	if (pageDisplayLocations == null) {
+  		// Center pages horizontally
+  		Point size = getSize();
+  		int x0 = PAPER_MARGIN + PAPER_BORDER_WIDTH;
+  		size.x -= getBoilerplateSize().x;
+  		size.x -= (pageDisplaySize.x * horizontalPages);
+  		if (size.x > 0)
+  			x0 += size.x/2;
 
-      paperDisplayBounds = new Rectangle(x, y, width, height);
-    }
-    return paperDisplayBounds;
+  		pageDisplayLocations = new Point[horizontalPages * verticalPages];
+
+  		int y = PAPER_MARGIN + PAPER_BORDER_WIDTH;
+  		for (int r = 0; r < verticalPages; r++) {
+  			int x = x0;
+  			for (int c = 0; c < horizontalPages; c++) {
+  				pageDisplayLocations[r*horizontalPages+c] = new Point(x, y);
+  				x += pageDisplaySize.x + PAPER_BOILERPLATE + PAPER_SPACING;
+  			}
+  			y += pageDisplaySize.y + PAPER_BOILERPLATE + PAPER_SPACING;
+  		}
+  	}
+  	return pageDisplayLocations;
   }
 
   private void disposePages() {
@@ -434,7 +496,7 @@ public class PrintPreview extends Canvas {
       for (int i = 0; i < pages.length; i++)
         pages[i].dispose();
       pages = null;
-      paperDisplayBounds = null;
+      invalidatePageDisplayBounds();
     }
   }
 
@@ -458,6 +520,14 @@ public class PrintPreview extends Canvas {
     checkWidget();
 
     Point size = new Point(wHint, hHint);
+
+    if (getPrinter() == null) {
+    	Point boilerplate = getBoilerplateSize();
+    	if (wHint == SWT.DEFAULT) size.x = boilerplate.x;
+    	if (hHint == SWT.DEFAULT) size.y = boilerplate.y;
+    	return size;
+    }
+
     double scale;
     if (wHint != SWT.DEFAULT) {
       if (hHint != SWT.DEFAULT) {
@@ -467,7 +537,7 @@ public class PrintPreview extends Canvas {
       scale = getAbsoluteScale(size);
     } else if (hHint != SWT.DEFAULT) {
       size.x = Integer.MAX_VALUE;
-      scale = getAbsoluteScale(size);
+      scale = getAbsoluteScale(size); 
     } else {
       scale = this.scale;
     }
@@ -483,15 +553,15 @@ public class PrintPreview extends Canvas {
   public Point computeSize(double scale) {
   	checkWidget();
 
-    Point size = new Point(BOILERPLATE_SIZE, BOILERPLATE_SIZE);
+    Point size = getBoilerplateSize();
 
     if (getPrinter() != null) {
     	Point displayDPI = getDisplay().getDPI();
     	Point printerDPI = getPrinter().getDPI();
     	Point paperSize = getPaperSize();
-    	
-    	size.x += Math.round( scale * paperSize.x * displayDPI.x / printerDPI.x );
-    	size.y += Math.round( scale * paperSize.y * displayDPI.y / printerDPI.y );
+
+    	size.x += horizontalPages * (int) ( scale * paperSize.x * displayDPI.x / printerDPI.x );
+    	size.y += verticalPages   * (int) ( scale * paperSize.y * displayDPI.y / printerDPI.y );
     }
 
     return size;

@@ -14,7 +14,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
@@ -24,6 +23,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 
 import net.sf.paperclips.DefaultGridLook;
 import net.sf.paperclips.GridPrint;
@@ -48,7 +48,7 @@ public class Snippet7 implements Print {
     GridPrint grid = new GridPrint("p:g, d:g", look);
 
     String text = "The quick brown fox jumps over the lazy dog.";
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 500; i++)
       grid.add(new TextPrint(text));
 
     PagePrint page = new PagePrint(grid);
@@ -79,9 +79,7 @@ public class Snippet7 implements Print {
 
     Composite buttonPanel = new Composite(shell, SWT.NONE);
     buttonPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-    RowLayout layout = new RowLayout(SWT.HORIZONTAL);
-    layout.pack = false;
-    layout.fill = true;
+    GridLayout layout = new GridLayout(5, true);
     buttonPanel.setLayout(layout);
 
     Button prevPage  = new Button (buttonPanel, SWT.PUSH);
@@ -96,6 +94,11 @@ public class Snippet7 implements Print {
     Button landscape = new Button (buttonPanel, SWT.PUSH);
     Button print     = new Button (buttonPanel, SWT.PUSH);
 
+    new Label(buttonPanel, SWT.NONE).setText("Horz Pages");
+    final Spinner horzPages = new Spinner(buttonPanel, SWT.BORDER);
+    new Label(buttonPanel, SWT.NONE).setText("Vert Pages");
+    final Spinner vertPages = new Spinner(buttonPanel, SWT.BORDER);
+
     final ScrolledComposite scroll = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     final PrintPreview preview = new PrintPreview(scroll, SWT.NONE);
 
@@ -109,18 +112,24 @@ public class Snippet7 implements Print {
     prevPage.setText ("<< Page");
     prevPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
-        preview.setPageIndex(Math.max(0, preview.getPageIndex()-1));
+      	int visiblePages = preview.getHorizontalPages() * preview.getVerticalPages();
+        preview.setPageIndex(Math.max(0, preview.getPageIndex()-visiblePages));
         pageNumberUpdater.run();
       }
     });
+    prevPage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     nextPage.setText ("Page >>");
     nextPage.addListener(SWT.Selection, new Listener() {
       public void handleEvent(Event event) {
-        preview.setPageIndex(Math.min(preview.getPageIndex()+1, preview.getPageCount()-1));
+      	int visiblePages = preview.getHorizontalPages() * preview.getVerticalPages();
+        preview.setPageIndex(Math.min(
+    				preview.getPageIndex()+visiblePages,
+    				Math.max(0, preview.getPageCount()-visiblePages)));
         pageNumberUpdater.run();
       }
     });
+    nextPage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     fitHorz.setText ("Fit Width");
     fitHorz.addListener(SWT.Selection, new Listener() {
@@ -132,6 +141,7 @@ public class Snippet7 implements Print {
         scroll.setMinSize(preview.computeSize(bounds.width, SWT.DEFAULT));
       }
     });
+    fitHorz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     fitVert.setText ("Fit Height");
     fitVert.addListener(SWT.Selection, new Listener() {
@@ -143,6 +153,7 @@ public class Snippet7 implements Print {
         scroll.setMinSize(preview.computeSize(SWT.DEFAULT, bounds.height));
       }
     });
+    fitVert.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     fitBest.setText ("Best Fit");
     fitBest.addListener(SWT.Selection, new Listener() {
@@ -152,6 +163,7 @@ public class Snippet7 implements Print {
         scroll.setMinSize(0, 0);
       }
     });
+    fitBest.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     exactSize.setText("Exact Size");
     exactSize.addListener(SWT.Selection, new Listener() {
@@ -162,6 +174,7 @@ public class Snippet7 implements Print {
         scroll.setMinSize(preview.computeSize(1));
       }
     });
+    exactSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     zoomIn.setText("Zoom In");
     zoomIn.addListener(SWT.Selection, new Listener() {
@@ -176,6 +189,7 @@ public class Snippet7 implements Print {
         scroll.setMinSize(preview.computeSize(scale));
       }
     });
+    zoomIn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     zoomOut.setText("Zoom Out");
     zoomOut.addListener(SWT.Selection, new Listener() {
@@ -189,6 +203,7 @@ public class Snippet7 implements Print {
 
         scroll.setMinSize(preview.computeSize(scale));      }
     });
+    zoomOut.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     portrait.setText ("Portrait");
     portrait.addListener(SWT.Selection, new Listener() {
@@ -214,6 +229,7 @@ public class Snippet7 implements Print {
         pageNumberUpdater.run();
       }
     });
+    portrait.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     landscape.setText ("Landscape");
     landscape.addListener(SWT.Selection, new Listener() {
@@ -239,6 +255,7 @@ public class Snippet7 implements Print {
         pageNumberUpdater.run();
       }
     });
+    landscape.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     print.setText ("Print");
     print.addListener(SWT.Selection, new Listener() {
@@ -251,6 +268,35 @@ public class Snippet7 implements Print {
         }
       }
     });
+    print.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+
+    horzPages.setMinimum(1);
+    horzPages.setMaximum(99);
+    horzPages.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				preview.setHorizontalPages(horzPages.getSelection());
+
+				Rectangle clientArea = scroll.getClientArea();
+				int wHint = preview.isFitHorizontal() ? clientArea.width  : SWT.DEFAULT;
+				int hHint = preview.isFitVertical  () ? clientArea.height : SWT.DEFAULT;
+				scroll.setMinSize(preview.computeSize(wHint, hHint));
+			}
+    });
+    horzPages.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+
+    vertPages.setMinimum(1);
+    vertPages.setMaximum(99);
+    vertPages.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				preview.setVerticalPages(vertPages.getSelection());
+
+				Rectangle clientArea = scroll.getClientArea();
+				int wHint = preview.isFitHorizontal() ? clientArea.width  : SWT.DEFAULT;
+				int hHint = preview.isFitVertical  () ? clientArea.height : SWT.DEFAULT;
+				scroll.setMinSize(preview.computeSize(wHint, hHint));
+			}
+    });
+    vertPages.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
     scroll.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     scroll.setContent(preview);
