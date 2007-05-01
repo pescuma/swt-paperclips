@@ -330,6 +330,7 @@ public class Snippet7 implements Print {
     pageNumberUpdater.run();
 
     Listener dragListener = new Listener() {
+      private final Point dpi = display.getDPI();
     	private boolean canScroll = false;
     	private Point dragStartScrollOrigin = null;
     	private Point dragStartMouseAnchor = null;
@@ -374,12 +375,12 @@ public class Snippet7 implements Print {
 						Point origin = scroll.getOrigin();
 						int direction = event.count == 0 ? 0 : event.count > 0 ? -1 : 1; 
 						if (size.y > bounds.height) { // prefer vertical over horizontal scrolling
-							origin.y += direction * bounds.height / 20;
+							origin.y += direction * Math.min(dpi.y, bounds.height / 4);
 						} else if (size.x > bounds.width) {
-							origin.x += direction * bounds.width / 20;
+							origin.x += direction * Math.min(dpi.x, bounds.width  / 4);
 						}
 						scroll.setOrigin(origin);
-						event.type = SWT.None;
+						event.doit = false;
 					}
 					break;
 				case SWT.MouseExit:
