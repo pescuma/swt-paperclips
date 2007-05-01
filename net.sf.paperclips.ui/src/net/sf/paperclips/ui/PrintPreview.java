@@ -32,6 +32,26 @@ import net.sf.paperclips.PrintPiece;
  * @author Matthew Hall
  */
 public class PrintPreview extends Canvas {
+	private PrintJob    printJob            = null;
+	private PrinterData printerData         = Printer.getDefaultPrinterData();
+	private int         pageIndex           = 0;
+	private boolean     fitHorizontal       = true;
+	private boolean     fitVertical         = true;
+	private float       scale               = 1.0f;
+	private int         horizontalPageCount = 1;
+	private int         verticalPageCount   = 1;
+	
+	private Printer printer   = null;
+	private Point   paperSize = null; // The bounds of the paper on the printer device.
+
+	private PrintPiece[] pages                = null;
+	private Point        pageDisplaySize      = null;
+	private Point[]      pageDisplayLocations = null;
+
+	// Margins and page spacing include paper boilerplate.
+	private Rectangle margins = new Rectangle(10, 10, 10, 10);
+	private Point pageSpacing = new Point(10, 10);
+
   /**
    * Constructs a PrintPreview control.
    * @param parent the parent control.
@@ -60,22 +80,6 @@ public class PrintPreview extends Canvas {
     });
   }
 
-  private PrintJob    printJob            = null;
-  private PrinterData printerData         = Printer.getDefaultPrinterData();
-  private int         pageIndex           = 0;
-  private boolean     fitHorizontal       = true;
-  private boolean     fitVertical         = true;
-  private float       scale               = 1.0f;
-  private int         horizontalPageCount = 1;
-  private int         verticalPageCount   = 1;
-
-  private Printer printer   = null;
-  private Point   paperSize = null; // The bounds of the paper on the printer device.
-
-  private PrintPiece[] pages                = null;
-  private Point        pageDisplaySize      = null;
-  private Point[]      pageDisplayLocations = null;
-
   /**
    * Returns the print job.
    * @return the print job.
@@ -93,8 +97,7 @@ public class PrintPreview extends Canvas {
   	checkWidget();
     this.printJob = printJob;
     this.pageIndex = 0;
-    disposePrinter(); // disposes pages too
-    invalidatePageDisplayBounds();
+    disposePages();
 		redraw();
   }
 
@@ -120,8 +123,8 @@ public class PrintPreview extends Canvas {
   }
 
   /**
-   * Returns the page index.
-   * @return the page index.
+   * Returns the index of the first visible page.
+   * @return the index of the first visible page.
    */
   public int getPageIndex() {
   	checkWidget();
@@ -129,8 +132,8 @@ public class PrintPreview extends Canvas {
   }
 
   /**
-   * Sets the page index.
-   * @param pageIndex the new page index.
+   * Sets the index of the first visible page to the argument.
+   * @param pageIndex the page index.
    */
   public void setPageIndex(int pageIndex) {
   	checkWidget();
@@ -220,10 +223,20 @@ public class PrintPreview extends Canvas {
       throw new IllegalArgumentException("Scale must be > 0");
   }
 
+  /**
+   * Returns how many pages will be displayed in the horizontal direction.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @return how many pages will be displayed in the horizontal direction.
+   */
   public int getHorizontalPageCount() {
   	return horizontalPageCount;
   }
 
+  /**
+   * Sets how many pages will be displayed in the horizontal direction.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @param horizontalPages how many pages will be displayed in the horizontal direction.
+   */
   public void setHorizontalPageCount(int horizontalPages) {
   	if (horizontalPages < 1) horizontalPages = 1;
   	this.horizontalPageCount = horizontalPages;
@@ -231,10 +244,20 @@ public class PrintPreview extends Canvas {
   	redraw();
   }
 
+  /**
+   * Returns how many pages will be displayed in the vertical direction.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @return how many pages will be displayed in the vertical direction.
+   */
   public int getVerticalPageCount() {
   	return verticalPageCount;
   }
 
+  /**
+   * Sets how many pages will be displayed in the vertical direction.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @param verticalPages how many pages will be displayed in the vertical direction.
+   */
   public void setVerticalPageCount(int verticalPages) {
   	if (verticalPages < 1) verticalPages = 1;
   	this.verticalPageCount = verticalPages;
@@ -269,13 +292,13 @@ public class PrintPreview extends Canvas {
       return;
 
     int count = Math.min(verticalPageCount * horizontalPageCount, pages.length - pageIndex);
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++) {
     	paintPage(event, pages[pageIndex+i], pageDisplayLocations[i]);
+    	pages[pageIndex].dispose();
+    }
   }
 
   private void paintPage(PaintEvent event, PrintPiece page, Point location) {
-    drawPageOutline(event, location);
-
     // Check whether any "paper" is in the dirty region
     Rectangle rectangle = new Rectangle(location.x, location.y, pageDisplaySize.x, pageDisplaySize.y);
   	Rectangle dirtyBounds = new Rectangle(event.x, event.y, event.width, event.height);
@@ -357,7 +380,7 @@ public class PrintPreview extends Canvas {
 
   private void drawBackground(PaintEvent event) {
     Color oldBackground = event.gc.getBackground();
-    Color bg = event.display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
+    Color bg = event.display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW);
     try {
       event.gc.setBackground(bg);
       event.gc.fillRectangle(event.x, event.y, event.width, event.height);
@@ -365,35 +388,6 @@ public class PrintPreview extends Canvas {
     } finally {
       bg.dispose();
     }
-  }
-
-  private static final int PAPER_MARGIN = 10;
-  private static final int PAPER_BORDER_WIDTH = 1;
-  private static final int PAPER_SHADOW_WIDTH = 3;
-  private static final int PAPER_SPACING = 10;
-
-  private void drawPageOutline(PaintEvent event, Point location) {
-    if (location == null) return;
-
-    Color black  = event.display.getSystemColor(SWT.COLOR_BLACK);
-    Color shadow = event.display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW);
-
-    // Drop shadow
-    event.gc.setBackground(shadow);
-    event.gc.fillRectangle(
-    		location.x - PAPER_BORDER_WIDTH + PAPER_SHADOW_WIDTH,
-    		location.y - PAPER_BORDER_WIDTH + PAPER_SHADOW_WIDTH,
-    		pageDisplaySize.x  + PAPER_BORDER_WIDTH * 2,
-    		pageDisplaySize.y + PAPER_BORDER_WIDTH * 2);
-
-    // Page border
-    event.gc.setForeground(black);
-    for (int i = 1; i <= PAPER_BORDER_WIDTH; i++)
-      event.gc.drawRectangle(
-      		location.x-i,
-      		location.y-i,
-      		pageDisplaySize.x+2*i-1,
-      		pageDisplaySize.y+2*i-1);
   }
 
   /**
@@ -407,26 +401,80 @@ public class PrintPreview extends Canvas {
     return getAbsoluteScale(getSize());
   }
 
-  private static final int PAPER_BOILERPLATE = PAPER_BORDER_WIDTH * 2 + PAPER_SHADOW_WIDTH;
+  /**
+   * Returns a Rectangle whose x, y, width, and height fields respectively indicate the margin at
+   * the left, top, right, and bottom edges of the control.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @return a Rectangle whose x, y, width, and height fields respectively indicate the margin at
+   * the left, top, right, and bottom edges of the control.
+   */
+  public Rectangle getMargins() {
+  	checkWidget();
+  	return new Rectangle(margins.x, margins.y, margins.width, margins.height);
+  }
+
+  /**
+   * Sets the margins at each edge of the control to the argument.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @param margins a Rectangle whose x, y, width, and height fields respectively indicate the
+   * margin at the left, top, right, and bottom edges of the control.
+   */
+  public void setMargins(Rectangle margins) {
+  	checkWidget();
+  	if (margins == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+  	this.margins = new Rectangle(margins.x, margins.y, margins.width, margins.height);
+  	invalidatePageDisplayBounds();
+  	redraw();
+  }
+
+  /**
+   * Returns a Point whose x and y fields respectively indicate the horizontal and vertical spacing
+   * between pages on the control.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @return a Point whose x and y fields respectively indicate the horizontal and vertical spacing
+   * between pages on the control.
+   */
+  public Point getPageSpacing() {
+  	return new Point(pageSpacing.x, pageSpacing.y);
+  }
+
+  /**
+   * Sets the horizontal and vertical spacing between pages to the argument.
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @param pageSpacing a Point whose x and y fields respectively indicate the horizontal and
+   * vertical spacing between pages on the control.
+   */
+  public void setPageSpacing(Point pageSpacing) {
+  	checkWidget();
+  	if (pageSpacing == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+  	this.pageSpacing = new Point(pageSpacing.x, pageSpacing.y);
+  	invalidatePageDisplayBounds();
+  	redraw();
+  }
 
   private Point getBoilerplateSize() {
   	return new Point(
-  			2*PAPER_MARGIN + horizontalPageCount*PAPER_BOILERPLATE + (horizontalPageCount-1)*PAPER_SPACING,
-  			2*PAPER_MARGIN + verticalPageCount  *PAPER_BOILERPLATE + (verticalPageCount  -1)*PAPER_SPACING);
+  			margins.x + margins.width  + (horizontalPageCount-1)*pageSpacing.x,
+  			margins.y + margins.height + (verticalPageCount  -1)*pageSpacing.y);
   }
 
   private float getAbsoluteScale(Point controlSize) {
   	float result = scale;
 
     if (getPrinter() != null && (fitHorizontal || fitVertical)) {
-      Point displayDPI = getDisplay().getDPI();
-      Point printerDPI = getPrinter().getDPI();
-      Point paperSize = getPaperSize();
+    	Rectangle trim = computeTrim(0,0,0,0);
+    	controlSize.x -= trim.width;
+    	controlSize.y -= trim.height;
+
       Point boilerplate = getBoilerplateSize();
       controlSize.x -= boilerplate.x;
       controlSize.x /= horizontalPageCount;
       controlSize.y -= boilerplate.y;
       controlSize.y /= verticalPageCount;
+
+      Point displayDPI = getDisplay().getDPI();
+      Point printerDPI = getPrinter().getDPI();
+      Point paperSize = getPaperSize();
 
       if (fitHorizontal) {
         float screenWidth = (float) controlSize.x / (float) displayDPI.x; // inches
@@ -469,23 +517,23 @@ public class PrintPreview extends Canvas {
   private Point[] getPageDisplayLocations() {
   	if (pageDisplayLocations == null) {
   		// Center pages horizontally
-  		Point size = getSize();
-  		int x0 = PAPER_MARGIN + PAPER_BORDER_WIDTH;
-  		size.x -= getBoilerplateSize().x;
-  		size.x -= (pageDisplaySize.x * horizontalPageCount);
-  		if (size.x > 0)
-  			x0 += size.x/2;
+  		Rectangle clientArea = getClientArea();
+  		int x0 = clientArea.x + margins.x;
+  		clientArea.width -= getBoilerplateSize().x;
+  		clientArea.width -= (pageDisplaySize.x * horizontalPageCount);
+  		if (clientArea.width > 0)
+  			x0 += clientArea.width/2;
 
   		pageDisplayLocations = new Point[horizontalPageCount * verticalPageCount];
 
-  		int y = PAPER_MARGIN + PAPER_BORDER_WIDTH;
+  		int y = clientArea.y + margins.y;
   		for (int r = 0; r < verticalPageCount; r++) {
   			int x = x0;
   			for (int c = 0; c < horizontalPageCount; c++) {
   				pageDisplayLocations[r*horizontalPageCount+c] = new Point(x, y);
-  				x += pageDisplaySize.x + PAPER_BOILERPLATE + PAPER_SPACING;
+  				x += pageDisplaySize.x + pageSpacing.x;
   			}
-  			y += pageDisplaySize.y + PAPER_BOILERPLATE + PAPER_SPACING;
+  			y += pageDisplaySize.y + pageSpacing.y;
   		}
   	}
   	return pageDisplayLocations;
@@ -496,6 +544,7 @@ public class PrintPreview extends Canvas {
       for (int i = 0; i < pages.length; i++)
         pages[i].dispose();
       pages = null;
+      paperSize = null;
       invalidatePageDisplayBounds();
     }
   }
@@ -507,7 +556,6 @@ public class PrintPreview extends Canvas {
     	printer.endJob();
       printer.dispose();
       printer = null;
-      paperSize = null;
     }
   }
 
@@ -525,13 +573,13 @@ public class PrintPreview extends Canvas {
     	Point boilerplate = getBoilerplateSize();
     	if (wHint == SWT.DEFAULT) size.x = boilerplate.x;
     	if (hHint == SWT.DEFAULT) size.y = boilerplate.y;
-    	return size;
+    	return addTrim(size);
     }
 
     double scale;
     if (wHint != SWT.DEFAULT) {
       if (hHint != SWT.DEFAULT) {
-        return size;
+        return addTrim(size);
       }
       size.y = Integer.MAX_VALUE;
       scale = getAbsoluteScale(size);
@@ -564,6 +612,11 @@ public class PrintPreview extends Canvas {
     	size.y += verticalPageCount   * (int) ( scale * paperSize.y * displayDPI.y / printerDPI.y );
     }
 
-    return size;
+    return addTrim(size);
   }
+
+	private Point addTrim(Point size) {
+		Rectangle trim = computeTrim(0, 0, 0, 0);
+		return new Point(size.x + trim.width, size.y + trim.height);
+	}
 }
