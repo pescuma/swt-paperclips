@@ -34,6 +34,30 @@ public class PaperClips {
    */
   public static final int ORIENTATION_LANDSCAPE = SWT.HORIZONTAL;
 
+  private static boolean debug = false;
+
+  /**
+   * <b>EXPERIMENTAL</b>: Sets whether debug mode is enabled.  This mode may be used for troubleshooting
+   * documents that cannot be laid out for some reason (e.g. a RuntimeException "cannot layout page
+   * x" is thrown).
+   *
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @param debug true to enable debug mode, false to disable it.
+   */
+  public static void setDebug(boolean debug) {
+  	PaperClips.debug = debug;
+  }
+
+  /**
+   * <b>EXPERIMENTAL</b>: Returns whether debug mode is enabled.
+   *
+   * <p><b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * @return whether debug mode is enabled.
+   */
+  public static boolean getDebug() {
+  	return debug;
+  }
+
   /**
    * Calls iterator.next(width, height) and returns the result, or throws a RuntimeException if
    * the returned PrintPiece is larger than the width or height given.
@@ -57,6 +81,8 @@ public class PaperClips {
       if (size.x > width || size.y > height)
         throw new RuntimeException(
             iterator+" produced a "+size.x+"x"+size.y+" piece for a "+width+"x"+height+" area.");
+    } else if (debug) {
+    	return new NullPrintPiece();
     }
     return result;
   }
@@ -208,7 +234,9 @@ public class PaperClips {
     		gc.dispose();
     	}
   	} finally {
-			printer.cancelJob();
+  		// 2007-04-30: Attempting to endJob() instead of cancelJob() to see if that gets around the
+  		// OSX bug that renders a Printer useless after cancelJob().
+			printer.endJob();
   	}
   }
 
@@ -231,6 +259,8 @@ public class PaperClips {
         throw new RuntimeException("Unable to layout page "+(pages.size()+1));
       }
       pages.add(createPagePiece(page, marginBounds, paperBounds));
+      if (debug && page instanceof NullPrintPiece)
+      	break;
     }
 
     return (PrintPiece[]) pages.toArray(new PrintPiece[pages.size()]);
@@ -298,4 +328,12 @@ public class PaperClips {
 
     return new Rectangle(left, top, right-left, bottom-top);
   }
+
+  private static final class NullPrintPiece implements PrintPiece {
+		public Point getSize() { return new Point(0,0); }
+
+		public void paint(GC gc, int x, int y) {}
+
+		public void dispose() {}
+	}
 }
