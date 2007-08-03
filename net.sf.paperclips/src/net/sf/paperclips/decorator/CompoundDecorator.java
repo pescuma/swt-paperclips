@@ -1,16 +1,19 @@
-/*
- * Created on Apr 24, 2006
- * Author: Administrator
- *
- * Copyright (C) 2006 Woodcraft Mill & Cabinet, Inc.  All Rights Reserved.
- */
+/*******************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
+ * reserved.  This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ******************************************************************************/
 package net.sf.paperclips.decorator;
 
 import net.sf.paperclips.Print;
 
 /**
  * Decorates prints with multiple decorators.
- * @author Administrator
+ * @author Matthew Hall
  */
 public class CompoundDecorator implements PrintDecorator {
   private final PrintDecorator[] decorators;

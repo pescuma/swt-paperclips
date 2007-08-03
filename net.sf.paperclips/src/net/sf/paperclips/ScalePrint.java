@@ -1,9 +1,12 @@
-/*
- * Created on May 8, 2006
- * Author: Administrator
- *
- * Copyright (C) 2006 Woodcraft Mill & Cabinet, Inc.  All Rights Reserved.
- */
+/*******************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
+ * reserved.  This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ******************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
@@ -17,7 +20,7 @@ import org.eclipse.swt.graphics.Transform;
  * release candidate 3 (2006-04-28).  Prior to this release, using ScalePrint triggers the bug,
  * causing the document to scale very large on paper.  This bug manifests itself only on paper, not
  * with on-screen viewing.  
- * @author Matthew
+ * @author Matthew Hall
  */
 public class ScalePrint implements Print {
   final Print target;
