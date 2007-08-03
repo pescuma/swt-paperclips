@@ -1,6 +1,12 @@
-/*
- * Created on Oct 19, 2005
- */
+/*******************************************************************************
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation.  All rights
+ * reserved.  This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ******************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
@@ -22,7 +28,7 @@ import org.eclipse.swt.graphics.RGB;
  * is required, it is necessary to wrap the page number in a Print which will enforce the same alignment.
  * Usually this is a center:default:grow or right:default:grow column in a GridPrint.
  * 
- * @author Matthew
+ * @author Matthew Hall
  * @see PagePrint
  * @see PageDecoration
  * @see PageNumber
