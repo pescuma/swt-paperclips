@@ -1,9 +1,12 @@
-/*
- * Created on Mar 20, 2006
- * Author: Matthew
- *
- * Copyright (C) 2006 Woodcraft Mill & Cabinet, Inc.  All Rights Reserved.
- */
+/*******************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
+ * reserved.  This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ******************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
@@ -14,7 +17,7 @@ import org.eclipse.swt.graphics.Point;
  * A print which inserts a page break (or a column break, if inside a ColumnPrint).
  * <p>This class is horizontally and vertically greedy.  Greedy prints take up all the available
  * space on the page.
- * @author Matthew
+ * @author Matthew Hall
  */
 public class BreakPrint implements Print {
 	/**
