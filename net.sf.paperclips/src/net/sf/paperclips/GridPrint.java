@@ -1,10 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation and others. All
- * rights reserved. This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html Contributors: Woodcraft Mill &
- * Cabinet Corporation - initial API and implementation
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation.  All rights
+ * reserved.  This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ******************************************************************************/
 package net.sf.paperclips;
 
@@ -55,7 +56,7 @@ import org.eclipse.swt.graphics.RGB;
  * <p>
  * If a grid has one of more columns with the grow attribute set, the grid is horizontally greedy.
  * Greedy prints take up all the available space on the page.  
- * @author Matthew
+ * @author Matthew Hall
  * @see GridColumn
  * @see PrintIterator#minimumSize()
  * @see PrintIterator#preferredSize()
@@ -1639,13 +1640,13 @@ class GridIterator implements PrintIterator {
    *         failed. This happens if bottomOpen is false and one or more cells could not be consume
    *         within the available area.
    */
-  CompositeEntry[] iterateRow (final GridCellIterator[] row,
-                               final int[] colSizes,
-                               final int height,
-                               final int y,
-                               final boolean bottomOpen,
-                               final int[] rowHeight,
-                               final boolean[] hasNext) {
+  CompositeEntry[] nextRow(final GridCellIterator[] row,
+                           final int[] colSizes,
+                           final int height,
+                           final int y,
+                           final boolean bottomOpen,
+                           final int[] rowHeight,
+                           final boolean[] hasNext) {
 
   	// Fail now if the bottom border is open and there are non-default vertical alignments in the row.
   	if (bottomOpen)
@@ -1853,7 +1854,7 @@ class GridIterator implements PrintIterator {
         boolean[] hasNext = new boolean[] { false };
 
         CompositeEntry[] rowEntries =
-          iterateRow(row, colSizes, height, y, false, rowHeight, hasNext);
+          nextRow(row, colSizes, height, y, false, rowHeight, hasNext);
 
         // Header must always iterate completely
         if (rowEntries == null || hasNext[0]) {
@@ -1907,7 +1908,7 @@ class GridIterator implements PrintIterator {
         boolean[] hasNext = new boolean[] { false };
 
         CompositeEntry[] rowEntries =
-          iterateRow(row, colSizes, height, footerY, false, rowHeight, hasNext);
+          nextRow(row, colSizes, height, footerY, false, rowHeight, hasNext);
 
         // Footer must iterate completely! 
         if (rowEntries == null || hasNext[0]) {
@@ -1956,7 +1957,7 @@ class GridIterator implements PrintIterator {
       // First attempt to iterate the row with a closed bottom border.
       GridCellIterator[] thisRow = cloneRow(body[row]);
 
-      CompositeEntry[] rowEntries = iterateRow (
+      CompositeEntry[] rowEntries = nextRow (
           thisRow, colSizes, height - bodyBottomSpacingClosed, y, bottomOpen, rowHeight, hasNext);
 
       // If the iteration failed, or the row has more content (which it shouldn't when the bottom
@@ -1966,7 +1967,7 @@ class GridIterator implements PrintIterator {
         hasNext[0] = false;
         thisRow = cloneRow(body[row]);
         bottomOpen = true;
-        rowEntries = iterateRow (
+        rowEntries = nextRow (
             thisRow, colSizes, height - bodyBottomSpacingOpen, y, true, rowHeight, hasNext);
       }
 
