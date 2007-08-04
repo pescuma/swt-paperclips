@@ -1,9 +1,12 @@
-/*
- * Created on May 17, 2006
- * Author: Administrator
- *
- * Copyright (C) 2006 Woodcraft Mill & Cabinet, Inc.  All Rights Reserved.
- */
+/*******************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
+ * reserved.  This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ******************************************************************************/
 package net.sf.paperclips;
 
 import java.util.HashMap;
@@ -316,9 +319,7 @@ public class DefaultGridLook implements GridLook {
   }
 }
 
-class DefaultGridLookPainter implements GridLookPainter {
-  private final Device device;
-
+class DefaultGridLookPainter extends BasicGridLookPainter {
   private final Rectangle cellPadding;
 
   private final BorderPainter border;
@@ -330,10 +331,7 @@ class DefaultGridLookPainter implements GridLookPainter {
   private final GridMargins margins;
 
   DefaultGridLookPainter(DefaultGridLook look, Device device, GC gc) {
-    if (look == null || device == null || gc == null)
-      throw new NullPointerException();
-
-    this.device = device;
+  	super(device);
 
     this.border = look.cellBorder.createPainter (device, gc);
     Point dpi = device.getDPI();
@@ -389,205 +387,64 @@ class DefaultGridLookPainter implements GridLookPainter {
     return margins;
   }
 
+	final Map colorMap = new HashMap();
+
   // colorMap maps RGBs to Color instances to avoid creating a lot of Color objects on the device.
-  private Color getColor(Map colorMap, RGB rgb) {
+  private Color getColor(RGB rgb) {
     if (rgb == null) return null;
 
     Color result = (Color) colorMap.get(rgb);
     if (result == null) {
       result = new Color(device, rgb);
-      colorMap.put(rgb, result);
+      colorMap.put(new RGB(rgb.red, rgb.green, rgb.blue), result);
     }
     return result;
   }
 
-  public void paint (final GC      gc,
-                     final int     x,
-                     final int     y,
-                     final int[]   columns,
-                     final int[]   headerRows,
-                     final int[][] headerCellSpans,
-                     final int     firstRowIndex,
-                     final boolean topOpen,
-                     final int[]   bodyRows,
-                     final int[][] bodyCellSpans,
-                     final boolean bottomOpen,
-                     final int[]   footerRows,
-                     final int[][] footerCellSpans) {
+  protected void paintHeaderCell(GC gc, Rectangle bounds, int row, int col, int colspan) {
+  	RGB background = headerBackground.getCellBackground(row, col, colspan);
+  	paintCell(gc, background, bounds, false, false);
+	}
 
-    final boolean headerPresent = headerRows.length > 0;
-    final boolean footerPresent = footerRows.length > 0;
+  protected void paintBodyCell(GC gc, Rectangle bounds, int row, int col, int colspan, boolean topOpen, boolean bottomOpen) {
+		RGB background = bodyBackground.getCellBackground(row, col, colspan);
+		paintCell(gc, background, bounds, topOpen, bottomOpen);
+	}
 
-    final Map colorMap = new HashMap();
+  protected void paintFooterCell(GC gc, Rectangle bounds, int row, int col, int colspan) {
+		RGB background = footerBackground.getCellBackground(row, col, colspan);
+		paintCell(gc, background, bounds, false, false);
+	}
 
-    // Cursor variables
-    int X;
-    int Y = y;
+	public void paintCell(GC gc, RGB background, Rectangle bounds, boolean topOpen, boolean bottomOpen) {
+    // Compute effective cell rectangle
+    int x = bounds.x-border.getLeft() - cellPadding.x;
+		int y = bounds.y-border.getTop(topOpen) - (topOpen ? 0 : cellPadding.y);
+		int width = bounds.width+border.getWidth()
+				+ cellPadding.x + cellPadding.width;
+		int height = bounds.height+border.getHeight(topOpen, bottomOpen)
+				+ (bottomOpen ? 0 : cellPadding.y + cellPadding.height);
 
-    try {
-      // HEADER LOOK
-      if (headerPresent) {
-        Y += margins.getHeaderTop();
-
-        for (int rowIndex = 0; rowIndex < headerRows.length; rowIndex++) {
-          X = x + margins.getLeft();
-
-          int col = 0;
-
-          // Height of all cells on current row.
-          final int H = headerRows[rowIndex];
-
-          for (int cellIndex = 0; cellIndex < headerCellSpans[rowIndex].length; cellIndex++) {
-            int cellSpan = headerCellSpans[rowIndex][cellIndex];
-
-            // Compute cellspan width.
-            int W = (cellSpan - 1) * margins.getHorizontalSpacing();
-            for (int j = 0; j < cellSpan; j++)
-              W += columns[col+j];
-
-            // Compute effective cell rectangle
-            Rectangle rect = new Rectangle(
-            		X-border.getLeft()    -cellPadding.x,
-                Y-border.getTop(false)-cellPadding.y,
-                W+border.getWidth()             +cellPadding.x+cellPadding.width,
-                H+border.getHeight(false, false)+cellPadding.y+cellPadding.height);
-
-            // Paint background
-            Color background =
-              getColor(colorMap, headerBackground.getCellBackground(rowIndex, col, cellSpan));
-            if (background != null) {
-              Color oldBackground = gc.getBackground ();
-              gc.setBackground(background);
-              gc.fillRectangle (rect);
-              gc.setBackground(oldBackground);
-            }
-
-            // Paint border
-            border.paint(gc, rect.x, rect.y, rect.width, rect.height, false, false);
-
-            // Advance horizontal cursors
-            col += cellSpan;
-            X += W + margins.getHorizontalSpacing();
-          }
-
-          // Advanced vertical cursor
-          Y += H + margins.getHeaderVerticalSpacing();
-        }
-        // After all header rows, subtract the header row spacing added in the last row.
-        Y -= margins.getHeaderVerticalSpacing();
-      }
-
-      // BODY LOOK
-      Y += margins.getBodyTop(headerPresent, topOpen);
-      for (int rowIndex = 0; rowIndex < bodyRows.length; rowIndex++) {
-        X = x + margins.getLeft();
-
-        int col = 0;
-
-        // Height of all cells on current row.
-        final int H = bodyRows[rowIndex];
-
-        final boolean rowTopOpen = rowIndex == 0 ? topOpen : false;
-        final boolean rowBottomOpen = rowIndex == bodyRows.length - 1 ? bottomOpen : false;
-
-        for (int cellIndex = 0; cellIndex < bodyCellSpans[rowIndex].length; cellIndex++) {
-          int cellSpan = bodyCellSpans[rowIndex][cellIndex];
-
-          // Compute cellspan width.
-          int W = (cellSpan - 1) * margins.getHorizontalSpacing();
-          for (int j = 0; j < cellSpan; j++)
-            W += columns[col+j];
-
-          // Compute effective cell rectangle
-          Rectangle rect = new Rectangle(
-          		X-border.getLeft()          - cellPadding.x,
-              Y-border.getTop(rowTopOpen) - (rowTopOpen ? 0 : cellPadding.y),
-              W+border.getWidth()
-              		+ cellPadding.x + cellPadding.width,
-              H+border.getHeight(rowTopOpen, rowBottomOpen)
-              		+ (rowBottomOpen ? 0 : cellPadding.y + cellPadding.height));
-
-          // Paint background
-          Color background = getColor(colorMap,
-              bodyBackground.getCellBackground(firstRowIndex + rowIndex, col, cellSpan));
-          if (background != null) {
-            Color oldBackground = gc.getBackground ();
-            gc.setBackground(background);
-            gc.fillRectangle (rect);
-            gc.setBackground(oldBackground);
-          }
-
-          // Paint border
-          border.paint(gc, rect.x, rect.y, rect.width, rect.height, rowTopOpen, rowBottomOpen);
-
-          // Advance horizontal cursors
-          col += cellSpan;
-          X += W + margins.getHorizontalSpacing();
-        }
-
-        // Advanced vertical cursor
-        Y += H + margins.getBodyVerticalSpacing();
-      }
-      Y -= margins.getBodyVerticalSpacing();
-      Y += margins.getBodyBottom(footerPresent, bottomOpen);
-
-      // FOOTER LOOK
-      if (footerPresent) {
-        for (int rowIndex = 0; rowIndex < footerRows.length; rowIndex++) {
-          X = x + margins.getLeft();
-
-          int col = 0;
-
-          // Height of all cells on current row.
-          final int H = footerRows[rowIndex];
-          for (int cellIndex = 0; cellIndex < footerCellSpans[rowIndex].length; cellIndex++) {
-            int cellSpan = footerCellSpans[rowIndex][cellIndex];
-
-            // Compute cellspan width.
-            int W = (cellSpan - 1) * margins.getHorizontalSpacing();
-            for (int j = 0; j < cellSpan; j++)
-              W += columns[col+j];
-
-            // Compute effective cell rectangle
-            Rectangle rect = new Rectangle(
-            		X-border.getLeft()    -cellPadding.x,
-                Y-border.getTop(false)-cellPadding.y,
-                W+border.getWidth()             +cellPadding.x+cellPadding.width,
-                H+border.getHeight(false, false)+cellPadding.y+cellPadding.height);
-
-            // Paint background
-            Color background =
-              getColor(colorMap, footerBackground.getCellBackground(rowIndex, col, cellSpan));
-            if (background != null) {
-              Color oldBackground = gc.getBackground ();
-              gc.setBackground(background);
-              gc.fillRectangle (rect);
-              gc.setBackground(oldBackground);
-            }
-
-            // Paint border
-            border.paint(gc, rect.x, rect.y, rect.width, rect.height, false, false);
-
-            // Advance horizontal cursors
-            col += cellSpan;
-            X += W + margins.getHorizontalSpacing();
-          }
-
-          // Advanced vertical cursor
-          Y += H + margins.getFooterVerticalSpacing();
-        }
-      }
-    } finally {
-      for (Iterator iter = colorMap.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        Color color = (Color) entry.getValue();
-        color.dispose();
-      }
-      colorMap.clear();
+    // Paint background
+    Color backgroundColor = getColor(background);
+    if (backgroundColor != null) {
+      Color oldBackground = gc.getBackground ();
+      gc.setBackground(backgroundColor);
+      gc.fillRectangle (x, y, width, height);
+      gc.setBackground(oldBackground);
     }
-  }
 
-  public void dispose() {
+    // Paint border
+    border.paint(gc, x, y, width, height, topOpen, bottomOpen);
+	}
+
+	public void dispose() {
+    for (Iterator iter = colorMap.entrySet().iterator(); iter.hasNext(); ) {
+      Map.Entry entry = (Map.Entry) iter.next();
+      Color color = (Color) entry.getValue();
+      color.dispose();
+      iter.remove();
+    }
     border.dispose();
   }
 
