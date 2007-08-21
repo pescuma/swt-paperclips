@@ -1,12 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.RGB;
@@ -18,7 +16,7 @@ import org.eclipse.swt.graphics.RGB;
 public class DefaultCellBackgroundProvider implements CellBackgroundProvider {
   private final CellBackgroundProvider chain;
 
-  private RGB background;
+  private RGB                          background;
 
   /**
    * Constructs a DefaultGridBackgroundProvider with a null background.
@@ -30,25 +28,25 @@ public class DefaultCellBackgroundProvider implements CellBackgroundProvider {
   }
 
   /**
-   * Constructs a DefaultGridBackgroundProvider which chains to the argument if this instance has
-   * a null background color.  (DefaultGridLook uses this constructor to cause header and footer
-   * background colors to default to the body background color.
-   * @param chain the provider to chain a getCellBackground(...) call to if this instance would
-   *        return null.  Ignored if null.
+   * Constructs a DefaultGridBackgroundProvider which chains to the argument if this instance has a null
+   * background color. (DefaultGridLook uses this constructor to cause header and footer background colors to
+   * default to the body background color.
+   * @param chain the provider to chain a getCellBackground(...) call to if this instance would return null.
+   *        Ignored if null.
    */
-  public DefaultCellBackgroundProvider(CellBackgroundProvider chain) {
+  public DefaultCellBackgroundProvider( CellBackgroundProvider chain ) {
     this.chain = chain;
     this.background = null;
   }
 
   /**
-   * Returns the value in the background property.  If the background property is null, the chained
-   * provider will be consulted to obtain a background color.
+   * Returns the value in the background property. If the background property is null, the chained provider
+   * will be consulted to obtain a background color.
    */
-  public RGB getCellBackground(int row, int column, int colspan) {
+  public RGB getCellBackground( int row, int column, int colspan ) {
     RGB result = getBackground();
-    if (result == null && chain != null)
-      result = chain.getCellBackground(row, column, colspan);
+    if ( result == null && chain != null )
+      result = chain.getCellBackground( row, column, colspan );
     return result;
   }
 
@@ -64,7 +62,7 @@ public class DefaultCellBackgroundProvider implements CellBackgroundProvider {
    * Sets the background color to the argument.
    * @param background the new background color.
    */
-  public void setBackground(RGB background) {
+  public void setBackground( RGB background ) {
     this.background = background;
   }
 }

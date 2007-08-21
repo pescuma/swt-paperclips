@@ -21,47 +21,54 @@ import org.eclipse.swt.widgets.Composite;
 
 /**
  * A canvas for displaying Print objects.
+ * 
  * @author Matthew
  */
 public class PrintPieceCanvas extends Canvas {
-  PrintPiece piece = null;
+	PrintPiece piece = null;
 
-  /**
-   * Constructs a PrintCanvas with the given parent and style.
-   * @param parent the parent Composite.
-   * @param style the style parameter.
-   */
-  public PrintPieceCanvas(Composite parent, int style) {
-    super(parent, style);
+	/**
+	 * Constructs a PrintCanvas with the given parent and style.
+	 * 
+	 * @param parent
+	 *          the parent Composite.
+	 * @param style
+	 *          the style parameter.
+	 */
+	public PrintPieceCanvas(Composite parent, int style) {
+		super(parent, style);
 
-    setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-    setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
+		setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+		setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 
-    addPaintListener(new PaintListener() {
-      public void paintControl(PaintEvent e) {
-        if (piece == null)
-          return;
+		addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent e) {
+				if (piece == null)
+					return;
 
-        Rectangle client = getClientArea();
-        piece.paint(e.gc, client.x, client.y);
-      }
-    });
-  }
+				Rectangle client = getClientArea();
+				piece.paint(e.gc, client.x, client.y);
+			}
+		});
+	}
 
-  /**
-   * Displays the given Print in this PrintCanvas.
-   * @param piece the PrintPiece to display.
-   */
-  public void setPrintPiece(PrintPiece piece) {
-    this.piece = piece;
-    redraw();
-  }
+	/**
+	 * Displays the given Print in this PrintCanvas.
+	 * 
+	 * @param piece
+	 *          the PrintPiece to display.
+	 */
+	public void setPrintPiece(PrintPiece piece) {
+		this.piece = piece;
+		redraw();
+	}
 
-  /**
-   * Returns the PrintPiece being displayed by this PrintCanvas.
-   * @return the PrintPiece being displayed by this PrintCanvas.
-   */
-  public PrintPiece getPrintPiece() {
-    return piece;
-  }
+	/**
+	 * Returns the PrintPiece being displayed by this PrintCanvas.
+	 * 
+	 * @return the PrintPiece being displayed by this PrintCanvas.
+	 */
+	public PrintPiece getPrintPiece() {
+		return piece;
+	}
 }

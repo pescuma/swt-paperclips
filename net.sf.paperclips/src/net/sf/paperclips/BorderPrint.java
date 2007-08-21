@@ -1,12 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
@@ -21,7 +19,7 @@ import net.sf.paperclips.decorator.BorderDecorator;
  * @author Matthew Hall
  */
 public class BorderPrint implements Print {
-  final Print target;
+  final Print  target;
   final Border border;
 
   /**
@@ -30,8 +28,8 @@ public class BorderPrint implements Print {
    * @param border the border which will be drawn around the target.
    * @throws NullPointerException if either argument is null.
    */
-  public BorderPrint (Print target, Border border) {
-    if (target == null || border == null)
+  public BorderPrint( Print target, Border border ) {
+    if ( target == null || border == null )
       throw new NullPointerException();
     this.target = target;
     this.border = border;
@@ -42,7 +40,7 @@ public class BorderPrint implements Print {
    * @return the wrapped print to which the border is being applied.
    */
   public Print getTarget() {
-  	return target;
+    return target;
   }
 
   /**
@@ -50,121 +48,119 @@ public class BorderPrint implements Print {
    * @return the border being applied to the target.
    */
   public Border getBorder() {
-  	return border;
+    return border;
   }
 
-  public PrintIterator iterator (Device device, GC gc) {
-    return new BorderIterator (this, device, gc);
+  public PrintIterator iterator( Device device, GC gc ) {
+    return new BorderIterator( this, device, gc );
   }
 }
 
 class BorderIterator implements PrintIterator {
   private/* final */PrintIterator target;
 
-  private final BorderPainter border;
+  private final BorderPainter      border;
 
   // Quasi-cursor
-  private boolean opened;
+  private boolean                  opened;
 
-  BorderIterator (BorderPrint print, Device device, GC gc) {
-    this.target = print.target.iterator (device, gc);
-    this.border = print.border.createPainter (device, gc);
+  BorderIterator( BorderPrint print, Device device, GC gc ) {
+    this.target = print.target.iterator( device, gc );
+    this.border = print.border.createPainter( device, gc );
 
     this.opened = false;
   }
 
-  BorderIterator (BorderIterator that) {
-    this.target = that.target.copy ();
+  BorderIterator( BorderIterator that ) {
+    this.target = that.target.copy();
     this.border = that.border;
 
     this.opened = that.opened;
   }
 
-  public boolean hasNext () {
-    return target.hasNext ();
+  public boolean hasNext() {
+    return target.hasNext();
   }
 
-  public Point minimumSize () {
-    Point targetSize = target.minimumSize ();
-    return new Point (targetSize.x + border.getWidth (), targetSize.y
-        + border.getMaxHeight ());
+  public Point minimumSize() {
+    Point targetSize = target.minimumSize();
+    return new Point( targetSize.x + border.getWidth(), targetSize.y + border.getMaxHeight() );
   }
 
-  public Point preferredSize () {
-    Point targetSize = target.preferredSize ();
-    return new Point (targetSize.x + border.getWidth (), targetSize.y
-        + border.getMaxHeight ());
+  public Point preferredSize() {
+    Point targetSize = target.preferredSize();
+    return new Point( targetSize.x + border.getWidth(), targetSize.y + border.getMaxHeight() );
   }
 
-  private PrintPiece next(int width, int height, boolean bottomOpen) {
+  private PrintPiece next( int width, int height, boolean bottomOpen ) {
     // Adjust iteration area for border dimensions.
     width -= border.getWidth();
-    height -= border.getHeight(opened, bottomOpen);
-    if (width < 0 || height < 0) return null;
+    height -= border.getHeight( opened, bottomOpen );
+    if ( width < 0 || height < 0 )
+      return null;
 
     PrintIterator testIterator = target.copy();
-    PrintPiece piece = PaperClips.next(testIterator, width, height);
-    if (piece == null) return null;
+    PrintPiece piece = PaperClips.next( testIterator, width, height );
+    if ( piece == null )
+      return null;
 
     // If bottom border is closed, testIterator must be consumed in this
     // iteration (don't close the border until the target is consumed).
-    if (!bottomOpen && testIterator.hasNext()) {
+    if ( !bottomOpen && testIterator.hasNext() ) {
       piece.dispose();
       return null;
     }
 
     // Wrap the print piece with border
-    piece = new BorderPiece (piece, border, opened, bottomOpen);
+    piece = new BorderPiece( piece, border, opened, bottomOpen );
 
     this.target = testIterator;
     return piece;
   }
 
-  public PrintPiece next (int width, int height) {
-    if (!hasNext ()) throw new IllegalStateException ();
+  public PrintPiece next( int width, int height ) {
+    if ( !hasNext() )
+      throw new IllegalStateException();
 
     // Try iterating with a closed bottom border first.
-    PrintPiece piece = next(width, height, false);
+    PrintPiece piece = next( width, height, false );
 
     // If iteration failed with a closed bottom border, try again with an
     // open bottom border instead.
-    if (piece == null) {
-      piece = next(width, height, true);
+    if ( piece == null ) {
+      piece = next( width, height, true );
 
       // If we still get null, then there isn't enough room to iterate the
       // target with the correct borders. Iteration fails.
-      if (piece == null)
+      if ( piece == null )
         return null;
     }
 
-    // Iteration successful.  Set the topOpen field so it is correct for the
+    // Iteration successful. Set the topOpen field so it is correct for the
     // next iteration (if any).
     this.opened = true;
 
     return piece;
   }
 
-  public PrintIterator copy () {
-    return new BorderIterator (this);
+  public PrintIterator copy() {
+    return new BorderIterator( this );
   }
 }
 
 class BorderPiece implements PrintPiece {
-  private final PrintPiece target;
+  private final PrintPiece    target;
 
   private final BorderPainter border;
 
-  private final boolean topOpen;
+  private final boolean       topOpen;
 
-  private final boolean bottomOpen;
+  private final boolean       bottomOpen;
 
-  private final Point size;
+  private final Point         size;
 
-  BorderPiece (PrintPiece piece,
-               BorderPainter border,
-               boolean topOpen,
-               boolean bottomOpen) {
-    if (piece == null || border == null)
+  BorderPiece( PrintPiece piece, BorderPainter border, boolean topOpen, boolean bottomOpen ) {
+    if ( piece == null || border == null )
       throw new NullPointerException();
     this.target = piece;
     this.border = border;
@@ -172,23 +168,22 @@ class BorderPiece implements PrintPiece {
     this.topOpen = topOpen;
     this.bottomOpen = bottomOpen;
 
-    Point targetSize = target.getSize ();
-    this.size = new Point (
-        targetSize.x + border.getWidth (),
-        targetSize.y + border.getHeight (topOpen, bottomOpen));
+    Point targetSize = target.getSize();
+    this.size =
+        new Point( targetSize.x + border.getWidth(), targetSize.y + border.getHeight( topOpen, bottomOpen ) );
   }
 
-  public Point getSize () {
-    return new Point (size.x, size.y);
+  public Point getSize() {
+    return new Point( size.x, size.y );
   }
 
-  public void paint (GC gc, int x, int y) {
-    border.paint (gc, x, y, size.x, size.y, topOpen, bottomOpen);
-    target.paint (gc, x + border.getLeft (), y + border.getTop (topOpen));
+  public void paint( GC gc, int x, int y ) {
+    border.paint( gc, x, y, size.x, size.y, topOpen, bottomOpen );
+    target.paint( gc, x + border.getLeft(), y + border.getTop( topOpen ) );
   }
 
-  public void dispose () {
-    border.dispose ();
-    target.dispose ();
+  public void dispose() {
+    border.dispose();
+    target.dispose();
   }
 }

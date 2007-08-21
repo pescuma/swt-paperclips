@@ -33,75 +33,78 @@ import net.sf.paperclips.ui.PrintViewer;
 
 /**
  * Demonstrate use of CellBackgroundProvider.
+ * 
  * @author Matthew
  */
 public class Snippet5 implements Print {
-  private Print createPrint () {
-    DefaultGridLook look = new DefaultGridLook();
-    look.setCellBorder(new LineBorder());
-    look.setHeaderBackground(new RGB (200, 200, 200));
+	private Print createPrint() {
+		DefaultGridLook look = new DefaultGridLook();
+		look.setCellBorder(new LineBorder());
+		look.setHeaderBackground(new RGB(200, 200, 200));
 
-    // Alternate between light yellow and light blue every 5 rows
-    look.setBodyBackgroundProvider(new CellBackgroundProvider() {
-      private final RGB evenRows = new RGB(255, 255, 200);
-      private final RGB oddRows = new RGB(200, 200, 255);
-      public RGB getCellBackground(int row, int column, int colspan) {
-        return (row / 5) % 2 == 0 ? evenRows : oddRows;
-      }
-    });
-    GridPrint grid = new GridPrint("d, d, d, d", look);
+		// Alternate between light yellow and light blue every 5 rows
+		look.setBodyBackgroundProvider(new CellBackgroundProvider() {
+			private final RGB evenRows = new RGB(255, 255, 200);
+			private final RGB oddRows = new RGB(200, 200, 255);
 
-    // Light gray background on header
-    for (int i = 0; i < 4; i++)
-      grid.addHeader(new TextPrint("Column "+i));
+			public RGB getCellBackground(int row, int column, int colspan) {
+				return (row / 5) % 2 == 0 ? evenRows : oddRows;
+			}
+		});
+		GridPrint grid = new GridPrint("d, d, d, d", look);
 
-    for (int r = 0; r < 20; r++)
-      for (int c = 0; c < 4; c++)
-        grid.add(new TextPrint ("Row "+r+" Col "+c));
+		// Light gray background on header
+		for (int i = 0; i < 4; i++)
+			grid.addHeader(new TextPrint("Column " + i));
 
-    return grid;
-  }
+		for (int r = 0; r < 20; r++)
+			for (int c = 0; c < 4; c++)
+				grid.add(new TextPrint("Row " + r + " Col " + c));
 
-  public PrintIterator iterator (Device device, GC gc) {
-    return createPrint().iterator(device, gc);
-  }
+		return grid;
+	}
 
-  /**
-   * Executes the snippet.
-   * @param args command-line args.
-   */
-  public static void main(String[] args) {
-    Display display = Display.getDefault ();
-    final Shell shell = new Shell (display);
-    shell.setText("Snippet5.java");
-    shell.setBounds (100, 100, 640, 480);
-    shell.setLayout (new GridLayout());
+	public PrintIterator iterator(Device device, GC gc) {
+		return createPrint().iterator(device, gc);
+	}
 
-    Button button = new Button (shell, SWT.PUSH);
-    button.setLayoutData (new GridData (SWT.FILL, SWT.DEFAULT, true, false));
-    button.setText ("Print");
+	/**
+	 * Executes the snippet.
+	 * 
+	 * @param args
+	 *          command-line args.
+	 */
+	public static void main(String[] args) {
+		Display display = Display.getDefault();
+		final Shell shell = new Shell(display);
+		shell.setText("Snippet5.java");
+		shell.setBounds(100, 100, 640, 480);
+		shell.setLayout(new GridLayout());
 
-    PrintViewer viewer = new PrintViewer(shell, SWT.BORDER);
-    viewer.getControl ().setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true));
-    final Print print = new Snippet5();
-    viewer.setPrint (print);
+		Button button = new Button(shell, SWT.PUSH);
+		button.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+		button.setText("Print");
 
-    button.addListener(SWT.Selection, new Listener() {
-      public void handleEvent (Event event) {
-        PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
-        PrinterData printerData = dialog.open ();
-        if (printerData != null)
-          PaperClips.print(new PrintJob("Snippet5.java", print).setMargins(72),
-                           printerData);
-      }
-    });
+		PrintViewer viewer = new PrintViewer(shell, SWT.BORDER);
+		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		final Print print = new Snippet5();
+		viewer.setPrint(print);
 
-    shell.setVisible (true);
+		button.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
+				PrinterData printerData = dialog.open();
+				if (printerData != null)
+					PaperClips.print(new PrintJob("Snippet5.java", print).setMargins(72), printerData);
+			}
+		});
 
-    while (!shell.isDisposed ())
-      if (!display.readAndDispatch ())
-        display.sleep();
+		shell.setVisible(true);
 
-    display.dispose ();
-  }
+		while (!shell.isDisposed())
+			if (!display.readAndDispatch())
+				display.sleep();
+
+		display.dispose();
+	}
 }

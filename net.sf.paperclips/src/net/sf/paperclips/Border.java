@@ -1,20 +1,18 @@
-/*******************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
 /**
- * Interface for drawing borders, used by BorderPaint and GridPrint for drawing
- * borders a child print and grid cells, respectively.
+ * Interface for drawing borders, used by BorderPaint and GridPrint for drawing borders a child print and
+ * grid cells, respectively.
  * @author Matthew Hall
  */
 public interface Border {
@@ -24,5 +22,5 @@ public interface Border {
    * @param gc a GC for drawing to the print device.
    * @return a BorderPainter for painting the border on the given Device and GC.
    */
-  public BorderPainter createPainter (Device device, GC gc);
+  public BorderPainter createPainter( Device device, GC gc );
 }

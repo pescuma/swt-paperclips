@@ -21,110 +21,117 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * Demonstrate capturing the pages of a print job to in-memory images.
+ * 
  * @author Matthew Hall
  */
 public class ImageCaptureExample {
-  /**
-   * Returns a sample print
-   * @return a sample print
-   */
-  public static Print createPrint() {
-    GridPrint grid = new GridPrint(new DefaultGridLook());
+	/**
+	 * Returns a sample print
+	 * 
+	 * @return a sample print
+	 */
+	public static Print createPrint() {
+		GridPrint grid = new GridPrint(new DefaultGridLook());
 
-    int COLS = 5;
-    int ROWS = 50;
+		int COLS = 5;
+		int ROWS = 50;
 
-    for (int c = 0; c < COLS; c++) {
-      grid.addColumn("d");
-      grid.addHeader(new TextPrint("Column "+(c+1)));
-      grid.addFooter(new TextPrint("Column "+(c+1)));
-    }
+		for (int c = 0; c < COLS; c++) {
+			grid.addColumn("d");
+			grid.addHeader(new TextPrint("Column " + (c + 1)));
+			grid.addFooter(new TextPrint("Column " + (c + 1)));
+		}
 
-    for (int r = 0; r < ROWS; r++)
-      for (int c = 0; c < COLS; c++)
-        grid.add(new TextPrint("Row "+(r+1)+" Col "+(c+1)));
-  
-    return grid;
-  }
+		for (int r = 0; r < ROWS; r++)
+			for (int c = 0; c < COLS; c++)
+				grid.add(new TextPrint("Row " + (r + 1) + " Col " + (c + 1)));
 
-  /**
-   * Captures the page to an image and returns it.
-   * @param printer the printer device.
-   * @param page the page to capture.
-   * @param imageSize the size of the returned image
-   * @return an image of the captured page.
-   */
-  public static ImageData captureImageData(Printer printer, PrintPiece page, Point imageSize) {
-  	Point pageSize = page.getSize();
+		return grid;
+	}
 
-    Image image = null;
-    GC gc = null;
-    Transform transform = null;
+	/**
+	 * Captures the page to an image and returns it.
+	 * 
+	 * @param printer
+	 *          the printer device.
+	 * @param page
+	 *          the page to capture.
+	 * @param imageSize
+	 *          the size of the returned image
+	 * @return an image of the captured page.
+	 */
+	public static ImageData captureImageData(Printer printer, PrintPiece page, Point imageSize) {
+		Point pageSize = page.getSize();
 
-    try {
-    	image = new Image(printer, imageSize.x, imageSize.y);
-    	gc = new GC(image);
-    	gc.setAntialias(SWT.ON);
-    	gc.setTextAntialias(SWT.ON);
-    	transform = new Transform(printer);
+		Image image = null;
+		GC gc = null;
+		Transform transform = null;
 
-    	// Scale from the page size to the image size
-      gc.getTransform(transform);
-      transform.scale((float) imageSize.x / (float) pageSize.x,
-      								(float) imageSize.y / (float) pageSize.y);
-      gc.setTransform(transform);
+		try {
+			image = new Image(printer, imageSize.x, imageSize.y);
+			gc = new GC(image);
+			gc.setAntialias(SWT.ON);
+			gc.setTextAntialias(SWT.ON);
+			transform = new Transform(printer);
 
-      page.paint(gc, 0, 0);
+			// Scale from the page size to the image size
+			gc.getTransform(transform);
+			transform.scale((float) imageSize.x / (float) pageSize.x, (float) imageSize.y / (float) pageSize.y);
+			gc.setTransform(transform);
 
-      return image.getImageData();
-    } finally {
-    	if (transform != null)
-    		transform.dispose();
-    	if (gc != null)
-    		gc.dispose();
-    	if (image != null)
-    		image.dispose();
-    }
-  }
+			page.paint(gc, 0, 0);
 
-  private static String getImageName(int index) {
-  	return "capture_image_"+index+".png";
-  }
+			return image.getImageData();
+		} finally {
+			if (transform != null)
+				transform.dispose();
+			if (gc != null)
+				gc.dispose();
+			if (image != null)
+				image.dispose();
+		}
+	}
 
-  /**
-   * Demonstrate capturing the pages of a print to in-memory images.
-   * @param args command-line arguments (ignored)
-   */
-  public static void main(String[] args) {
-  	Display display = new Display();
-  	Point displayDPI = display.getDPI();
-  	display.dispose();
+	private static String getImageName(int index) {
+		return "capture_image_" + index + ".png";
+	}
 
-    Printer printer = new Printer(new PrinterData());
-    Point printerDPI = printer.getDPI();
+	/**
+	 * Demonstrate capturing the pages of a print to in-memory images.
+	 * 
+	 * @param args
+	 *          command-line arguments (ignored)
+	 */
+	public static void main(String[] args) {
+		Display display = new Display();
+		Point displayDPI = display.getDPI();
+		display.dispose();
 
-    try {
-      PrintJob job = new PrintJob("ImageCapture.java", createPrint());
+		Printer printer = new Printer(new PrinterData());
+		Point printerDPI = printer.getDPI();
 
-      PrintPiece[] pages = PaperClips.getPages(job, printer);
+		try {
+			PrintJob job = new PrintJob("ImageCapture.java", createPrint());
 
-    	ImageLoader imageLoader = new ImageLoader();
-      for (int i = 0; i < pages.length; i++) {
-      	PrintPiece page = pages[i];
-      	Point pageSize = page.getSize();
-      	pageSize.x = pageSize.x * displayDPI.x / printerDPI.x;
-      	pageSize.y = pageSize.y * displayDPI.y / printerDPI.y;
-      	ImageData pageImage = captureImageData(printer, page, pageSize);
+			PrintPiece[] pages = PaperClips.getPages(job, printer);
 
-        // Do something with the image
-      	pageImage.scanlinePad = 1;
-      	
-      	imageLoader.data = new ImageData[] { pageImage };
-      	imageLoader.save(getImageName(i), SWT.IMAGE_PNG);
-      }
+			ImageLoader imageLoader = new ImageLoader();
+			for (int i = 0; i < pages.length; i++) {
+				PrintPiece page = pages[i];
+				Point pageSize = page.getSize();
+				pageSize.x = pageSize.x * displayDPI.x / printerDPI.x;
+				pageSize.y = pageSize.y * displayDPI.y / printerDPI.y;
+				ImageData pageImage = captureImageData(printer, page, pageSize);
 
-    } finally {
-      printer.dispose();
-    }
-  }
+				// Do something with the image
+				pageImage.scanlinePad = 1;
+
+				imageLoader.data = new ImageData[] { pageImage };
+				imageLoader.save(getImageName(i), SWT.IMAGE_PNG);
+			}
+
+		} finally {
+			printer.dispose();
+		}
+	}
 }

@@ -1,12 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 /**
@@ -30,21 +28,21 @@ public class Margins {
    * Constructs a Margins with all sides set to 1" margins.
    */
   public Margins() {
-    this(72);
+    this( 72 );
   }
 
   /**
-   * Constructs a Margins with all sides set to the argument. 
-   * @param margins the page margins, expressed in points.  72 points = 1".
+   * Constructs a Margins with all sides set to the argument.
+   * @param margins the page margins, expressed in points. 72 points = 1".
    */
-  public Margins(int margins) {
+  public Margins( int margins ) {
     top = left = right = bottom = margins;
   }
 
   /**
-   * Returns a Margins that is the result of rotating this Margins counter-clockwise 90 degrees.
-   * A job which is rotated 90 degrees (e.g. for landscape printing) needs to have its margins
-   * rotated to match.  This is a convenience method for that purpose.
+   * Returns a Margins that is the result of rotating this Margins counter-clockwise 90 degrees. A job which
+   * is rotated 90 degrees (e.g. for landscape printing) needs to have its margins rotated to match. This is
+   * a convenience method for that purpose.
    * @return a Margins that is the result of rotating this Margins counter-clockwise 90 degrees.
    */
   public Margins rotate() {

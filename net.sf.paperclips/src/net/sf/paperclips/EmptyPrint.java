@@ -1,12 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
@@ -14,8 +12,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 /**
- * A Print which displays nothing but takes up space.  Useful for putting blank cells in a
- * GridPrint.
+ * A Print which displays nothing but takes up space. Useful for putting blank cells in a GridPrint.
  * @author Matthew
  */
 public class EmptyPrint implements Print {
@@ -25,8 +22,8 @@ public class EmptyPrint implements Print {
   /**
    * Constructs an EmptyPrint with size (0, 0).
    */
-  public EmptyPrint () {
-    this (0, 0);
+  public EmptyPrint() {
+    this( 0, 0 );
   }
 
   /**
@@ -34,17 +31,17 @@ public class EmptyPrint implements Print {
    * @param width width of the Print, in points (72pts = 1").
    * @param height height of the Print, in points (72pts = 1").
    */
-  public EmptyPrint (int width, int height) {
-    this.width = checkDimension (width);
-    this.height = checkDimension (height);
+  public EmptyPrint( int width, int height ) {
+    this.width = checkDimension( width );
+    this.height = checkDimension( height );
   }
 
   /**
    * Constructs an EmptyPrint with the given size.
    * @param size the size, in points (72pts = 1").
    */
-  public EmptyPrint(Point size) {
-  	this(size.x, size.y);
+  public EmptyPrint( Point size ) {
+    this( size.x, size.y );
   }
 
   /**
@@ -52,58 +49,59 @@ public class EmptyPrint implements Print {
    * @return the size of the empty space.
    */
   public Point getSize() {
-  	return new Point(width, height);
+    return new Point( width, height );
   }
 
-  private int checkDimension (int dim) {
-    if (dim >= 0) return dim;
+  private int checkDimension( int dim ) {
+    if ( dim >= 0 )
+      return dim;
 
-    throw new IllegalArgumentException ("EmptyPrint dimensions must be >= 0");
+    throw new IllegalArgumentException( "EmptyPrint dimensions must be >= 0" );
   }
 
-  public PrintIterator iterator (Device device, GC gc) {
-    return new EmptyIterator (device, this);
+  public PrintIterator iterator( Device device, GC gc ) {
+    return new EmptyIterator( device, this );
   }
 }
 
 class EmptyIterator implements PrintIterator {
   private final Point size;
 
-  private boolean hasNext = true;
+  private boolean     hasNext = true;
 
-  EmptyIterator (Device device, EmptyPrint target) {
-    Point dpi = device.getDPI ();
-    this.size = new Point (
-        Math.round (target.width  * dpi.x / 72f),
-        Math.round (target.height * dpi.y / 72f));
+  EmptyIterator( Device device, EmptyPrint target ) {
+    Point dpi = device.getDPI();
+    this.size =
+        new Point( Math.round( target.width * dpi.x / 72f ), Math.round( target.height * dpi.y / 72f ) );
   }
 
-  EmptyIterator (EmptyIterator that) {
+  EmptyIterator( EmptyIterator that ) {
     this.size = that.size;
     this.hasNext = that.hasNext;
   }
 
-  public boolean hasNext () {
+  public boolean hasNext() {
     return hasNext;
   }
 
-  public PrintPiece next (int width, int height) {
-    if (size.x > width || size.y > height) return null;
+  public PrintPiece next( int width, int height ) {
+    if ( size.x > width || size.y > height )
+      return null;
 
     hasNext = false;
 
-    return new EmptyPiece (size);
+    return new EmptyPiece( size );
   }
 
-  public Point minimumSize () {
-    return new Point (size.x, size.y);
+  public Point minimumSize() {
+    return new Point( size.x, size.y );
   }
 
-  public Point preferredSize () {
-    return new Point (size.x, size.y);
+  public Point preferredSize() {
+    return new Point( size.x, size.y );
   }
 
-  public PrintIterator copy () {
-    return new EmptyIterator (this);
+  public PrintIterator copy() {
+    return new EmptyIterator( this );
   }
 }

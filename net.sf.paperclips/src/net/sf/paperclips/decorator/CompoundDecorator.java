@@ -1,12 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips.decorator;
 
 import net.sf.paperclips.Print;
@@ -22,17 +20,19 @@ public class CompoundDecorator implements PrintDecorator {
    * Constructs a CompoundDecorator.
    * @param decorators the decorators, in order from innermost to outermost.
    */
-  public CompoundDecorator(PrintDecorator[] decorators) {
-    if (decorators == null) throw new NullPointerException();
-    for (int i = 0; i < decorators.length; i++)
-      if (decorators[i] == null) throw new NullPointerException();
-    this.decorators = (PrintDecorator[]) decorators.clone ();
+  public CompoundDecorator( PrintDecorator[] decorators ) {
+    if ( decorators == null )
+      throw new NullPointerException();
+    for ( int i = 0; i < decorators.length; i++ )
+      if ( decorators[i] == null )
+        throw new NullPointerException();
+    this.decorators = (PrintDecorator[]) decorators.clone();
   }
 
-  public Print decorate (Print target) {
+  public Print decorate( Print target ) {
     Print result = target;
-    for (int i = 0; i < decorators.length; i++)
-      result = decorators[i].decorate (target);
+    for ( int i = 0; i < decorators.length; i++ )
+      result = decorators[i].decorate( target );
     return result;
   }
 }

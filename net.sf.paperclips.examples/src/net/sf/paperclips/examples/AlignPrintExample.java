@@ -15,34 +15,35 @@ import net.sf.paperclips.PrintIterator;
 import net.sf.paperclips.PrintJob;
 
 /**
- * Prints the contents of TutorialExample2, but centered horizontally and vertically on the page.
- *
+ * Prints the contents of TutorialExample2, but centered horizontally and
+ * vertically on the page.
+ * 
  * @author Matthew
  */
 public class AlignPrintExample implements Print {
-  private Print createPrint () {
-    Print print = new TutorialExample2();
-    return new AlignPrint(print, SWT.CENTER, SWT.CENTER);
-  }
+	private Print createPrint() {
+		Print print = new TutorialExample2();
+		return new AlignPrint(print, SWT.CENTER, SWT.CENTER);
+	}
 
-  public PrintIterator iterator(Device device, GC gc) {
-    return createPrint().iterator(device, gc);
-  }
+	public PrintIterator iterator(Device device, GC gc) {
+		return createPrint().iterator(device, gc);
+	}
 
-  /**
-   * Prints the BreakPrintExample to the default printer.
-   * @param args command-line args
-   */
-  public static void main(String[] args) {
-    Display display = new Display();
-    Shell shell = new Shell(display, SWT.SHELL_TRIM);
-    PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
-    PrinterData printerData = dialog.open();
-    shell.dispose();
-    display.dispose();
-    if (printerData != null)
-      PaperClips.print(new PrintJob("AlignPrintExample.java", new AlignPrintExample()),
-                       printerData); 
-  }
-
+	/**
+	 * Prints the BreakPrintExample to the default printer.
+	 * 
+	 * @param args
+	 *          command-line args
+	 */
+	public static void main(String[] args) {
+		Display display = new Display();
+		Shell shell = new Shell(display, SWT.SHELL_TRIM);
+		PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
+		PrinterData printerData = dialog.open();
+		shell.dispose();
+		display.dispose();
+		if (printerData != null)
+			PaperClips.print(new PrintJob("AlignPrintExample.java", new AlignPrintExample()), printerData);
+	}
 }

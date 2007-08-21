@@ -1,20 +1,18 @@
-/*******************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
 /**
- * An abstract PrintIterator class which maintains references to the device and
- * gc arguments passed to {@link Print#iterator(Device, GC) }.
+ * An abstract PrintIterator class which maintains references to the device and gc arguments passed to
+ * {@link Print#iterator(Device, GC) }.
  * @author Matthew Hall
  */
 public abstract class AbstractIterator implements PrintIterator {
@@ -26,26 +24,26 @@ public abstract class AbstractIterator implements PrintIterator {
   /**
    * A GC used for measuring document elements.
    */
-  protected final GC gc;
+  protected final GC     gc;
 
   /**
    * Constructs an AbstractIterator with the given Device and GC.
    * @param device the device being printed to.
    * @param gc a GC used for drawing on the print device.
    */
-  protected AbstractIterator (Device device, GC gc) {
-    if (device == null || gc == null)
+  protected AbstractIterator( Device device, GC gc ) {
+    if ( device == null || gc == null )
       throw new NullPointerException();
     this.device = device;
-    this.gc     = gc;
+    this.gc = gc;
   }
 
   /**
    * Copy constructor.
    * @param that the AbstractIterator being copied.
    */
-  protected AbstractIterator (AbstractIterator that) {
+  protected AbstractIterator( AbstractIterator that ) {
     this.device = that.device;
-    this.gc     = that.gc;
+    this.gc = that.gc;
   }
 }

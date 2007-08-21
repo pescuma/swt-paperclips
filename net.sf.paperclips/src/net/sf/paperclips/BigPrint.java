@@ -1,12 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation.  All rights
- * reserved.  This program and the accompanying materials are made available
- * under the terms of the Eclipse Public License v1.0 which accompanies this
- * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.Device;
@@ -15,19 +13,18 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Region;
 
 /**
- * A wrapper for prints whose minimum size is too large to fit on one page.  The target's content
- * is divided across multiple pages like a spreadsheet.  Pages are printed in order left-to-right,
- * then top-to-bottom.
+ * A wrapper for prints whose minimum size is too large to fit on one page. The target's content is divided
+ * across multiple pages like a spreadsheet. Pages are printed in order left-to-right, then top-to-bottom.
  * <p>
  * <em>Note that this print lays out content under the assumption that every page will have the same
- * pixel width and height.</em>  If a BigPrint is wrapped in a print that violates this
- * expectation, it is likely that the output will skip and/or repeat certain portions of the
- * target's content.  Some examples of this behavior:
+ * pixel width and height.</em>
+ * If a BigPrint is wrapped in a print that violates this expectation, it is likely that the output will skip
+ * and/or repeat certain portions of the target's content. Some examples of this behavior:
  * <ul>
- * <li>BorderPrint changes the available page height of the target, depending on whether the top
- * and bottom borders are open or closed.
- * <li>ColumnPrint often changes the width from column to column, if the total width is not evenly
- *     divisible by the number of columns.
+ * <li>BorderPrint changes the available page height of the target, depending on whether the top and bottom
+ * borders are open or closed.
+ * <li>ColumnPrint often changes the width from column to column, if the total width is not evenly divisible
+ * by the number of columns.
  * </ul>
  * @author Matthew Hall
  */
@@ -38,8 +35,9 @@ public final class BigPrint implements Print {
    * Constructs a BigPrint.
    * @param target
    */
-  public BigPrint(Print target) {
-    if (target == null) throw new NullPointerException();
+  public BigPrint( Print target ) {
+    if ( target == null )
+      throw new NullPointerException();
     this.target = target;
   }
 
@@ -48,33 +46,33 @@ public final class BigPrint implements Print {
    * @return the wrapped print which is being split across pages.
    */
   public Print getTarget() {
-  	return target;
+    return target;
   }
 
-  public PrintIterator iterator (Device device, GC gc) {
-    return new BigIterator(target, device, gc);
+  public PrintIterator iterator( Device device, GC gc ) {
+    return new BigIterator( target, device, gc );
   }
 }
 
 class BigIterator implements PrintIterator {
   private final PrintIterator target;
-  private final Device device;
+  private final Device        device;
 
-  private PrintPiece currentPiece;
-  private int xOffset;
-  private int yOffset;
+  private PrintPiece          currentPiece;
+  private int                 xOffset;
+  private int                 yOffset;
 
-  BigIterator(Print target, Device device, GC gc) {
-    if (device == null || gc == null || target == null)
+  BigIterator( Print target, Device device, GC gc ) {
+    if ( device == null || gc == null || target == null )
       throw new NullPointerException();
-    this.target = target.iterator(device, gc);
+    this.target = target.iterator( device, gc );
     this.device = device;
     currentPiece = null;
     xOffset = 0;
     yOffset = 0;
   }
 
-  BigIterator(BigIterator that) {
+  BigIterator( BigIterator that ) {
     this.target = that.target.copy();
     this.device = that.device;
 
@@ -83,66 +81,67 @@ class BigIterator implements PrintIterator {
     this.yOffset = that.yOffset;
   }
 
-  public Point minimumSize () {
-    return target.minimumSize ();
+  public Point minimumSize() {
+    return target.minimumSize();
   }
 
-  public Point preferredSize () {
-    return target.preferredSize ();
+  public Point preferredSize() {
+    return target.preferredSize();
   }
 
-  public boolean hasNext () {
+  public boolean hasNext() {
     return currentPiece != null || target.hasNext();
   }
 
   // Returns a point whose x and y fields represent the required pages wide and tall, respectively
-  private Point estimatePagesRequired(int width, int height) {
-    if (width <= 0 || height <= 0)
-      return new Point(0, 0);
+  private Point estimatePagesRequired( int width, int height ) {
+    if ( width <= 0 || height <= 0 )
+      return new Point( 0, 0 );
 
-    Point pref = target.preferredSize ();
-    Point prefPages = new Point(pref.x / width, pref.y / height);
+    Point pref = target.preferredSize();
+    Point prefPages = new Point( pref.x / width, pref.y / height );
 
-    Point min = target.minimumSize ();
-    Point minPages = new Point(
-        Math.max((min.x + width -1) / width, 1), // Adding width-1 rounds up page count w/out floating point op
-        Math.max((min.y + height-1) / height, 1)); // same for adding height-1
+    Point min = target.minimumSize();
+    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), // Adding width-1 rounds up
+                                                                              // page count w/out floating
+                                                                              // point op
+                                Math.max( ( min.y + height - 1 ) / height, 1 ) ); // same for adding height-1
 
-    return new Point(
-        Math.max (prefPages.x, minPages.x),
-        Math.max (prefPages.y, minPages.y));
+    return new Point( Math.max( prefPages.x, minPages.x ), Math.max( prefPages.y, minPages.y ) );
   }
 
-  public PrintPiece next (int width, int height) {
-    if (!hasNext()) throw new IllegalStateException();
+  public PrintPiece next( int width, int height ) {
+    if ( !hasNext() )
+      throw new IllegalStateException();
 
-    if (currentPiece == null) {
-      Point pages = estimatePagesRequired(width, height);
-      currentPiece = PaperClips.next(target, width * pages.x, height * pages.y);
-      if (currentPiece == null) return null; // Iteration fails
+    if ( currentPiece == null ) {
+      Point pages = estimatePagesRequired( width, height );
+      currentPiece = PaperClips.next( target, width * pages.x, height * pages.y );
+      if ( currentPiece == null )
+        return null; // Iteration fails
 
       // Reset the offset for the new piece.
       xOffset = 0;
       yOffset = 0;
     }
 
-    PrintPiece result = new BigPiece(currentPiece, new Point(width, height), xOffset, yOffset);
+    PrintPiece result = new BigPiece( currentPiece, new Point( width, height ), xOffset, yOffset );
 
     // Advance cursor on current piece.
     xOffset += width;
-    if (xOffset >= currentPiece.getSize().x) {
+    if ( xOffset >= currentPiece.getSize().x ) {
       xOffset = 0;
       yOffset += height;
     }
-    if (yOffset >= currentPiece.getSize().y) {
+    if ( yOffset >= currentPiece.getSize().y ) {
       currentPiece = null;
     }
 
     return result;
   }
 
-  public PrintIterator copy () {
-    return new BigIterator(this);
+  public PrintIterator copy() {
+    return new BigIterator( this );
   }
 }
 
@@ -151,34 +150,35 @@ class BigPiece implements PrintPiece {
   private final Point      size;
   private final Point      offset;
 
-  BigPiece(PrintPiece target, Point size, int xOffset, int yOffset) {
-    if (target == null || size == null) throw new NullPointerException();
+  BigPiece( PrintPiece target, Point size, int xOffset, int yOffset ) {
+    if ( target == null || size == null )
+      throw new NullPointerException();
     this.target = target;
-    this.size = new Point(size.x, size.y);
-    this.offset = new Point(xOffset, yOffset);
+    this.size = new Point( size.x, size.y );
+    this.offset = new Point( xOffset, yOffset );
   }
 
-  public Point getSize () {
-    return new Point(size.x, size.y);
+  public Point getSize() {
+    return new Point( size.x, size.y );
   }
 
-  public void paint (GC gc, int x, int y) {
+  public void paint( GC gc, int x, int y ) {
     // Remember clipping region
-    Region region = new Region ();
-    gc.getClipping (region);
+    Region region = new Region();
+    gc.getClipping( region );
 
     // Set clipping region so only the portion of the target we want is printed.
-    gc.setClipping (x, y, size.x, size.y);
+    gc.setClipping( x, y, size.x, size.y );
 
     // Paint the target.
-    target.paint (gc, x-offset.x, y-offset.y);
+    target.paint( gc, x - offset.x, y - offset.y );
 
     // Restore clipping region
-    gc.setClipping (region);
+    gc.setClipping( region );
     region.dispose();
   }
 
-  public void dispose () {
+  public void dispose() {
     target.dispose();
   }
 }
