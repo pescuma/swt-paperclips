@@ -127,13 +127,11 @@ class LineIterator extends AbstractIterator {
     this.orientation = print.orientation;
     this.rgb = print.rgb;
     Point dpi = device.getDPI();
-    this.thickness = new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ), // convert
-                                                                                                  // from
-                                                                                                  // points
-                                Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) ); // to
-                                                                                                    // pixels
-                                                                                                    // on
-                                                                                                    // device
+
+    // (convert from points to pixels on device)
+    this.thickness =
+        new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
+                   Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
   }
 
   LineIterator( LineIterator that ) {

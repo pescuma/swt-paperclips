@@ -1211,10 +1211,9 @@ class GridIterator implements PrintIterator {
             currentSpanWidth += colSizes[colIndex];
 
           // Calculate the minimum width of the print in this cell.
+          // (subtract column spacing)
           int minimumSpanWidth =
-              strategy.computeSize( entry.target ).x - horizontalSpacing * ( entry.colspan - 1 ); // subtract
-                                                                                                  // column
-                                                                                                  // spacing
+              strategy.computeSize( entry.target ).x - horizontalSpacing * ( entry.colspan - 1 );
 
           // Note that we omitted column spacing so the weighted distribution
           // of any extra width doesn't get thrown off.

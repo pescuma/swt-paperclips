@@ -102,10 +102,12 @@ class BigIterator implements PrintIterator {
     Point prefPages = new Point( pref.x / width, pref.y / height );
 
     Point min = target.minimumSize();
-    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), // Adding width-1 rounds up
-                                                                              // page count w/out floating
-                                                                              // point op
-                                Math.max( ( min.y + height - 1 ) / height, 1 ) ); // same for adding height-1
+
+    // Adding width-1 rounds up page count w/out floating point op
+    // Same goes for adding height-1
+    Point minPages =
+        new Point( Math.max( ( min.x + width - 1 ) / width, 1 ),
+                   Math.max( ( min.y + height - 1 ) / height, 1 ) );
 
     return new Point( Math.max( prefPages.x, minPages.x ), Math.max( prefPages.y, minPages.y ) );
   }
