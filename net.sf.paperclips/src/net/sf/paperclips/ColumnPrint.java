@@ -51,17 +51,16 @@ public class ColumnPrint implements Print {
    */
   public ColumnPrint( Print target, int columns, int spacing, boolean compressed ) {
     if ( spacing < 0 )
-      throw new IllegalArgumentException( "columnSpacing must be >= 0" );
+      throw new IllegalArgumentException( "spacing must be >= 0" );
     if ( columns < 2 )
-      throw new IllegalArgumentException( "columnCount must be >= 2" );
+      throw new IllegalArgumentException( "columns must be >= 2" );
     if ( target == null )
       throw new NullPointerException();
 
     this.target = target;
     this.spacing = spacing;
     this.columns = columns;
-
-    compressed = true;
+    this.compressed = compressed;
   }
 
   /**
@@ -173,31 +172,25 @@ class ColumnIterator implements PrintIterator {
    * @return an array of PrintPieces for the given column sizes, or null
    */
   PrintPiece[] nextColumns( PrintIterator iterator, int[] colSizes, int height ) {
-    boolean fail = false;
-
     List pieces = new ArrayList();
     for ( int i = 0; i < columns && iterator.hasNext(); i++ ) {
-      int colSize = colSizes[i];
+      PrintPiece piece = PaperClips.next( iterator, colSizes[i], height );
 
-      PrintPiece piece = PaperClips.next( iterator, colSize, height );
-
-      if ( piece == null ) {
-        fail = true;
-        break;
-      }
+      if ( piece == null )
+        return disposePieces( pieces );
 
       pieces.add( piece );
     }
 
-    if ( fail ) {
-      for ( Iterator iter = pieces.iterator(); iter.hasNext(); ) {
-        PrintPiece piece = (PrintPiece) iter.next();
-        piece.dispose();
-      }
-      return null;
-    }
-
     return (PrintPiece[]) pieces.toArray( new PrintPiece[pieces.size()] );
+  }
+
+  private PrintPiece[] disposePieces( List pieces ) {
+    for ( Iterator iter = pieces.iterator(); iter.hasNext(); ) {
+      PrintPiece piece = (PrintPiece) iter.next();
+      piece.dispose();
+    }
+    return null;
   }
 
   PrintPiece createResult( PrintPiece[] pieces, int[] colSizes ) {
@@ -211,14 +204,11 @@ class ColumnIterator implements PrintIterator {
   }
 
   public PrintPiece next( int width, int height ) {
-    // Compute size of columns by dividing available width equally
     int[] colSizes = computeColSizes( width );
 
     // Iterate on a copy in case a single column fails to iterate.
     PrintIterator iter = target.copy();
     PrintPiece[] columns = nextColumns( iter, colSizes, height );
-
-    // Null indicates a failed iteration.
     if ( columns == null )
       return null;
 
@@ -235,6 +225,10 @@ class ColumnIterator implements PrintIterator {
       return createResult( columns, colSizes );
     }
 
+    return nextCompressed( colSizes, iter, columns );
+  }
+
+  private PrintPiece nextCompressed( int[] colSizes, PrintIterator iter, PrintPiece[] columns ) {
     // TODO Evaluate the performance of the this algorithm.
 
     // The target was completely consumed. Close the gap until we find the
@@ -245,40 +239,28 @@ class ColumnIterator implements PrintIterator {
     // Remember the best results
     PrintIterator bestIteration = iter;
     PrintPiece[] bestIterationPieces = columns;
-    int bestHeight = 0;
-    for ( int i = 0; i < columns.length; i++ )
-      bestHeight = Math.max( bestHeight, columns[i].getSize().y );
+    int bestHeight = getMaxHeight( columns );
 
     while ( bestHeight > largestInvalidHeight + 1 ) {
       int testHeight = ( bestHeight + largestInvalidHeight + 1 ) / 2;
 
-      // Get copy of the target iterator
       iter = target.copy();
-      // Perform an iteration with the test height
       columns = nextColumns( iter, colSizes, testHeight );
 
       if ( columns == null ) {
-        // Iteration failed.
         largestInvalidHeight = testHeight;
       } else if ( iter.hasNext() ) {
-        // Iteration succeeded but the height was too short
-        // to completely contain iterator's contents.
+        // Iteration succeeded but the height was too short to completely contain iterator's contents.
         largestInvalidHeight = testHeight;
         disposePieces( columns );
       } else {
-        // Iteration succeeded, and the height was sufficient to contain
-        // all of the iterator's contents. Replace the previous best
-        // iteration result with that of this iteration.
-
-        // Dispose the PrintPieces from the prior "best" iteration.
+        // Iteration succeeded, and the height was sufficient to contain all of the iterator's contents.
+        // This iteration becomes the new best pass. Dispose the PrintPieces from the previous best.
         disposePieces( bestIterationPieces );
 
         bestIteration = iter;
         bestIterationPieces = columns;
-        bestHeight = 0;
-
-        for ( int i = 0; i < bestIterationPieces.length; i++ )
-          bestHeight = Math.max( bestHeight, bestIterationPieces[i].getSize().y );
+        bestHeight = getMaxHeight( bestIterationPieces );
       }
     }
 
@@ -286,6 +268,13 @@ class ColumnIterator implements PrintIterator {
     // can update the state of this iterator with return the result.
     this.target = bestIteration;
     return createResult( bestIterationPieces, colSizes );
+  }
+
+  private int getMaxHeight( PrintPiece[] pieces ) {
+    int result = 0;
+    for ( int i = 0; i < pieces.length; i++ )
+      result = Math.max( result, pieces[i].getSize().y );
+    return result;
   }
 
   private void disposePieces( PrintPiece[] pieces ) {

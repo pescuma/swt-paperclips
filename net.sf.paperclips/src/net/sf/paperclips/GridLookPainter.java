@@ -29,7 +29,7 @@ public interface GridLookPainter {
    * @param columns the column widths. The left and right margins of each cell are included in the column
    *        widths.
    * @param headerRows the header row heights.
-   * @param headerCellSpans a two-dimensional array of cell spans in the header. Each element in the outer
+   * @param headerColSpans a two-dimensional array of cell spans in the header. Each element in the outer
    *        array is a header row. Each element of an inner array is a cell, where the element value
    *        indicates how many columns the cell spans.
    * @param firstRowIndex the zero-based index of the first row displayed on the page.
@@ -37,14 +37,14 @@ public interface GridLookPainter {
    *        open top border is a visual indication that the top row is being continued from the previous
    *        page.
    * @param bodyRows the body row heights.
-   * @param bodyCellSpans a two-dimensional array of cell spans in the body. Each element in the outer array
+   * @param bodyColSpans a two-dimensional array of cell spans in the body. Each element in the outer array
    *        is a body row. Each element of an inner array is a cell, where the element value indicates how
    *        many columns the cell spans.
    * @param bottomOpen whether the bottom body row should be drawn with the bottom edge of the cell border
    *        "open." An open bottom border is a visual indication that the bottom row will be continued on the
    *        next page.
    * @param footerRows the footer row heights.
-   * @param footerCellSpans a two-dimensional array of cell spans in the footer. Each element in the outer
+   * @param footerColSpans a two-dimensional array of cell spans in the footer. Each element in the outer
    *        array is a footer row. Each element of an inner array is a cell, where the element value
    *        indicates how many columns the cell spans.
    */
@@ -53,14 +53,14 @@ public interface GridLookPainter {
                      final int y,
                      final int[] columns,
                      final int[] headerRows,
-                     final int[][] headerCellSpans,
+                     final int[][] headerColSpans,
                      final int firstRowIndex,
                      final boolean topOpen,
                      final int[] bodyRows,
-                     final int[][] bodyCellSpans,
+                     final int[][] bodyColSpans,
                      final boolean bottomOpen,
                      final int[] footerRows,
-                     final int[][] footerCellSpans );
+                     final int[][] footerColSpans );
 
   /**
    * Disposes the system resources allocated by this GridLookPainter. The dispose method is <b>not</b> a

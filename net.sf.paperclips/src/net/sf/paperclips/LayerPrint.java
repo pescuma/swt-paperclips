@@ -98,7 +98,8 @@ class LayerIterator implements PrintIterator {
   LayerIterator( LayerIterator that ) {
     this.entries = (LayerEntryIterator[]) that.entries.clone();
     for ( int i = 0; i < entries.length; i++ )
-      entries[i] = entries[i].copy();
+      if ( entries[i].target.hasNext() )
+        entries[i] = entries[i].copy();
   }
 
   public boolean hasNext() {
@@ -111,9 +112,24 @@ class LayerIterator implements PrintIterator {
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
       throw new IllegalStateException();
-    List pieces = new ArrayList();
+
+    PrintPiece[] pieces = nextPieces( width, height );
+    if ( pieces == null )
+      return null;
+
+    CompositeEntry[] entries = new CompositeEntry[pieces.length];
+    for ( int i = 0; i < entries.length; i++ ) {
+      PrintPiece piece = pieces[i];
+      int offset = getHorzAlignmentOffset( this.entries[i].alignment, piece.getSize().x, width );
+      entries[i] = new CompositeEntry( piece, new Point( offset, 0 ) );
+    }
+    return new CompositePiece( entries );
+  }
+
+  private PrintPiece[] nextPieces( int width, int height ) {
     LayerEntryIterator[] entries = (LayerEntryIterator[]) this.entries.clone();
 
+    List pieces = new ArrayList();
     for ( int i = 0; i < entries.length; i++ ) {
       LayerEntryIterator entry = entries[i];
       if ( entry.target.hasNext() ) {
@@ -124,28 +140,27 @@ class LayerIterator implements PrintIterator {
             ( (PrintPiece) iter.next() ).dispose();
           return null;
         }
-
-        CompositeEntry c_entry;
-        switch ( entry.alignment ) {
-          case SWT.CENTER:
-            c_entry = new CompositeEntry( piece, new Point( ( width - piece.getSize().x ) / 2, 0 ) );
-            break;
-          case SWT.RIGHT:
-            c_entry = new CompositeEntry( piece, new Point( width - piece.getSize().x, 0 ) );
-            break;
-          case SWT.LEFT:
-          default:
-            c_entry = new CompositeEntry( piece, new Point( 0, 0 ) );
-            break;
-        }
-        pieces.add( c_entry );
+        pieces.add( piece );
       }
     }
 
     // Replace instance entries with the entries that were just consumed.
     this.entries = entries;
 
-    return new CompositePiece( pieces );
+    return (PrintPiece[]) pieces.toArray( new PrintPiece[pieces.size()] );
+  }
+
+  private int getHorzAlignmentOffset( int alignment, int pieceWidth, int totalWidth ) {
+    int offset = 0;
+    switch ( alignment ) {
+      case SWT.CENTER:
+        offset = ( totalWidth - pieceWidth ) / 2;
+        break;
+      case SWT.RIGHT:
+        offset = totalWidth - pieceWidth;
+        break;
+    }
+    return offset;
   }
 
   Point computeSize( PrintSizeStrategy strategy ) {

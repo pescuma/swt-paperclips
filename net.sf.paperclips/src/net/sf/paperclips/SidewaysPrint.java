@@ -205,16 +205,21 @@ final class SidewaysPiece implements PrintPiece {
   }
 
   public void paint( GC gc, int x, int y ) {
-    // Remember old transform so it can be restored after painting.
     Transform oldTransform = getOldTransform();
     gc.getTransform( oldTransform );
 
-    // Get current transform
     Transform transform = getTransform();
     gc.getTransform( transform );
-
-    // Prep the transform
     transform.translate( x, y );
+    rotateTransform( transform );
+    gc.setTransform( transform );
+
+    target.paint( gc, 0, 0 );
+
+    gc.setTransform( oldTransform );
+  }
+
+  private void rotateTransform( Transform transform ) {
     switch ( angle ) {
       case 90:
         transform.translate( 0, size.y );
@@ -229,10 +234,6 @@ final class SidewaysPiece implements PrintPiece {
         throw new IllegalStateException( "Illegal degrees value of " + angle );
     }
     transform.rotate( -angle ); // reverse the angle since Transform.rotate goes clockwise
-
-    gc.setTransform( transform );
-    target.paint( gc, 0, 0 );
-    gc.setTransform( oldTransform );
   }
 
   public void dispose() {

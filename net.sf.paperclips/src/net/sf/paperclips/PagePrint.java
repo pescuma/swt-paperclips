@@ -234,12 +234,15 @@ class PageIterator implements PrintIterator {
   }
 
   private void computeSizes() {
-    if ( minimumSize != null && preferredSize != null )
-      return;
+    if ( minimumSize == null )
+      minimumSize = computeSize( PrintSizeStrategy.MINIMUM );
+    if ( preferredSize == null )
+      preferredSize = computeSize( PrintSizeStrategy.PREFERRED );
 
-    // Calculate the minimum and preferred size.
-    Point minSize = body.minimumSize();
-    Point prefSize = body.preferredSize();
+  }
+
+  private Point computeSize( PrintSizeStrategy strategy ) {
+    Point size = strategy.computeSize( body );
 
     PageNumber samplePageNumber = new PageNumber() {
       public int getPageCount() {
@@ -256,16 +259,11 @@ class PageIterator implements PrintIterator {
       if ( headerPrint != null ) {
         PrintIterator iter = headerPrint.iterator( device, gc );
 
-        minSize.y += headerGap;
-        prefSize.y += headerGap;
+        size.y += headerGap;
 
-        Point headerMinSize = iter.minimumSize();
-        minSize.y += headerMinSize.y;
-        minSize.x = Math.max( minSize.x, headerMinSize.x );
-
-        Point headerPrefSize = iter.preferredSize();
-        prefSize.y += headerPrefSize.y;
-        prefSize.x = Math.max( prefSize.x, headerPrefSize.x );
+        Point headerSize = strategy.computeSize( iter );
+        size.x = Math.max( size.x, headerSize.x );
+        size.y += headerSize.y;
       }
     }
 
@@ -274,21 +272,15 @@ class PageIterator implements PrintIterator {
       if ( footerPrint != null ) {
         PrintIterator iter = footerPrint.iterator( device, gc );
 
-        minSize.y += footerGap;
-        prefSize.y += footerGap;
+        size.y += footerGap;
 
-        Point footerMinSize = iter.minimumSize();
-        minSize.y += footerMinSize.y;
-        minSize.x = Math.max( minSize.x, footerMinSize.x );
-
-        Point footerPrefSize = iter.preferredSize();
-        prefSize.y += footerPrefSize.y;
-        prefSize.x = Math.max( prefSize.x, footerPrefSize.x );
+        Point footerSize = strategy.computeSize( iter );
+        size.x = Math.max( size.x, footerSize.x );
+        size.y += footerSize.y;
       }
     }
 
-    this.minimumSize = minSize;
-    this.preferredSize = prefSize;
+    return size;
   }
 
   public boolean hasNext() {
@@ -310,13 +302,9 @@ class PageIterator implements PrintIterator {
   private PageNumber pageNumber = null;
 
   public PrintPiece next( int width, int height ) {
-    // Remembering the page number in an instance field--this way if the
-    // iteration fails, the page number will be available for the next
-    // iteration (so page numbers don't get skipped).
     if ( pageNumber == null )
       pageNumber = numberer.next();
 
-    // y offset
     int y = 0;
 
     List entries = new ArrayList();
@@ -325,15 +313,9 @@ class PageIterator implements PrintIterator {
     if ( header != null ) {
       Print headerPrint = header.createPrint( pageNumber );
       if ( headerPrint != null ) {
-        PrintIterator headerIterator = headerPrint.iterator( device, gc );
-        PrintPiece headerPiece = PaperClips.next( headerIterator, width, height );
-
+        PrintPiece headerPiece = getDecorationPrintPiece( headerPrint, width, height );
         if ( headerPiece == null )
           return null;
-        if ( headerIterator.hasNext() ) {
-          headerPiece.dispose();
-          return null;
-        }
 
         entries.add( new CompositeEntry( headerPiece, new Point( 0, 0 ) ) );
 
@@ -347,17 +329,9 @@ class PageIterator implements PrintIterator {
     if ( footer != null ) {
       Print footerPrint = footer.createPrint( pageNumber );
       if ( footerPrint != null ) {
-        PrintIterator footerIterator = footerPrint.iterator( device, gc );
-        PrintPiece footerPiece = PaperClips.next( footerIterator, width, height );
-
-        if ( footerPiece == null || footerIterator.hasNext() ) {
-          if ( footerPiece != null )
-            footerPiece.dispose();
-          for ( Iterator iter = entries.iterator(); iter.hasNext(); ) {
-            CompositeEntry entry = (CompositeEntry) iter.next();
-            entry.piece.dispose();
-          }
-          return null;
+        PrintPiece footerPiece = getDecorationPrintPiece( footerPrint, width, height );
+        if ( footerPiece == null ) {
+          return nukeEntries( entries );
         }
 
         entries.add( new CompositeEntry( footerPiece, new Point( 0, y + height - footerPiece.getSize().y ) ) );
@@ -370,13 +344,8 @@ class PageIterator implements PrintIterator {
 
     // BODY
     PrintPiece bodyPiece = PaperClips.next( body, width, height );
-
     if ( bodyPiece == null ) {
-      for ( Iterator iter = entries.iterator(); iter.hasNext(); ) {
-        CompositeEntry entry = (CompositeEntry) iter.next();
-        entry.piece.dispose();
-      }
-      return null;
+      return nukeEntries( entries );
     }
 
     entries.add( new CompositeEntry( bodyPiece, new Point( 0, y ) ) );
@@ -389,6 +358,27 @@ class PageIterator implements PrintIterator {
     pageNumber = null;
 
     return result;
+  }
+
+  private PrintPiece nukeEntries( List entries ) {
+    for ( Iterator iter = entries.iterator(); iter.hasNext(); ) {
+      CompositeEntry entry = (CompositeEntry) iter.next();
+      entry.piece.dispose();
+    }
+    return null;
+  }
+
+  private PrintPiece getDecorationPrintPiece( Print decoration, int width, int height ) {
+    PrintIterator iterator = decoration.iterator( device, gc );
+    PrintPiece piece = PaperClips.next( iterator, width, height );
+
+    if ( piece == null )
+      return null;
+    if ( iterator.hasNext() ) {
+      piece.dispose();
+      return null;
+    }
+    return piece;
   }
 
   public PrintIterator copy() {

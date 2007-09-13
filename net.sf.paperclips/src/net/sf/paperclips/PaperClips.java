@@ -123,7 +123,7 @@ public class PaperClips {
       throw new RuntimeException( "Unable to start print job" );
 
     try {
-      GC gc = new GC( printer );
+      GC gc = createConfiguredGC( printer );
       try {
         print( printJob, printer, gc );
       }
@@ -138,6 +138,12 @@ public class PaperClips {
     }
   }
 
+  private static GC createConfiguredGC( Printer printer ) {
+    GC gc = new GC( printer );
+    gc.setAdvanced( true );
+    return gc;
+  }
+
   /**
    * Prints the print job to the specified printer using the GC. This method does not manage the print job
    * lifecycle (it does not call startJob or endJob).
@@ -150,7 +156,6 @@ public class PaperClips {
 
     PrintPiece[] pages = getPages( printJob, printer, gc );
 
-    // Determine the page range to print based on PrinterData.scope
     int startPage = 0;
     int endPage = pages.length - 1;
     if ( printerData.scope == PrinterData.PAGE_RANGE ) {
@@ -159,7 +164,6 @@ public class PaperClips {
       endPage = Math.min( endPage, printerData.endPage - 1 );
     }
 
-    // Determine the number of copies and collation.
     final int collatedCopies;
     final int noncollatedCopies;
     if ( printerData.collate ) { // always false if printer driver performs collation
@@ -170,11 +174,17 @@ public class PaperClips {
       collatedCopies = 1;
     }
 
-    // Dispose the unused pages (those outside the page range) up front.
-    for ( int i = 0; i < startPage; i++ )
-      pages[i].dispose();
-    for ( int i = endPage + 1; i < pages.length; i++ )
-      pages[i].dispose();
+    printPages( printer, gc, pages, startPage, endPage, collatedCopies, noncollatedCopies );
+  }
+
+  private static void printPages( Printer printer,
+                                  final GC gc,
+                                  PrintPiece[] pages,
+                                  int startPage,
+                                  int endPage,
+                                  final int collatedCopies,
+                                  final int noncollatedCopies ) {
+    disposeUnusedPages( pages, startPage, endPage );
 
     Rectangle paperBounds = getPaperBounds( printer );
     final int x = paperBounds.x;
@@ -201,19 +211,11 @@ public class PaperClips {
     }
   }
 
-  private static PrintJob applyOrientation( PrintJob printJob, Printer printer ) {
-    int orientation = printJob.getOrientation();
-
-    Rectangle paperBounds = getPaperBounds( printer );
-    if ( ( ( orientation == ORIENTATION_LANDSCAPE ) && ( paperBounds.width < paperBounds.height ) )
-        || ( ( orientation == ORIENTATION_PORTRAIT ) && ( paperBounds.height < paperBounds.width ) ) ) {
-      String name = printJob.getName();
-      Print document = new RotatePrint( printJob.getDocument() );
-      Margins margins = printJob.getMargins().rotate();
-      printJob = new PrintJob( name, document ).setMargins( margins ).setOrientation( ORIENTATION_DEFAULT );
-    }
-
-    return printJob;
+  private static void disposeUnusedPages( PrintPiece[] pages, int startPage, int endPage ) {
+    for ( int i = 0; i < startPage; i++ )
+      pages[i].dispose();
+    for ( int i = endPage + 1; i < pages.length; i++ )
+      pages[i].dispose();
   }
 
   /**
@@ -231,12 +233,17 @@ public class PaperClips {
    * @throws RuntimeException if the document could not be properly laid out for any reason.
    */
   public static PrintPiece[] getPages( PrintJob printJob, Printer printer ) {
+    String platform = SWT.getPlatform();
+    boolean carbon = platform.equals( "carbon" );
+    boolean gtk = platform.equals( "gtk" );
+
     // Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by default.
-    if ( !printer.startJob( "" ) )
-      throw new RuntimeException( "Unable to start print job" );
+    if ( carbon || gtk )
+      if ( !printer.startJob( "" ) )
+        throw new RuntimeException( "Unable to start print job" );
 
     try {
-      GC gc = new GC( printer );
+      GC gc = createConfiguredGC( printer );
       try {
         return getPages( printJob, printer, gc );
       }
@@ -245,9 +252,12 @@ public class PaperClips {
       }
     }
     finally {
-      // 2007-04-30: Attempting to endJob() instead of cancelJob() to see if that gets around the
-      // OSX bug that renders a Printer useless after cancelJob().
-      printer.endJob();
+      if ( gtk )
+        printer.cancelJob();
+      // 2007-04-30: A bug in OSX renders Printer instances useless after a call to cancelJob(). Therefore on
+      // OSX we call endJob() instead of cancelJob().
+      else if ( carbon )
+        printer.endJob();
     }
   }
 
@@ -275,6 +285,21 @@ public class PaperClips {
     }
 
     return (PrintPiece[]) pages.toArray( new PrintPiece[pages.size()] );
+  }
+
+  private static PrintJob applyOrientation( PrintJob printJob, Printer printer ) {
+    int orientation = printJob.getOrientation();
+
+    Rectangle paperBounds = getPaperBounds( printer );
+    if ( ( ( orientation == ORIENTATION_LANDSCAPE ) && ( paperBounds.width < paperBounds.height ) )
+        || ( ( orientation == ORIENTATION_PORTRAIT ) && ( paperBounds.height < paperBounds.width ) ) ) {
+      String name = printJob.getName();
+      Print document = new RotatePrint( printJob.getDocument() );
+      Margins margins = printJob.getMargins().rotate();
+      printJob = new PrintJob( name, document ).setMargins( margins ).setOrientation( ORIENTATION_DEFAULT );
+    }
+
+    return printJob;
   }
 
   private static PrintPiece createPagePiece( PrintPiece page, Rectangle marginBounds, Rectangle paperBounds ) {

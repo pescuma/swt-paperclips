@@ -75,25 +75,22 @@ public class SeriesPrint implements Print {
 
 class SeriesIterator implements PrintIterator {
   final PrintIterator[] iters;
-
-  // This is the cursor!
   int                   index;
 
   SeriesIterator( SeriesPrint print, Device device, GC gc ) {
     this.iters = new PrintIterator[print.items.size()];
-    for ( int i = 0; i < iters.length; i++ ) {
+    for ( int i = 0; i < iters.length; i++ )
       iters[i] = ( (Print) print.items.get( i ) ).iterator( device, gc );
-    }
+
     this.index = 0;
   }
 
   SeriesIterator( SeriesIterator that ) {
     this.iters = (PrintIterator[]) that.iters.clone();
-    this.index = that.index;
-
-    // Start at index since the previous iterators are already consumed.
     for ( int i = index; i < iters.length; i++ )
       this.iters[i] = that.iters[i].copy();
+
+    this.index = that.index;
   }
 
   public boolean hasNext() {
@@ -101,14 +98,15 @@ class SeriesIterator implements PrintIterator {
   }
 
   private Point computeSize( PrintSizeStrategy strategy ) {
-    Point size = new Point( 0, 0 );
+    int width = 0;
+    int height = 0;
     for ( int i = 0; i < iters.length; i++ ) {
       PrintIterator iter = iters[i];
       Point printSize = strategy.computeSize( iter );
-      size.x = Math.max( size.x, printSize.x );
-      size.y = Math.max( size.y, printSize.y );
+      width = Math.max( width, printSize.x );
+      height = Math.max( height, printSize.y );
     }
-    return size;
+    return new Point( width, height );
   }
 
   public Point minimumSize() {

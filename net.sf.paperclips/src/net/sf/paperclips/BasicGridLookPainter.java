@@ -11,9 +11,32 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 
+/**
+ * A abstract GridLookPainter which simplifies implementation of custom GridLooks.
+ * <p>
+ * Subclasses must have the following methods implemented:
+ * <ul>
+ * <li>getMargins() - these margins are referenced by GridPrint for determining proper layout of the cells,
+ * as well as by the paint() method.
+ * <li>paintHeaderCell() - will be called by the paint() method for each header cell.
+ * <li>paintBodyCell() - will be called by the paint() method for each body cell.
+ * <li>paintFooterCell() - will be called by the paint() method for each footer cell.
+ * <li>dispose() - must dispose any SWT resources created by the subclass.
+ * </ul>
+ * @author Matthew Hall
+ */
 public abstract class BasicGridLookPainter implements GridLookPainter {
+  /**
+   * The printer device on which the look is being painted. This is the device that was passed as an argument
+   * to the constructor.
+   */
   protected final Device device;
 
+  /**
+   * Constructs a BasicGridLook painter.
+   * @param device the printer device (may not be null). This argument will be saved in the protected
+   *        {@link #device} field.
+   */
   public BasicGridLookPainter( Device device ) {
     if ( device == null )
       throw new NullPointerException();
@@ -25,125 +48,152 @@ public abstract class BasicGridLookPainter implements GridLookPainter {
                      int y,
                      int[] columns,
                      int[] headerRows,
-                     int[][] headerCellSpans,
+                     int[][] headerColSpans,
                      int firstRowIndex,
                      boolean topOpen,
                      int[] bodyRows,
-                     int[][] bodyCellSpans,
+                     int[][] bodyColSpans,
                      boolean bottomOpen,
                      int[] footerRows,
-                     int[][] footerCellSpans ) {
+                     int[][] footerColSpans ) {
     GridMargins margins = getMargins();
 
     final boolean headerPresent = headerRows.length > 0;
     final boolean footerPresent = footerRows.length > 0;
 
-    // Cursor variables
-    int X;
-    int Y = y;
+    x += margins.getLeft();
 
-    // HEADER LOOK
-    if ( headerPresent ) {
-      Y += margins.getHeaderTop();
+    if ( headerPresent )
+      y = paintHeader( gc, x, y, columns, headerRows, headerColSpans );
 
-      for ( int rowIndex = 0; rowIndex < headerRows.length; rowIndex++ ) {
-        X = x + margins.getLeft();
+    y += margins.getBodyTop( headerPresent, topOpen );
+    y = paintBody( gc, x, y, columns, bodyRows, bodyColSpans, firstRowIndex, topOpen, bottomOpen );
+    y += margins.getBodyBottom( footerPresent, bottomOpen );
 
-        int col = 0;
+    if ( footerPresent )
+      paintFooter( gc, x, y, columns, footerRows, footerColSpans );
+  }
 
-        // Height of all cells on current row.
-        final int H = headerRows[rowIndex];
+  private int paintHeader( GC gc, int x, int y, int[] columns, int[] rows, int[][] colSpans ) {
+    GridMargins margins = getMargins();
 
-        for ( int cellIndex = 0; cellIndex < headerCellSpans[rowIndex].length; cellIndex++ ) {
-          int cellSpan = headerCellSpans[rowIndex][cellIndex];
+    y += margins.getHeaderTop();
 
-          // Compute cellspan width.
-          int W = ( cellSpan - 1 ) * margins.getHorizontalSpacing();
-          for ( int j = 0; j < cellSpan; j++ )
-            W += columns[col + j];
+    for ( int i = 0; i < rows.length; i++ ) {
+      int h = rows[i];
 
-          paintHeaderCell( gc, new Rectangle( X, Y, W, H ), rowIndex, col, cellSpan );
+      paintHeaderRow( gc, x, y, columns, h, i, colSpans[i] );
 
-          // Advance horizontal cursors
-          col += cellSpan;
-          X += W + margins.getHorizontalSpacing();
-        }
-
-        // Advanced vertical cursor
-        Y += H + margins.getHeaderVerticalSpacing();
-      }
-      // After all header rows, subtract the header row spacing added in the last row.
-      Y -= margins.getHeaderVerticalSpacing();
+      y += h;
+      if ( i < rows.length - 1 )
+        y += margins.getHeaderVerticalSpacing();
     }
 
-    // BODY LOOK
-    Y += margins.getBodyTop( headerPresent, topOpen );
-    for ( int rowIndex = 0; rowIndex < bodyRows.length; rowIndex++ ) {
-      X = x + margins.getLeft();
+    return y;
+  }
 
-      int col = 0;
+  private int paintBody( GC gc,
+                         int x,
+                         int y,
+                         int[] columns,
+                         int[] rows,
+                         int[][] colSpans,
+                         int firstRowIndex,
+                         boolean topOpen,
+                         boolean bottomOpen ) {
+    GridMargins margins = getMargins();
 
-      // Height of all cells on current row.
-      final int H = bodyRows[rowIndex];
+    for ( int i = 0; i < rows.length; i++ ) {
+      final int h = rows[i];
 
-      final boolean rowTopOpen = rowIndex == 0 ? topOpen : false;
-      final boolean rowBottomOpen = rowIndex == bodyRows.length - 1 ? bottomOpen : false;
+      paintBodyRow( gc,
+                    x,
+                    y,
+                    columns,
+                    h,
+                    colSpans[i],
+                    firstRowIndex + i,
+                    i == 0 && topOpen,
+                    i == rows.length - 1 && bottomOpen );
 
-      for ( int cellIndex = 0; cellIndex < bodyCellSpans[rowIndex].length; cellIndex++ ) {
-        int cellSpan = bodyCellSpans[rowIndex][cellIndex];
-
-        // Compute cellspan width.
-        int W = ( cellSpan - 1 ) * margins.getHorizontalSpacing();
-        for ( int j = 0; j < cellSpan; j++ )
-          W += columns[col + j];
-
-        paintBodyCell( gc,
-                       new Rectangle( X, Y, W, H ),
-                       firstRowIndex + rowIndex,
-                       col,
-                       cellSpan,
-                       rowTopOpen,
-                       rowBottomOpen );
-
-        // Advance horizontal cursors
-        col += cellSpan;
-        X += W + margins.getHorizontalSpacing();
-      }
-
-      // Advanced vertical cursor
-      Y += H + margins.getBodyVerticalSpacing();
+      y += h;
+      if ( i < rows.length - 1 )
+        y += margins.getBodyVerticalSpacing();
     }
-    Y -= margins.getBodyVerticalSpacing();
-    Y += margins.getBodyBottom( footerPresent, bottomOpen );
+    return y;
+  }
 
-    // FOOTER LOOK
-    if ( footerPresent ) {
-      for ( int rowIndex = 0; rowIndex < footerRows.length; rowIndex++ ) {
-        X = x + margins.getLeft();
+  private void paintFooter( GC gc, final int x, int y, int[] columns, int[] rows, int[][] colSpans ) {
+    GridMargins margins = getMargins();
 
-        int col = 0;
+    for ( int i = 0; i < rows.length; i++ ) {
+      final int h = rows[i];
 
-        // Height of all cells on current row.
-        final int H = footerRows[rowIndex];
-        for ( int cellIndex = 0; cellIndex < footerCellSpans[rowIndex].length; cellIndex++ ) {
-          int cellSpan = footerCellSpans[rowIndex][cellIndex];
+      paintFooterRow( gc, x, y, columns, h, i, colSpans[i] );
 
-          // Compute cellspan width.
-          int W = ( cellSpan - 1 ) * margins.getHorizontalSpacing();
-          for ( int j = 0; j < cellSpan; j++ )
-            W += columns[col + j];
-
-          paintFooterCell( gc, new Rectangle( X, Y, W, H ), rowIndex, col, cellSpan );
-
-          // Advance horizontal cursors
-          col += cellSpan;
-          X += W + margins.getHorizontalSpacing();
-        }
-
-        // Advanced vertical cursor
-        Y += H + margins.getFooterVerticalSpacing();
-      }
+      y += h;
+      y += margins.getFooterVerticalSpacing();
     }
+  }
+
+  private void paintHeaderRow( GC gc, int x, int y, int[] columns, final int h, int rowIndex, int[] colSpans ) {
+    GridMargins margins = getMargins();
+
+    int col = 0;
+    for ( int i = 0; i < colSpans.length; i++ ) {
+      final int colSpan = colSpans[i];
+      final int w = sum( columns, col, colSpan ) + ( colSpan - 1 ) * margins.getHorizontalSpacing();
+
+      paintHeaderCell( gc, new Rectangle( x, y, w, h ), rowIndex, col, colSpan );
+
+      col += colSpan;
+      x += w + margins.getHorizontalSpacing();
+    }
+  }
+
+  private void paintBodyRow( GC gc,
+                             int x,
+                             int y,
+                             int[] columns,
+                             final int h,
+                             int[] colSpans,
+                             int rowIndex,
+                             final boolean topOpen,
+                             final boolean bottomOpen ) {
+    GridMargins margins = getMargins();
+
+    int col = 0;
+    for ( int i = 0; i < colSpans.length; i++ ) {
+      final int colSpan = colSpans[i];
+      final int w = sum( columns, col, colSpan ) + ( colSpan - 1 ) * margins.getHorizontalSpacing();
+
+      paintBodyCell( gc, new Rectangle( x, y, w, h ), rowIndex, col, colSpan, topOpen, bottomOpen );
+
+      col += colSpan;
+      x += w + margins.getHorizontalSpacing();
+    }
+  }
+
+  private void paintFooterRow( GC gc, int x, int y, int[] columns, final int h, int rowIndex, int[] colSpans ) {
+    GridMargins margins = getMargins();
+
+    int col = 0;
+    for ( int i = 0; i < colSpans.length; i++ ) {
+      final int colSpan = colSpans[i];
+      final int w = sum( columns, col, colSpan ) + ( colSpan - 1 ) * margins.getHorizontalSpacing();
+
+      paintFooterCell( gc, new Rectangle( x, y, w, h ), rowIndex, col, colSpan );
+
+      col += colSpan;
+      x += w + margins.getHorizontalSpacing();
+    }
+  }
+
+  private int sum( int[] elements, int start, int length ) {
+    int sum = 0;
+    for ( int j = 0; j < length; j++ )
+      sum += elements[start + j];
+    return sum;
   }
 
   /**

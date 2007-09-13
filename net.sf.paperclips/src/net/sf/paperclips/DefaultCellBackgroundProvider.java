@@ -30,7 +30,7 @@ public class DefaultCellBackgroundProvider implements CellBackgroundProvider {
   /**
    * Constructs a DefaultGridBackgroundProvider which chains to the argument if this instance has a null
    * background color. (DefaultGridLook uses this constructor to cause header and footer background colors to
-   * default to the body background color.
+   * default to the body background color.)
    * @param chain the provider to chain a getCellBackground(...) call to if this instance would return null.
    *        Ignored if null.
    */

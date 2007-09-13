@@ -166,9 +166,8 @@ final class ScalePiece implements PrintPiece {
     this.target = target;
     this.scale = scale;
     Point targetSize = target.getSize();
-    this.size =
-        new Point( Math.min( (int) Math.ceil( targetSize.x * scale ), maxWidth ),
-                   Math.min( (int) Math.ceil( targetSize.y * scale ), maxHeight ) );
+    this.size = new Point( Math.min( (int) Math.ceil( targetSize.x * scale ), maxWidth ),
+                           Math.min( (int) Math.ceil( targetSize.y * scale ), maxHeight ) );
   }
 
   public Point getSize() {
@@ -188,19 +187,17 @@ final class ScalePiece implements PrintPiece {
   }
 
   public void paint( GC gc, int x, int y ) {
-    // Get the transforms
     Transform oldTransform = getOldTransform();
-    Transform transform = getTransform();
-
     gc.getTransform( oldTransform );
-    gc.getTransform( transform );
 
-    // Setup the transform for the scale.
+    Transform transform = getTransform();
+    gc.getTransform( transform );
     transform.translate( x, y );
     transform.scale( (float) scale, (float) scale );
-
     gc.setTransform( transform );
+
     target.paint( gc, 0, 0 );
+
     gc.setTransform( oldTransform );
   }
 

@@ -314,7 +314,7 @@ class PageNumberPiece extends AbstractPiece {
     return foreground;
   }
 
-  public void paint( GC gc, int x, int y ) {
+  public void paint( final GC gc, final int x, final int y ) {
     Font oldFont = gc.getFont();
     Color oldForeground = gc.getForeground();
 
@@ -325,27 +325,25 @@ class PageNumberPiece extends AbstractPiece {
       gc.setForeground( getForeground() );
 
       String text = format.format( pageNumber );
-      Point textSize = gc.textExtent( text );
-
-      // Adjust x for alignment.
-      switch ( align ) {
-        case SWT.CENTER:
-          x = x + ( size.x - textSize.x ) / 2;
-          break;
-        case SWT.RIGHT:
-          x = x + size.x - textSize.x;
-          break;
-        default:
-          break;
-      }
-
-      // Draw the page number.
-      gc.drawText( text, x, y, true );
+      gc.drawText( text, x + getHorzAlignmentOffset( gc.textExtent( text ).x, size.x ), y, true );
     }
     finally {
       gc.setFont( oldFont );
       gc.setForeground( oldForeground );
     }
+  }
+
+  private int getHorzAlignmentOffset( int textWidth, int totalWidth ) {
+    int offset = 0;
+    switch ( align ) {
+      case SWT.CENTER:
+        offset = ( totalWidth - textWidth ) / 2;
+        break;
+      case SWT.RIGHT:
+        offset = totalWidth - textWidth;
+        break;
+    }
+    return offset;
   }
 
   public void dispose() {

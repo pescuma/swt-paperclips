@@ -7,11 +7,6 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -50,10 +45,8 @@ public class DefaultGridLook implements GridLook {
    */
   public DefaultGridLook() {
     this.bodyBackgroundProvider = defaultBodyBackgroundProvider = new DefaultCellBackgroundProvider();
-    this.headerBackgroundProvider =
-        defaultHeaderBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
-    this.footerBackgroundProvider =
-        defaultFooterBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
+    this.headerBackgroundProvider = defaultHeaderBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
+    this.footerBackgroundProvider = defaultFooterBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
   }
 
   /**
@@ -189,8 +182,9 @@ public class DefaultGridLook implements GridLook {
    * @param headerBackgroundProvider the new background color provider.
    */
   public void setHeaderBackgroundProvider( CellBackgroundProvider headerBackgroundProvider ) {
-    this.headerBackgroundProvider =
-        headerBackgroundProvider == null ? defaultHeaderBackgroundProvider : headerBackgroundProvider;
+    this.headerBackgroundProvider = headerBackgroundProvider == null
+        ? defaultHeaderBackgroundProvider
+        : headerBackgroundProvider;
   }
 
   /**
@@ -243,8 +237,9 @@ public class DefaultGridLook implements GridLook {
    * @param bodyBackgroundProvider the new background color provider.
    */
   public void setBodyBackgroundProvider( CellBackgroundProvider bodyBackgroundProvider ) {
-    this.bodyBackgroundProvider =
-        bodyBackgroundProvider == null ? defaultBodyBackgroundProvider : bodyBackgroundProvider;
+    this.bodyBackgroundProvider = bodyBackgroundProvider == null
+        ? defaultBodyBackgroundProvider
+        : bodyBackgroundProvider;
   }
 
   /**
@@ -297,210 +292,12 @@ public class DefaultGridLook implements GridLook {
    * @param footerBackgroundProvider the new background color provider.
    */
   public void setFooterBackgroundProvider( CellBackgroundProvider footerBackgroundProvider ) {
-    this.footerBackgroundProvider =
-        footerBackgroundProvider == null ? defaultFooterBackgroundProvider : footerBackgroundProvider;
+    this.footerBackgroundProvider = footerBackgroundProvider == null
+        ? defaultFooterBackgroundProvider
+        : footerBackgroundProvider;
   }
 
   public GridLookPainter getPainter( Device device, GC gc ) {
     return new DefaultGridLookPainter( this, device, gc );
-  }
-}
-
-class DefaultGridLookPainter extends BasicGridLookPainter {
-  private final Rectangle              cellPadding;
-
-  private final BorderPainter          border;
-
-  private final CellBackgroundProvider headerBackground;
-  private final CellBackgroundProvider bodyBackground;
-  private final CellBackgroundProvider footerBackground;
-
-  private final GridMargins            margins;
-
-  DefaultGridLookPainter( DefaultGridLook look, Device device, GC gc ) {
-    super( device );
-
-    this.border = look.cellBorder.createPainter( device, gc );
-    Point dpi = device.getDPI();
-    Point cellSpacing =
-        new Point( border.getWidth()
-            + ( look.cellSpacing.x == DefaultGridLook.BORDER_OVERLAP ? -border.getOverlap().x : dpi.x
-                * look.cellSpacing.x / 72 ), border.getHeight( false, false )
-            + ( look.cellSpacing.y == DefaultGridLook.BORDER_OVERLAP ? -border.getOverlap().y : dpi.y
-                * look.cellSpacing.y / 72 ) );
-    cellPadding =
-        new Rectangle( look.cellPadding.x * dpi.x / 72,
-                       look.cellPadding.y * dpi.y / 72,
-                       look.cellPadding.width * dpi.x / 72,
-                       look.cellPadding.height * dpi.y / 72 );
-    final int headerClosedSpacing =
-        border.getHeight( false, false )
-            + ( look.headerGap == DefaultGridLook.BORDER_OVERLAP ? -border.getOverlap().y : dpi.y
-                * look.headerGap / 72 );
-    final int headerOpenSpacing =
-        border.getHeight( true, false )
-            + ( look.headerGap == DefaultGridLook.BORDER_OVERLAP ? dpi.y / 72 : dpi.y * look.headerGap / 72 );
-    final int footerClosedSpacing =
-        border.getHeight( false, false )
-            + ( look.footerGap == DefaultGridLook.BORDER_OVERLAP ? -border.getOverlap().y : dpi.y
-                * look.footerGap / 72 );
-    final int footerOpenSpacing =
-        border.getHeight( false, true )
-            + ( look.footerGap == DefaultGridLook.BORDER_OVERLAP ? dpi.y / 72 : dpi.y * look.footerGap / 72 );
-
-    this.margins =
-        new DefaultGridMargins( border,
-                                cellSpacing,
-                                cellPadding,
-                                headerClosedSpacing,
-                                headerOpenSpacing,
-                                footerClosedSpacing,
-                                footerOpenSpacing );
-
-    this.bodyBackground = look.bodyBackgroundProvider;
-    this.headerBackground = look.headerBackgroundProvider;
-    this.footerBackground = look.footerBackgroundProvider;
-  }
-
-  public GridMargins getMargins() {
-    return margins;
-  }
-
-  final Map colorMap = new HashMap();
-
-  // colorMap maps RGBs to Color instances to avoid creating a lot of Color objects on the device.
-  private Color getColor( RGB rgb ) {
-    if ( rgb == null )
-      return null;
-
-    Color result = (Color) colorMap.get( rgb );
-    if ( result == null ) {
-      result = new Color( device, rgb );
-      colorMap.put( new RGB( rgb.red, rgb.green, rgb.blue ), result );
-    }
-    return result;
-  }
-
-  protected void paintHeaderCell( GC gc, Rectangle bounds, int row, int col, int colspan ) {
-    RGB background = headerBackground.getCellBackground( row, col, colspan );
-    paintCell( gc, background, bounds, false, false );
-  }
-
-  protected void paintBodyCell( GC gc,
-                                Rectangle bounds,
-                                int row,
-                                int col,
-                                int colspan,
-                                boolean topOpen,
-                                boolean bottomOpen ) {
-    RGB background = bodyBackground.getCellBackground( row, col, colspan );
-    paintCell( gc, background, bounds, topOpen, bottomOpen );
-  }
-
-  protected void paintFooterCell( GC gc, Rectangle bounds, int row, int col, int colspan ) {
-    RGB background = footerBackground.getCellBackground( row, col, colspan );
-    paintCell( gc, background, bounds, false, false );
-  }
-
-  public void paintCell( GC gc, RGB background, Rectangle bounds, boolean topOpen, boolean bottomOpen ) {
-    // Compute effective cell rectangle
-    int x = bounds.x - border.getLeft() - cellPadding.x;
-    int y = bounds.y - border.getTop( topOpen ) - ( topOpen ? 0 : cellPadding.y );
-    int width = bounds.width + border.getWidth() + cellPadding.x + cellPadding.width;
-    int height =
-        bounds.height + border.getHeight( topOpen, bottomOpen )
-            + ( bottomOpen ? 0 : cellPadding.y + cellPadding.height );
-
-    // Paint background
-    Color backgroundColor = getColor( background );
-    if ( backgroundColor != null ) {
-      Color oldBackground = gc.getBackground();
-      gc.setBackground( backgroundColor );
-      gc.fillRectangle( x, y, width, height );
-      gc.setBackground( oldBackground );
-    }
-
-    // Paint border
-    border.paint( gc, x, y, width, height, topOpen, bottomOpen );
-  }
-
-  public void dispose() {
-    for ( Iterator iter = colorMap.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      Color color = (Color) entry.getValue();
-      color.dispose();
-      iter.remove();
-    }
-    border.dispose();
-  }
-
-  static class DefaultGridMargins implements GridMargins {
-    private final BorderPainter border;
-    private final Point         cellSpacing;
-    private final Rectangle     cellPadding;
-    private final int           headerClosedSpacing;
-    private final int           headerOpenSpacing;
-    private final int           footerClosedSpacing;
-    private final int           footerOpenSpacing;
-
-    DefaultGridMargins( BorderPainter border,
-                        Point cellSpacing,
-                        Rectangle cellPadding,
-                        int headerClosedSpacing,
-                        int headerOpenSpacing,
-                        int footerClosedSpacing,
-                        int footerOpenSpacing ) {
-      this.border = border;
-      this.cellSpacing = cellSpacing;
-      this.cellPadding = cellPadding;
-      this.headerClosedSpacing = headerClosedSpacing;
-      this.headerOpenSpacing = headerOpenSpacing;
-      this.footerClosedSpacing = footerClosedSpacing;
-      this.footerOpenSpacing = footerOpenSpacing;
-    }
-
-    public int getLeft() {
-      return border.getLeft() + cellPadding.x;
-    }
-
-    public int getHorizontalSpacing() {
-      return cellSpacing.x + cellPadding.x + cellPadding.width;
-    }
-
-    public int getRight() {
-      return border.getRight() + cellPadding.width;
-    }
-
-    public int getHeaderTop() {
-      return border.getTop( false ) + cellPadding.y;
-    }
-
-    public int getHeaderVerticalSpacing() {
-      return cellSpacing.y + cellPadding.y + cellPadding.height;
-    }
-
-    public int getBodyTop( boolean headerPresent, boolean open ) {
-      return headerPresent ? open ? headerOpenSpacing : headerClosedSpacing + cellPadding.y : open
-          ? border.getTop( true )
-          : border.getTop( false ) + cellPadding.y;
-    }
-
-    public int getBodyVerticalSpacing() {
-      return cellSpacing.y + cellPadding.y + cellPadding.height;
-    }
-
-    public int getBodyBottom( boolean footerPresent, boolean open ) {
-      return footerPresent ? open ? footerOpenSpacing : footerClosedSpacing + cellPadding.height : open
-          ? border.getBottom( true )
-          : border.getBottom( false ) + cellPadding.height;
-    }
-
-    public int getFooterVerticalSpacing() {
-      return cellSpacing.y + cellPadding.y + cellPadding.height;
-    }
-
-    public int getFooterBottom() {
-      return border.getBottom( false ) + cellPadding.height;
-    }
   }
 }
