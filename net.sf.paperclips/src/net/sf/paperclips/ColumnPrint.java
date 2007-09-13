@@ -129,13 +129,15 @@ class ColumnIterator implements PrintIterator {
   }
 
   public Point minimumSize() {
-    Point min = target.minimumSize();
-    return new Point( min.x * columns + spacing * ( columns - 1 ), min.y );
+    return computeSize( target.minimumSize() );
   }
 
   public Point preferredSize() {
-    Point pref = target.preferredSize();
-    return new Point( pref.x * columns + spacing * ( columns - 1 ), pref.y );
+    return computeSize( target.preferredSize() );
+  }
+
+  private Point computeSize( Point targetSize ) {
+    return new Point( targetSize.x * columns + spacing * ( columns - 1 ), targetSize.y );
   }
 
   public boolean hasNext() {
@@ -212,62 +214,47 @@ class ColumnIterator implements PrintIterator {
     if ( columns == null )
       return null;
 
-    // Iteration succeeded, and the target was not completely
-    // consumed; we've filled the available area as much
-    // as possible and can conclude this iteration.
-    if ( iter.hasNext() ) {
-      this.target = iter;
-      return createResult( columns, colSizes );
-    }
+    // The target was completely consumed. If compressed property is true, close the gap until we find the
+    // smallest height that completely consumes the target's contents.
+    if ( !iter.hasNext() && compressed )
+      return nextCompressed( colSizes, iter, columns );
 
-    if ( !compressed ) {
-      this.target = iter;
-      return createResult( columns, colSizes );
-    }
-
-    return nextCompressed( colSizes, iter, columns );
+    this.target = iter;
+    return createResult( columns, colSizes );
   }
 
   private PrintPiece nextCompressed( int[] colSizes, PrintIterator iter, PrintPiece[] columns ) {
-    // TODO Evaluate the performance of the this algorithm.
-
-    // The target was completely consumed. Close the gap until we find the
-    // smallest height that completely consumes the target's contents.
-
-    int largestInvalidHeight = 0;
+    int highestInvalidHeight = 0;
+    int lowestValidHeight = getMaxHeight( columns );
 
     // Remember the best results
     PrintIterator bestIteration = iter;
-    PrintPiece[] bestIterationPieces = columns;
-    int bestHeight = getMaxHeight( columns );
+    PrintPiece[] bestColumns = columns;
 
-    while ( bestHeight > largestInvalidHeight + 1 ) {
-      int testHeight = ( bestHeight + largestInvalidHeight + 1 ) / 2;
+    while ( lowestValidHeight > highestInvalidHeight + 1 ) {
+      int testHeight = ( highestInvalidHeight + lowestValidHeight + 1 ) / 2;
 
       iter = target.copy();
       columns = nextColumns( iter, colSizes, testHeight );
 
       if ( columns == null ) {
-        largestInvalidHeight = testHeight;
+        highestInvalidHeight = testHeight;
       } else if ( iter.hasNext() ) {
-        // Iteration succeeded but the height was too short to completely contain iterator's contents.
-        largestInvalidHeight = testHeight;
+        highestInvalidHeight = testHeight;
         disposePieces( columns );
       } else {
-        // Iteration succeeded, and the height was sufficient to contain all of the iterator's contents.
-        // This iteration becomes the new best pass. Dispose the PrintPieces from the previous best.
-        disposePieces( bestIterationPieces );
+        disposePieces( bestColumns );
 
         bestIteration = iter;
-        bestIterationPieces = columns;
-        bestHeight = getMaxHeight( bestIterationPieces );
+        bestColumns = columns;
+        lowestValidHeight = getMaxHeight( bestColumns );
       }
     }
 
     // Now that we've narrowed down the target's best iteration, we
     // can update the state of this iterator with return the result.
     this.target = bestIteration;
-    return createResult( bestIterationPieces, colSizes );
+    return createResult( bestColumns, colSizes );
   }
 
   private int getMaxHeight( PrintPiece[] pieces ) {
