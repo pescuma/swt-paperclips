@@ -10,14 +10,11 @@ import net.sf.paperclips.PrintPiece;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 /**
  * A JFace-style {@link Print} viewer which displays a Print in a scrollable pane.
@@ -25,11 +22,13 @@ import org.eclipse.swt.widgets.Control;
  * @author Matthew
  */
 public class PrintViewer {
-  ScrolledComposite sc;
-  PrintPieceCanvas  canvas;
-  Print             print;
+  private final ScrolledComposite sc;
+  private final PrintPieceCanvas  canvas;
+  private Print                   print;
 
-  int               canvasWidth;
+  private int                     canvasWidth;
+
+  private BackgroundUpdater       backgroundUpdater;
 
   /**
    * Constructs a PrintPreview with the given parent and style.
@@ -41,17 +40,10 @@ public class PrintViewer {
     sc = new ScrolledComposite( parent, style | SWT.V_SCROLL | SWT.H_SCROLL );
     sc.setExpandHorizontal( true );
     sc.setExpandVertical( true );
-    sc.addControlListener( new ControlAdapter() {
-      public void controlResized( ControlEvent e ) {
+    sc.addListener( SWT.Resize, new Listener() {
+      public void handleEvent( Event event ) {
         if ( sc.getClientArea().width != canvasWidth )
           updateCanvas();
-      }
-    } );
-    sc.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent e ) {
-        PrintPiece piece = canvas.getPrintPiece();
-        if ( piece != null )
-          piece.dispose();
       }
     } );
     canvas = new PrintPieceCanvas( sc, SWT.DOUBLE_BUFFERED );
@@ -88,6 +80,7 @@ public class PrintViewer {
 
   void updateCanvas() {
     if ( print == null ) {
+      sc.setMinSize( 0, 0 );
       canvas.setPrintPiece( null );
       return;
     }
@@ -96,75 +89,107 @@ public class PrintViewer {
     try {
       gc = new GC( canvas );
 
-      PrintIterator iter = print.iterator( canvas.getDisplay(), gc );
+      PrintIterator iterator = print.iterator( canvas.getDisplay(), gc );
+      sc.setMinWidth( iterator.minimumSize().x );
 
-      int minWidth = iter.minimumSize().x;
-      int visibleWidth = sc.getClientArea().width;
-      canvasWidth = Math.max( minWidth, visibleWidth );
+      int canvasWidth = Math.max( iterator.minimumSize().x, sc.getClientArea().width );
+      if ( this.canvasWidth == canvasWidth )
+        return;
+      this.canvasWidth = canvasWidth;
 
-      PrintPiece piece = PaperClips.next( iter.copy(), canvasWidth, Integer.MAX_VALUE );
-
-      // If the print is vertically greedy, find the smallest height that will
-      // fit the print's
-      // complete contents onto one tall page.
-      if ( piece != null && piece.getSize().y == Integer.MAX_VALUE ) {
-
-        int low = iter.preferredSize().y;
-        int high = iter.preferredSize().y;
-
-        // First geometrically increase the range low-high until we find the
-        // range that the print
-        // fits in, in one piece.
-        while ( true ) {
-          PrintIterator testIter = iter.copy();
-          PrintPiece test = PaperClips.next( testIter, canvasWidth, high );
-          if ( test == null ) {
-            low = high;
-            high *= 4;
-          } else if ( testIter.hasNext() ) {
-            low = high;
-            high *= 4;
-            test.dispose();
-          } else {
-            // Once hasNext returns false we have found the range the print fits
-            // within
-            piece.dispose();
-            piece = test;
-            break;
-          }
-        }
-
-        // Now narrow down the best height within the range found in the last
-        // loop.
-        while ( high - low > 1 ) {
-          int height = ( low + high ) / 2;
-          PrintIterator testIter = iter.copy();
-          PrintPiece test = PaperClips.next( testIter, canvasWidth, height );
-
-          if ( test == null ) {
-            low = height;
-          } else if ( testIter.hasNext() ) {
-            low = height;
-            test.dispose();
-          } else {
-            // replace previous best fit with new best fit
-            high = height;
-            piece.dispose();
-            piece = test;
-          }
-        }
+      if ( backgroundUpdater != null ) {
+        backgroundUpdater.cancelled = true;
+        backgroundUpdater = null;
       }
 
-      sc.setMinSize( piece == null ? new Point( 0, 0 ) : piece.getSize() );
+      PrintPiece piece = PaperClips.next( iterator, canvasWidth, Integer.MAX_VALUE );
 
-      PrintPiece old = canvas.getPrintPiece();
-      canvas.setPrintPiece( piece );
-      if ( old != null )
-        old.dispose();
+      boolean printIsVerticallyGreedy = piece != null && piece.getSize().y == Integer.MAX_VALUE;
+      if ( printIsVerticallyGreedy )
+        sc.getDisplay().timerExec( 50, backgroundUpdater = new BackgroundUpdater() );
+      setPrintPiece( piece, !printIsVerticallyGreedy );
     }
     finally {
       if ( gc != null )
         gc.dispose();
+    }
+  }
+
+  private void setPrintPiece( PrintPiece piece, boolean updateMinHeight ) {
+    if ( updateMinHeight )
+      sc.setMinHeight( piece == null ? 0 : piece.getSize().y );
+    canvas.setPrintPiece( piece );
+  }
+
+  private class BackgroundUpdater implements Runnable {
+    private boolean       cancelled = false;
+    private int           minHeight;
+    private int           maxHeight;
+    private PrintIterator iterator;
+    private PrintPiece    piece;
+
+    public void run() {
+      if ( cancelled || print == null )
+        return;
+
+      GC gc = null;
+      try {
+        gc = new GC( canvas );
+
+        iterator = print.iterator( canvas.getDisplay(), gc );
+        piece = canvas.getPrintPiece();
+
+        determineValidHeightRange();
+        binarySearchRangeForSmallestValidHeight();
+
+        setPrintPiece( piece, true );
+      }
+      finally {
+        if ( gc != null )
+          gc.dispose();
+      }
+    }
+
+    private void determineValidHeightRange() {
+      minHeight = iterator.preferredSize().y;
+      maxHeight = Math.max( minHeight, 4096 );
+      while ( true ) {
+        PrintIterator testIter = iterator.copy();
+        PrintPiece testPiece = PaperClips.next( testIter, canvasWidth, maxHeight );
+        final int factor = 4;
+        if ( testPiece == null ) {
+          // Theoretically this will never happen since we started at preferred height
+          minHeight = maxHeight + 1;
+          maxHeight = minHeight * factor;
+        } else if ( testIter.hasNext() ) {
+          testPiece.dispose();
+          minHeight = maxHeight + 1;
+          maxHeight = minHeight * factor;
+        } else {
+          piece.dispose();
+          piece = testPiece;
+          break;
+        }
+      }
+    }
+
+    private void binarySearchRangeForSmallestValidHeight() {
+      while ( minHeight < maxHeight ) {
+        int testHeight = minHeight + ( maxHeight - minHeight ) / 2;
+        PrintIterator testIter = iterator.copy();
+        PrintPiece testPiece = PaperClips.next( testIter, canvasWidth, testHeight );
+
+        if ( testPiece == null ) {
+          minHeight = testHeight + 1;
+        } else if ( testIter.hasNext() ) {
+          testPiece.dispose();
+          minHeight = testHeight + 1;
+        } else {
+          maxHeight = Math.min( testHeight, testPiece.getSize().y );
+          piece.dispose();
+          piece = testPiece;
+        }
+      }
     }
   }
 }
