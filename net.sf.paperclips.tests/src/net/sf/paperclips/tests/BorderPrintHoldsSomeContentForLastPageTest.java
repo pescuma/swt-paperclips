@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Display;
  * 
  * @author Matthew
  */
-public class BorderPrintCloseBorderOnPageAfterContentEndsTest extends FactoryPrint {
+public class BorderPrintHoldsSomeContentForLastPageTest extends FactoryPrint {
   protected Print createPrint() {
     GridPrint grid = new GridPrint( "d:g", new DefaultGridLook( 10, 10 ) );
 
@@ -46,7 +46,7 @@ public class BorderPrintCloseBorderOnPageAfterContentEndsTest extends FactoryPri
     Display.getDefault();
 
     PaperClips.print( new PrintJob( "BreakPrintExample.java",
-                                    new BorderPrintCloseBorderOnPageAfterContentEndsTest() ),
+                                    new BorderPrintHoldsSomeContentForLastPageTest() ),
                       new PrinterData() );
   }
 }
