@@ -10,11 +10,11 @@ package net.sf.paperclips.ui;
 import net.sf.paperclips.PrintPiece;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 /**
  * A canvas for displaying Print objects.
@@ -36,13 +36,18 @@ public class PrintPieceCanvas extends Canvas {
     setBackground( getDisplay().getSystemColor( SWT.COLOR_LIST_BACKGROUND ) );
     setForeground( getDisplay().getSystemColor( SWT.COLOR_LIST_FOREGROUND ) );
 
-    addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent e ) {
+    addListener( SWT.Paint, new Listener() {
+      public void handleEvent( Event event ) {
         if ( piece == null )
           return;
 
         Rectangle client = getClientArea();
-        piece.paint( e.gc, client.x, client.y );
+        piece.paint( event.gc, client.x, client.y );
+      }
+    } );
+    addListener( SWT.Dispose, new Listener() {
+      public void handleEvent( Event event ) {
+        disposePrintPiece();
       }
     } );
   }
@@ -53,6 +58,7 @@ public class PrintPieceCanvas extends Canvas {
    * @param piece the PrintPiece to display.
    */
   public void setPrintPiece( PrintPiece piece ) {
+    disposePrintPiece();
     this.piece = piece;
     redraw();
   }
@@ -64,5 +70,10 @@ public class PrintPieceCanvas extends Canvas {
    */
   public PrintPiece getPrintPiece() {
     return piece;
+  }
+
+  private void disposePrintPiece() {
+    if ( piece != null )
+      piece.dispose();
   }
 }
