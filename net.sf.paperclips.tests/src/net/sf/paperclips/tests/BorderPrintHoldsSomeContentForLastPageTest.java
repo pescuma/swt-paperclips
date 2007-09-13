@@ -5,7 +5,6 @@
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
-
 package net.sf.paperclips.tests;
 
 import net.sf.paperclips.BorderPrint;
