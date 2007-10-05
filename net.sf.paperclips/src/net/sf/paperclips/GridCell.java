@@ -8,9 +8,10 @@
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.BitUtil;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * Instances of this class represent a single cell in a GridPrint.
@@ -23,8 +24,7 @@ public class GridCell {
   final int   colspan;
 
   GridCell( int hAlignment, int vAlignment, Print target, int colspan ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.hAlignment = checkHorizontalAlignment( hAlignment );
     this.vAlignment = checkVerticalAlignment( vAlignment );
     this.target = target;
@@ -72,38 +72,30 @@ public class GridCell {
   }
 
   private static int checkHorizontalAlignment( int hAlignment ) {
-    if ( ( hAlignment & SWT.DEFAULT ) == SWT.DEFAULT )
-      return SWT.DEFAULT;
-    else if ( ( hAlignment & SWT.LEFT ) == SWT.LEFT )
-      return SWT.LEFT;
-    else if ( ( hAlignment & SWT.CENTER ) == SWT.CENTER )
-      return SWT.CENTER;
-    else if ( ( hAlignment & SWT.RIGHT ) == SWT.RIGHT )
-      return SWT.RIGHT;
-    else
-      throw new IllegalArgumentException( "Align must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
+    hAlignment = BitUtil.firstMatch( hAlignment,
+                                       new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT },
+                                       0 );
+    if ( hAlignment == 0 )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                        "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
+    return hAlignment;
   }
 
   private static int checkVerticalAlignment( int vAlignment ) {
-    if ( ( vAlignment & SWT.DEFAULT ) == SWT.DEFAULT )
-      return SWT.DEFAULT;
-    else if ( ( vAlignment & SWT.TOP ) == SWT.TOP )
-      return SWT.TOP;
-    else if ( ( vAlignment & SWT.CENTER ) == SWT.CENTER )
-      return SWT.CENTER;
-    else if ( ( vAlignment & SWT.BOTTOM ) == SWT.BOTTOM )
-      return SWT.BOTTOM;
-    else if ( ( vAlignment & SWT.FILL ) == SWT.FILL )
-      return SWT.FILL;
-    else
-      throw new IllegalArgumentException( "Align must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or SWT.FILL" );
+    vAlignment = BitUtil.firstMatch( vAlignment, new int[] {
+      SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL }, 0 );
+    if ( vAlignment == 0 )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                        "Alignment argument must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or "
+                            + "SWT.FILL" );
+    return vAlignment;
   }
 
   private int checkColspan( int colspan ) {
-    if ( colspan > 0 || colspan == GridPrint.REMAINDER )
-      return colspan;
-
-    throw new IllegalArgumentException( "colspan must be a positive number or GridPrint.REMAINDER" );
+    if ( colspan <= 0 && colspan != GridPrint.REMAINDER )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                        "colspan must be a positive number or GridPrint.REMAINDER" );
+    return colspan;
   }
 
   GridCellIterator iterator( Device device, GC gc ) {

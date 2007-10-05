@@ -7,11 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A class for adding line breaks corresponding to a particular font size. Currently this class is used
@@ -26,8 +24,7 @@ public class LineBreakPrint implements Print {
    * @param font the font which determines the height of the line break.
    */
   public LineBreakPrint( FontData font ) {
-    if ( font == null )
-      throw new NullPointerException();
+    NullUtil.notNull( font );
     this.font = font;
   }
 

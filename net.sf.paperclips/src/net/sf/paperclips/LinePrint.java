@@ -8,11 +8,9 @@
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A Print for drawing horizontal and vertical lines.
@@ -97,8 +95,7 @@ public class LinePrint implements Print {
    * @param foreground the new line color.
    */
   public void setRGB( RGB foreground ) {
-    if ( foreground == null )
-      throw new NullPointerException();
+    NullUtil.notNull( foreground );
     this.rgb = foreground;
   }
 
@@ -129,9 +126,8 @@ class LineIterator extends AbstractIterator {
     Point dpi = device.getDPI();
 
     // (convert from points to pixels on device)
-    this.thickness =
-        new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
-                   Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
+    this.thickness = new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
+                                Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
   }
 
   LineIterator( LineIterator that ) {
@@ -152,7 +148,7 @@ class LineIterator extends AbstractIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content" );
 
     // Make sure the line fits :)
     Point size = getSize( width, height );

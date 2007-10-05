@@ -11,13 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A Print for displaying text.
@@ -95,8 +91,7 @@ public class TextPrint implements Print {
    * @param style the style to apply to the text.
    */
   public TextPrint( String text, TextStyle style ) {
-    if ( text == null || style == null )
-      throw new NullPointerException();
+    NullUtil.notNull( text, style );
     this.text = text;
     this.style = style;
     this.wordSplitting = true;
@@ -115,8 +110,7 @@ public class TextPrint implements Print {
    * @param text the text to print.
    */
   public void setText( String text ) {
-    if ( text == null )
-      throw new NullPointerException();
+    NullUtil.notNull( text );
     this.text = text;
   }
 
@@ -133,8 +127,7 @@ public class TextPrint implements Print {
    * @param style the new text style.
    */
   public void setStyle( TextStyle style ) {
-    if ( style == null )
-      throw new NullPointerException();
+    NullUtil.notNull( style );
     this.style = style;
   }
 
@@ -151,7 +144,7 @@ public class TextPrint implements Print {
    * @param fontData the font that will be used to print the text.
    */
   public void setFontData( FontData fontData ) {
-    style = style.font( fontData );
+    setStyle( style.font( fontData ) );
   }
 
   /**
@@ -189,7 +182,7 @@ public class TextPrint implements Print {
    *        {@link SWT#RIGHT}.
    */
   public void setAlignment( int alignment ) {
-    style = style.align( alignment );
+    setStyle( style.align( alignment ) );
   }
 
   /**
@@ -223,7 +216,7 @@ public class TextPrint implements Print {
    * @param foreground the new foreground color. A null value causes the foreground color to be inherited.
    */
   public void setForeground( RGB foreground ) {
-    style = style.foreground( foreground );
+    setStyle( style.foreground( foreground ) );
   }
 
   /**
@@ -333,15 +326,13 @@ class TextIterator extends AbstractIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content." );
 
+    Font oldFont = gc.getFont();
     Font font = null;
-    Font font_old = gc.getFont();
 
     try {
-      FontData fontData = style.getFontData();
-      if ( fontData != null )
-        gc.setFont( font = new Font( device, fontData ) );
+      font = createFontAndInitGC();
 
       FontMetrics fm = gc.getFontMetrics();
 
@@ -368,11 +359,23 @@ class TextIterator extends AbstractIterator {
                             ascent );
     }
     finally {
-      if ( font != null ) {
-        gc.setFont( font_old );
-        font.dispose();
-      }
+      restoreGCAndDisposeFont( oldFont, font );
     }
+  }
+
+  private Font createFontAndInitGC() {
+    FontData fontData = style.getFontData();
+    if ( fontData == null )
+      return null;
+    Font font = new Font( device, fontData );
+    gc.setFont( font );
+    return font;
+  }
+
+  private void restoreGCAndDisposeFont( Font oldFont, Font font ) {
+    gc.setFont( oldFont );
+    if ( font != null )
+      font.dispose();
   }
 
   private String[] nextLines( final int width, final int maxLines ) {
@@ -423,13 +426,11 @@ class TextIterator extends AbstractIterator {
     return maxExtent( lines );
   }
 
-  Point maxExtent( String[] text ) {
+  private Point maxExtent( String[] text ) {
+    Font oldFont = gc.getFont();
     Font font = null;
-    Font font_old = gc.getFont();
     try {
-      FontData fontData = style.getFontData();
-      if ( fontData != null )
-        gc.setFont( font = new Font( device, fontData ) );
+      font = createFontAndInitGC();
 
       FontMetrics fm = gc.getFontMetrics();
       int maxWidth = 0;
@@ -442,14 +443,11 @@ class TextIterator extends AbstractIterator {
       return new Point( maxWidth, fm.getHeight() );
     }
     finally {
-      if ( font != null ) {
-        gc.setFont( font_old );
-        font.dispose();
-      }
+      restoreGCAndDisposeFont( oldFont, font );
     }
   }
 
-  int findLineBreak( GC gc, String text, int width ) {
+  private int findLineBreak( GC gc, String text, int width ) {
     // Offsets within the string
     int loIndex = 0;
     int hiIndex = text.length();

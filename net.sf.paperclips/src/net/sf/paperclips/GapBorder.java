@@ -7,6 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -59,7 +60,7 @@ public class GapBorder implements Border {
 
   int checkGap( int gap ) {
     if ( gap < 0 )
-      throw new IllegalArgumentException();
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Gap must be >= 0" );
     return gap;
   }
 

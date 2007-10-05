@@ -11,6 +11,7 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
 import net.sf.paperclips.decorator.BorderDecorator;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A decorator that draws a border around the target print.
@@ -25,11 +26,9 @@ public class BorderPrint implements Print {
    * Constructs a BorderPrint with the given target and border.
    * @param target the print to decorate with a border.
    * @param border the border which will be drawn around the target.
-   * @throws NullPointerException if either argument is null.
    */
   public BorderPrint( Print target, Border border ) {
-    if ( target == null || border == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target, border );
     this.target = target;
     this.border = border;
   }

@@ -7,11 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A border that draws a rectangle around a print.
@@ -105,8 +103,7 @@ class LineBorderPainter extends AbstractBorderPainter {
   private Color        color;
 
   LineBorderPainter( LineBorder border, Device device, GC gc ) {
-    if ( device == null )
-      throw new NullPointerException();
+    NullUtil.notNull( border, device, gc );
     this.rgb = border.rgb;
     this.device = device;
 
@@ -114,11 +111,10 @@ class LineBorderPainter extends AbstractBorderPainter {
     int borderWidthPoints = border.getGapSize();
 
     Point dpi = device.getDPI();
-    lineWidth =
-        new Point( Math.round( lineWidthPoints * dpi.x / 72f ), Math.round( lineWidthPoints * dpi.y / 72f ) );
-    borderWidth =
-        new Point( Math.round( borderWidthPoints * dpi.x / 72f ),
-                   Math.round( borderWidthPoints * dpi.y / 72f ) );
+    lineWidth = new Point( Math.round( lineWidthPoints * dpi.x / 72f ), Math.round( lineWidthPoints * dpi.y
+        / 72f ) );
+    borderWidth = new Point( Math.round( borderWidthPoints * dpi.x / 72f ), Math.round( borderWidthPoints
+        * dpi.y / 72f ) );
   }
 
   public int getLeft() {

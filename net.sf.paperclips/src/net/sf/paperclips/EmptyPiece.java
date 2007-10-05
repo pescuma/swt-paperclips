@@ -7,15 +7,16 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 class EmptyPiece implements PrintPiece {
-  private Point size;
+  private final Point size;
 
   EmptyPiece( Point size ) {
-    if ( size == null )
-      throw new NullPointerException();
+    NullUtil.notNull( size );
     this.size = size;
   }
 

@@ -1,15 +1,14 @@
-/*******************************************************************************
- * Copyright (c) 2007 Woodcraft Mill & Cabinet Corporation and others. All
- * rights reserved. This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/************************************************************************************************************
+ * Copyright (c) 2007 Woodcraft Mill & Cabinet Corporation and others. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *   Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ******************************************************************************/
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 
 package net.sf.paperclips;
+
+import net.sf.paperclips.internal.NullUtil;
 
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -26,8 +25,7 @@ class BorderPiece implements PrintPiece {
   private final Point         size;
 
   BorderPiece( PrintPiece target, BorderPainter border, boolean topOpen, boolean bottomOpen ) {
-    if ( target == null || border == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target, border );
     this.target = target;
     this.border = border;
 

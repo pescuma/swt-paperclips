@@ -7,10 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A decorator print that scales it's target larger or smaller.
@@ -30,10 +30,7 @@ public class ScalePrint implements Print {
    * @param target the print to scale down.
    */
   public ScalePrint( Print target ) {
-    if ( target == null )
-      throw new NullPointerException();
-    this.target = target;
-    this.scale = null;
+    this( target, null );
   }
 
   /**
@@ -42,13 +39,11 @@ public class ScalePrint implements Print {
    * @param scale the scale factor (must be >0). A value of 2.0 draws at double the size, and a value of 0.5
    *        draws at half the size. A null value automatically scales down so the target is rendered at it's
    *        preferred size.
-   * @throws IllegalArgumentException if scale is not > 0.
    */
   public ScalePrint( Print target, Double scale ) {
+    NullUtil.notNull( target );
     if ( scale != null && !( scale.doubleValue() > 0 ) )
-      throw new IllegalArgumentException( "Scale " + scale + " must be > 0" );
-    if ( target == null )
-      throw new NullPointerException();
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale " + scale + " must be > 0" );
 
     this.target = target;
     this.scale = scale;
@@ -84,8 +79,7 @@ class ScaleIterator implements PrintIterator {
   private final Point         preferredSize;
 
   ScaleIterator( ScalePrint print, Device device, GC gc ) {
-    if ( device == null )
-      throw new NullPointerException();
+    NullUtil.notNull( print, device, gc );
 
     this.device = device;
     this.target = print.target.iterator( device, gc );
@@ -160,8 +154,7 @@ final class ScalePiece implements PrintPiece {
   private Transform        transform;
 
   ScalePiece( Device device, PrintPiece target, double scale, int maxWidth, int maxHeight ) {
-    if ( device == null || target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( device, target );
     this.device = device;
     this.target = target;
     this.scale = scale;

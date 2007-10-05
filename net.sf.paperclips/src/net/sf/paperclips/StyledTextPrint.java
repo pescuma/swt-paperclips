@@ -10,9 +10,10 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.PrintSizeStrategy;
 
 /**
  * A class for printing styled text. Text of varying size and style are aligned along the baseline.
@@ -33,8 +34,7 @@ public class StyledTextPrint implements Print {
    * @return this StyledTextPrint, for chaining method calls.
    */
   public StyledTextPrint setStyle( TextStyle style ) {
-    if ( style == null )
-      throw new NullPointerException();
+    NullUtil.notNull( style );
     this.style = style;
     return this;
   }
@@ -160,7 +160,6 @@ class StyledTextIterator implements PrintIterator {
     final int backupCursor = cursor;
     final List backup = new ArrayList();
 
-    // Collect
     List rowElements = new ArrayList();
     while ( hasNext() ) { // hasNext advances cursor internally
       PrintIterator element = elements[cursor];
@@ -176,23 +175,22 @@ class StyledTextIterator implements PrintIterator {
       rowElements.add( piece );
       backup.add( elementBackup );
 
-      // Measure ascent and descent
-      int ascent = getAscent( piece );
-      Point size = piece.getSize();
-      int descent = size.y - ascent;
-      maxAscent = Math.max( maxAscent, ascent );
-      maxDescent = Math.max( maxDescent, descent );
-
-      // Line contents got too tall, restore from backup and fail
+      maxAscent = Math.max( maxAscent, getAscent( piece ) );
+      maxDescent = Math.max( maxDescent, getDescent( piece ) );
       if ( maxAscent + maxDescent > height )
         return restoreBackup( backupCursor, backup );
 
       if ( element.hasNext() )
         break;
 
-      x += size.x;
+      x += piece.getSize().x;
     }
 
+    return createRowResult( maxAscent, rowElements );
+  }
+
+  private PrintPiece createRowResult( int rowAscent, List rowElements ) {
+    int x;
     if ( rowElements.size() == 0 )
       return null;
 
@@ -200,7 +198,7 @@ class StyledTextIterator implements PrintIterator {
     for ( int i = 0; i < rowElements.size(); i++ ) {
       PrintPiece piece = (PrintPiece) rowElements.get( i );
       int ascent = getAscent( piece );
-      rowElements.set( i, new CompositeEntry( piece, new Point( x, maxAscent - ascent ) ) );
+      rowElements.set( i, new CompositeEntry( piece, new Point( x, rowAscent - ascent ) ) );
       x += piece.getSize().x;
     }
 
@@ -218,6 +216,12 @@ class StyledTextIterator implements PrintIterator {
     if ( piece instanceof TextPrintPiece )
       return ( (TextPrintPiece) piece ).getAscent();
     return piece.getSize().y;
+  }
+
+  private int getDescent( PrintPiece piece ) {
+    if ( piece instanceof TextPrintPiece )
+      return piece.getSize().y - ( (TextPrintPiece) piece ).getAscent();
+    return 0;
   }
 
   private void advanceCursor() {

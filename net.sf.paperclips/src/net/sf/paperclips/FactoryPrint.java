@@ -10,15 +10,12 @@ package net.sf.paperclips;
 import java.io.InputStream;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
 
 /**
  * An ill-conceived class I wish I could take back.
  * @author Matthew
+ * @deprecated This class will be removed in a future release.
  */
 public abstract class FactoryPrint implements Print {
   private Print print;

@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.paperclips.internal.NullUtil;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -50,12 +53,11 @@ public class ColumnPrint implements Print {
    * @param compressed whether the columns on the final page are to be
    */
   public ColumnPrint( Print target, int columns, int spacing, boolean compressed ) {
+    NullUtil.notNull( target );
     if ( spacing < 0 )
-      throw new IllegalArgumentException( "spacing must be >= 0" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "spacing must be >= 0" );
     if ( columns < 2 )
-      throw new IllegalArgumentException( "columns must be >= 2" );
-    if ( target == null )
-      throw new NullPointerException();
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "columns must be >= 2" );
 
     this.target = target;
     this.spacing = spacing;

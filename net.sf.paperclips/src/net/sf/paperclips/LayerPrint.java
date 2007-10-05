@@ -7,14 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.PrintSizeStrategy;
 
 /**
  * A Print which displays its child Prints on top each other.
@@ -111,7 +109,7 @@ class LayerIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content" );
 
     PrintPiece[] pieces = nextPieces( width, height );
     if ( pieces == null )

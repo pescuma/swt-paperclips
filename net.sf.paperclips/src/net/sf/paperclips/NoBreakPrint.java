@@ -7,9 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A print wrapper which prevents its target from being broken into multiple pieces when printed. If there
@@ -29,8 +29,7 @@ public class NoBreakPrint implements Print {
    * @param target the print to
    */
   public NoBreakPrint( Print target ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.target = target;
   }
 
@@ -51,8 +50,7 @@ class NoBreakIterator implements PrintIterator {
   private PrintIterator target;
 
   NoBreakIterator( PrintIterator target ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.target = target;
   }
 

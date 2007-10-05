@@ -11,6 +11,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
+import net.sf.paperclips.internal.BitUtil;
+import net.sf.paperclips.internal.NullUtil;
+
 /**
  * A PageDecoration which displays the page number. This convenience class helps avoid the need for writing a
  * new PageDecoration class if only a page number is needed. Getter and setter methods are provided for all
@@ -49,8 +52,7 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param fontData the new font.
    */
   public void setFontData( FontData fontData ) {
-    if ( fontData == null )
-      throw new NullPointerException();
+    NullUtil.notNull( fontData );
     this.fontData = fontData;
   }
 
@@ -67,10 +69,12 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param align the horizontal text alignment.
    */
   public void setAlign( int align ) {
-    if ( align == SWT.LEFT || align == SWT.CENTER || align == SWT.RIGHT )
-      this.align = align;
-    else
-      throw new IllegalArgumentException( "Align argument must be one of SWT.LEFT, SWT.CENTER or SWT.RIGHT" );
+    align = checkAlign( align );
+    this.align = align;
+  }
+
+  private int checkAlign( int align ) {
+    return BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
   }
 
   /**
@@ -86,8 +90,7 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param rgb the new text color.
    */
   public void setRGB( RGB rgb ) {
-    if ( rgb == null )
-      throw new NullPointerException();
+    NullUtil.notNull( rgb );
     this.rgb = rgb;
   }
 
@@ -104,8 +107,7 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param format the page number format.
    */
   public void setFormat( PageNumberFormat format ) {
-    if ( format == null )
-      throw new NullPointerException();
+    NullUtil.notNull( format );
     this.format = format;
   }
 

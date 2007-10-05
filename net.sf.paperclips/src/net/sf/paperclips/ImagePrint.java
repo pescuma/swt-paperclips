@@ -7,11 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A Print for displaying images.
@@ -27,10 +25,7 @@ public class ImagePrint implements Print {
    * @param imageData the image to be displayed.
    */
   public ImagePrint( ImageData imageData ) {
-    if ( imageData == null )
-      throw new NullPointerException();
-    this.imageData = imageData;
-    setDPI( new Point( 72, 72 ) );
+    this( imageData, new Point( 72, 72 ) );
   }
 
   /**
@@ -39,8 +34,7 @@ public class ImagePrint implements Print {
    * @param dpi the DPI that the image will be displayed at.
    */
   public ImagePrint( ImageData imageData, Point dpi ) {
-    if ( imageData == null || dpi == null )
-      throw new NullPointerException();
+    NullUtil.notNull( imageData, dpi );
     this.imageData = imageData;
     setDPI( dpi );
   }
@@ -58,11 +52,10 @@ public class ImagePrint implements Print {
    * @param size the explicit size, in points, that the image be printed at.
    */
   public void setSize( Point size ) {
-    // The DPI is rounded up, so that the specified
-    // width and height will not be exceeded.
-    dpi =
-        new Point( (int) Math.ceil( imageData.width * 72f / size.x ), (int) Math.ceil( imageData.height * 72f
-            / size.y ) );
+    // The DPI is rounded up, so that the specified width and height will not be exceeded.
+    NullUtil.notNull( size );
+    dpi = new Point( (int) Math.ceil( imageData.width * 72f / size.x ), (int) Math.ceil( imageData.height
+        * 72f / size.y ) );
     this.size = size;
   }
 
@@ -88,12 +81,10 @@ public class ImagePrint implements Print {
    * @param dpi the DPI of the image.
    */
   public void setDPI( Point dpi ) {
-    if ( dpi == null )
-      throw new NullPointerException();
+    NullUtil.notNull( dpi );
     this.dpi = dpi;
-    size =
-        new Point( (int) Math.ceil( imageData.width * 72 / dpi.x ), (int) Math.ceil( imageData.height * 72
-            / dpi.y ) );
+    size = new Point( (int) Math.ceil( imageData.width * 72 / dpi.x ), (int) Math.ceil( imageData.height * 72
+        / dpi.y ) );
   }
 
   /**
@@ -122,27 +113,22 @@ class ImageIterator implements PrintIterator {
   final Device    device;
 
   final ImageData imageData;
-
-  final Point     dpi;
-
   final Point     size;
 
   boolean         hasNext;
 
   ImageIterator( ImagePrint print, Device device ) {
-    if ( device == null )
-      throw new NullPointerException();
+    NullUtil.notNull( print, device );
     this.device = device;
     this.imageData = print.imageData;
-    this.dpi = print.dpi;
-    this.size = print.size;
+    Point dpi = device.getDPI();
+    this.size = new Point( print.size.x * dpi.x / 72, print.size.y * dpi.y / 72 );
     this.hasNext = true;
   }
 
   ImageIterator( ImageIterator that ) {
     this.device = that.device;
     this.imageData = that.imageData;
-    this.dpi = that.dpi;
     this.size = that.size;
     this.hasNext = that.hasNext;
   }
@@ -151,17 +137,11 @@ class ImageIterator implements PrintIterator {
     return hasNext;
   }
 
-  Point computeSize() {
-    Point dpi = device.getDPI();
-    return new Point( size.x * dpi.x / 72, size.y * dpi.y / 72 );
-  }
-
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content." );
 
-    Point size = computeSize();
-    if ( size.x > width || size.y > height )
+    if ( width < size.x || height < size.y )
       return null;
 
     hasNext = false;
@@ -170,15 +150,15 @@ class ImageIterator implements PrintIterator {
   }
 
   public Point minimumSize() {
-    return computeSize();
+    return new Point( size.x, size.y );
   }
 
   public Point preferredSize() {
-    return computeSize();
+    return new Point( size.x, size.y );
   }
 
   public PrintIterator copy() {
-    return new ImageIterator( this );
+    return hasNext ? new ImageIterator( this ) : this;
   }
 }
 
@@ -190,8 +170,7 @@ class ImagePiece implements PrintPiece {
   private Image           image;
 
   ImagePiece( Device device, ImageData imageData, Point size ) {
-    if ( device == null || imageData == null || size == null )
-      throw new NullPointerException();
+    NullUtil.notNull( device, imageData, size );
     this.device = device;
     this.imageData = imageData;
     this.size = size;

@@ -8,6 +8,7 @@
 package net.sf.paperclips.decorator;
 
 import net.sf.paperclips.Print;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * Decorates prints with multiple decorators.
@@ -21,12 +22,12 @@ public class CompoundDecorator implements PrintDecorator {
    * @param decorators the decorators, in order from innermost to outermost.
    */
   public CompoundDecorator( PrintDecorator[] decorators ) {
-    if ( decorators == null )
-      throw new NullPointerException();
-    for ( int i = 0; i < decorators.length; i++ )
-      if ( decorators[i] == null )
-        throw new NullPointerException();
-    this.decorators = (PrintDecorator[]) decorators.clone();
+    NullUtil.noNulls( decorators );
+    this.decorators = defensiveCopy( decorators );
+  }
+
+  private PrintDecorator[] defensiveCopy( PrintDecorator[] decorators ) {
+    return (PrintDecorator[]) decorators.clone();
   }
 
   public Print decorate( Print target ) {

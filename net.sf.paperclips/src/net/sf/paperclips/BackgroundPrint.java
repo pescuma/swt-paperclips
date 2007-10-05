@@ -7,11 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A decorator that paints a background color behind it's target.
@@ -27,8 +25,7 @@ public class BackgroundPrint implements Print {
    * @param background
    */
   public BackgroundPrint( Print target, RGB background ) {
-    if ( target == null || background == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target, background );
     this.target = target;
     this.background = background;
   }
@@ -54,8 +51,7 @@ public class BackgroundPrint implements Print {
    * @param background the new background color.
    */
   public void setBackground( RGB background ) {
-    if ( background == null )
-      throw new NullPointerException();
+    NullUtil.notNull( background );
     this.background = background;
   }
 
@@ -70,8 +66,7 @@ class BackgroundIterator implements PrintIterator {
   private final Device        device;
 
   BackgroundIterator( BackgroundPrint print, Device device, GC gc ) {
-    if ( device == null )
-      throw new NullPointerException();
+    NullUtil.notNull( print, device, gc );
     this.device = device;
     this.target = print.target.iterator( device, gc );
     this.background = print.background;
@@ -115,14 +110,13 @@ class BackgroundPiece implements PrintPiece {
   private Color            backgroundColor;
 
   BackgroundPiece( PrintPiece target, RGB background, Device device ) {
-    if ( target == null || device == null || background == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target, background, device );
     this.target = target;
     this.device = device;
     this.background = background;
   }
 
-  private Color getBackgroundColor() {
+  private Color getBackground() {
     if ( backgroundColor == null )
       this.backgroundColor = new Color( device, background );
     return backgroundColor;
@@ -133,26 +127,29 @@ class BackgroundPiece implements PrintPiece {
   }
 
   public void paint( GC gc, int x, int y ) {
-    // Remember old background
-    Color old_bg = gc.getBackground();
-
-    // Paint background
-    gc.setBackground( getBackgroundColor() );
-    Point size = getSize();
-    gc.fillRectangle( x, y, size.x, size.y );
-
-    // Restore old background
-    gc.setBackground( old_bg );
-
-    // Paint target
+    paintBackground( gc, x, y );
     target.paint( gc, x, y );
   }
 
+  private void paintBackground( GC gc, int x, int y ) {
+    Color old_bg = gc.getBackground();
+
+    gc.setBackground( getBackground() );
+    Point size = getSize();
+    gc.fillRectangle( x, y, size.x, size.y );
+
+    gc.setBackground( old_bg );
+  }
+
   public void dispose() {
+    disposeBackground();
+    target.dispose();
+  }
+
+  private void disposeBackground() {
     if ( backgroundColor != null ) {
       backgroundColor.dispose();
       backgroundColor = null;
     }
-    target.dispose();
   }
 }

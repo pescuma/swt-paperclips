@@ -7,6 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 
 /**
@@ -15,7 +18,6 @@ import org.eclipse.swt.graphics.Point;
  */
 public class CompositeEntry {
   final PrintPiece piece;
-
   final Point      offset;
 
   /**
@@ -24,13 +26,22 @@ public class CompositeEntry {
    * @param offset the painting offset within the CompositePrint.
    */
   public CompositeEntry( PrintPiece piece, Point offset ) {
-    if ( piece == null || offset == null )
-      throw new NullPointerException();
+    NullUtil.notNull( piece, offset );
+    checkOffset( offset );
+
     this.piece = piece;
     this.offset = offset;
+  }
 
+  private void checkOffset( Point offset ) {
     if ( offset.x < 0 || offset.y < 0 )
-      throw new IllegalArgumentException( "PrintPiece offset must be non-negative. (" + offset.x + ", "
-          + offset.y + ")" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Offset cannot be negative: " + offset );
+  }
+
+  /**
+   * Disposes this entry's print piece.
+   */
+  public void dispose() {
+    piece.dispose();
   }
 }

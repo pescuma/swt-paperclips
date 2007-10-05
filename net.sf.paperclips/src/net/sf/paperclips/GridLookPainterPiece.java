@@ -10,6 +10,9 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
+import net.sf.paperclips.internal.ArrayUtil;
+import net.sf.paperclips.internal.NullUtil;
+
 class GridLookPainterPiece implements PrintPiece {
   final GridLookPainter look;
 
@@ -37,35 +40,26 @@ class GridLookPainterPiece implements PrintPiece {
                         boolean bottomOpen,
                         int[] footerRows,
                         int[][] footerColSpans ) {
+    NullUtil.notNull( look );
+
     this.look = look;
-    this.columns = defensiveCopy( colSizes );
-    this.headerRows = defensiveCopy( headerRows );
-    this.headerColSpans = defensiveCopy( headerColSpans );
+    this.columns = ArrayUtil.defensiveCopy( colSizes );
+    this.headerRows = ArrayUtil.defensiveCopy( headerRows );
+    this.headerColSpans = ArrayUtil.defensiveCopy( headerColSpans );
 
     this.firstRowIndex = firstRowIndex;
     this.topOpen = topOpen;
-    this.bodyRows = defensiveCopy( bodyRows );
-    this.bodyColSpans = defensiveCopy( bodyColSpans );
+    this.bodyRows = ArrayUtil.defensiveCopy( bodyRows );
+    this.bodyColSpans = ArrayUtil.defensiveCopy( bodyColSpans );
     this.bottomOpen = bottomOpen;
 
-    this.footerRows = defensiveCopy( footerRows );
-    this.footerColSpans = defensiveCopy( footerColSpans );
+    this.footerRows = ArrayUtil.defensiveCopy( footerRows );
+    this.footerColSpans = ArrayUtil.defensiveCopy( footerColSpans );
 
     GridMargins margins = look.getMargins();
 
     Point size = calculateSize( margins, colSizes, headerRows, topOpen, bodyRows, bottomOpen, footerRows );
     this.size = size;
-  }
-
-  private static int[][] defensiveCopy( int[][] colSpans ) {
-    colSpans = (int[][]) colSpans.clone();
-    for ( int rowIndex = 0; rowIndex < colSpans.length; rowIndex++ )
-      colSpans[rowIndex] = defensiveCopy( colSpans[rowIndex] );
-    return colSpans;
-  }
-
-  private static int[] defensiveCopy( int[] colSpans ) {
-    return (int[]) colSpans.clone();
   }
 
   private static Point calculateSize( GridMargins margins,
@@ -78,26 +72,41 @@ class GridLookPainterPiece implements PrintPiece {
     final boolean headerPresent = headerRows.length > 0;
     final boolean footerPresent = footerRows.length > 0;
 
-    int width = margins.getLeft() + margins.getHorizontalSpacing() * ( columns.length - 1 )
-        + margins.getRight() + sum( columns );
+    int width = calculateWidth( margins, columns );
 
-    int height = margins.getBodyTop( headerPresent, topOpen ) + margins.getBodyVerticalSpacing()
-        * ( bodyRows.length - 1 ) + margins.getBodyBottom( footerPresent, bottomOpen ) + sum( bodyRows );
+    int height = calculateBodyHeight( margins, topOpen, bodyRows, bottomOpen, headerPresent, footerPresent );
     if ( headerPresent )
-      height += margins.getHeaderTop() + margins.getHeaderVerticalSpacing() * ( headerRows.length - 1 )
-          + sum( headerRows );
+      height += calculateHeaderHeight( margins, headerRows );
     if ( footerPresent )
-      height += margins.getFooterVerticalSpacing() * ( footerRows.length - 1 ) + margins.getFooterBottom()
-          + sum( footerRows );
+      height += calculateFooterHeight( margins, footerRows );
 
     return new Point( width, height );
   }
 
-  private static int sum( int[] elements ) {
-    int sum = 0;
-    for ( int i = 0; i < elements.length; i++ )
-      sum += elements[i];
-    return sum;
+  private static int calculateWidth( GridMargins margins, int[] columns ) {
+    return margins.getLeft() + margins.getHorizontalSpacing() * ( columns.length - 1 ) + margins.getRight()
+        + ArrayUtil.sum( columns );
+  }
+
+  private static int calculateBodyHeight( GridMargins margins,
+                                          boolean topOpen,
+                                          int[] bodyRows,
+                                          boolean bottomOpen,
+                                          final boolean headerPresent,
+                                          final boolean footerPresent ) {
+    return margins.getBodyTop( headerPresent, topOpen ) + margins.getBodyVerticalSpacing()
+        * ( bodyRows.length - 1 ) + margins.getBodyBottom( footerPresent, bottomOpen )
+        + ArrayUtil.sum( bodyRows );
+  }
+
+  private static int calculateHeaderHeight( GridMargins margins, int[] headerRows ) {
+    return margins.getHeaderTop() + margins.getHeaderVerticalSpacing() * ( headerRows.length - 1 )
+        + ArrayUtil.sum( headerRows );
+  }
+
+  private static int calculateFooterHeight( GridMargins margins, int[] footerRows ) {
+    return margins.getFooterVerticalSpacing() * ( footerRows.length - 1 ) + margins.getFooterBottom()
+        + ArrayUtil.sum( footerRows );
   }
 
   public void dispose() {

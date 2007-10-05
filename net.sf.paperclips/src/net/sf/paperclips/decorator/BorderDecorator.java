@@ -10,6 +10,7 @@ package net.sf.paperclips.decorator;
 import net.sf.paperclips.Border;
 import net.sf.paperclips.BorderPrint;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * Decorates prints with a border.
@@ -25,8 +26,7 @@ public class BorderDecorator implements PrintDecorator {
    * @param border the initial border
    */
   public BorderDecorator( Border border ) {
-    if ( border == null )
-      throw new NullPointerException();
+    NullUtil.notNull( border );
     this.border = border;
   }
 

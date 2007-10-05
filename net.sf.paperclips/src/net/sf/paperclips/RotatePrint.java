@@ -7,10 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A decorator print that rotates it's target by increments of 90 degrees.
@@ -43,8 +43,7 @@ public final class RotatePrint implements Print {
    *        multiple of 90.
    */
   public RotatePrint( Print target, int angle ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.target = target;
     this.angle = checkAngle( angle );
   }
@@ -68,7 +67,7 @@ public final class RotatePrint implements Print {
   private static int checkAngle( int angle ) {
     // Make sure angle is a multiple of 90.
     if ( Math.abs( angle ) % 90 != 0 )
-      throw new IllegalArgumentException( "Angle must be a multiple of 90 degrees" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be a multiple of 90 degrees" );
 
     // Bring angle within the range [0, 360)
     while ( angle < 0 )
@@ -95,8 +94,7 @@ final class RotateIterator implements PrintIterator {
   private final Point         preferredSize;
 
   RotateIterator( Print target, int angle, Device device, GC gc ) {
-    if ( device == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target, device, gc );
 
     this.device = device;
     this.target = target.iterator( device, gc );
@@ -127,10 +125,11 @@ final class RotateIterator implements PrintIterator {
       case 90:
       case 180:
       case 270:
-        return angle;
+        break;
       default:
-        throw new IllegalArgumentException( "Angle must be 90, 180, or 270" );
+        PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be 90, 180, or 270" );
     }
+    return angle;
   }
 
   public Point minimumSize() {
@@ -161,84 +160,5 @@ final class RotateIterator implements PrintIterator {
 
   public PrintIterator copy() {
     return new RotateIterator( this );
-  }
-}
-
-final class RotatePiece implements PrintPiece {
-  private final Device     device;
-  private final PrintPiece target;
-  private final int        angle;
-  private final Point      size;
-
-  private Transform        oldTransform;
-  private Transform        transform;
-
-  RotatePiece( Device device, PrintPiece target, int angle, Point size ) {
-    if ( device == null || target == null || size == null )
-      throw new NullPointerException();
-    this.device = device;
-    this.target = target;
-    this.angle = angle;
-    this.size = size;
-  }
-
-  public Point getSize() {
-    return new Point( size.x, size.y );
-  }
-
-  private Transform getOldTransform() {
-    if ( oldTransform == null )
-      oldTransform = new Transform( device );
-    return oldTransform;
-  }
-
-  private Transform getTransform() {
-    if ( transform == null )
-      transform = new Transform( device );
-    return transform;
-  }
-
-  public void paint( GC gc, int x, int y ) {
-    Transform oldTransform = getOldTransform();
-    gc.getTransform( oldTransform );
-
-    Transform transform = getTransform();
-    gc.getTransform( transform );
-    transform.translate( x, y );
-    rotateTransform( transform );
-    gc.setTransform( transform );
-
-    target.paint( gc, 0, 0 );
-
-    gc.setTransform( oldTransform );
-  }
-
-  private void rotateTransform( Transform transform ) {
-    switch ( angle ) {
-      case 90:
-        transform.translate( 0, size.y );
-        break;
-      case 180:
-        transform.translate( size.x, size.y );
-        break;
-      case 270:
-        transform.translate( size.x, 0 );
-        break;
-      default:
-        throw new IllegalStateException( "Illegal degrees value of " + angle );
-    }
-    transform.rotate( -angle ); // reverse the angle since Transform.rotate goes clockwise
-  }
-
-  public void dispose() {
-    if ( oldTransform != null ) {
-      oldTransform.dispose();
-      oldTransform = null;
-    }
-    if ( transform != null ) {
-      transform.dispose();
-      transform = null;
-    }
-    target.dispose();
   }
 }

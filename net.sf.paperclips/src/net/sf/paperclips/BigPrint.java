@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -36,8 +38,7 @@ public final class BigPrint implements Print {
    * @param target
    */
   public BigPrint( Print target ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.target = target;
   }
 
@@ -63,8 +64,7 @@ class BigIterator implements PrintIterator {
   private int                 yOffset;
 
   BigIterator( Print target, Device device, GC gc ) {
-    if ( device == null || gc == null || target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( device, gc, target );
     this.target = target.iterator( device, gc );
     this.device = device;
     currentPiece = null;
@@ -105,16 +105,15 @@ class BigIterator implements PrintIterator {
 
     // Adding width-1 rounds up page count w/out floating point op
     // Same goes for adding height-1
-    Point minPages =
-        new Point( Math.max( ( min.x + width - 1 ) / width, 1 ),
-                   Math.max( ( min.y + height - 1 ) / height, 1 ) );
+    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), Math.max( ( min.y + height - 1 )
+        / height, 1 ) );
 
     return new Point( Math.max( prefPages.x, minPages.x ), Math.max( prefPages.y, minPages.y ) );
   }
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content" );
 
     if ( currentPiece == null ) {
       Point pages = estimatePagesRequired( width, height );
@@ -153,8 +152,7 @@ class BigPiece implements PrintPiece {
   private final Point      offset;
 
   BigPiece( PrintPiece target, Point size, int xOffset, int yOffset ) {
-    if ( target == null || size == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target, size );
     this.target = target;
     this.size = new Point( size.x, size.y );
     this.offset = new Point( xOffset, yOffset );

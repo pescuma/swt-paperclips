@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
@@ -19,8 +21,8 @@ import org.eclipse.swt.graphics.Point;
  * @author Matthew Hall
  */
 public class AlignPrint implements Print {
-  private static final int DEFAULT_H_ALIGN = SWT.LEFT;
-  private static final int DEFAULT_V_ALIGN = SWT.TOP;
+  private static final int DEFAULT_HORIZONTAL_ALIGN = SWT.LEFT;
+  private static final int DEFAULT_VERTICAL_ALIGN   = SWT.TOP;
 
   final Print              target;
   final int                hAlign;
@@ -33,8 +35,7 @@ public class AlignPrint implements Print {
    * @param vAlign the vertical alignment. One of SWT.TOP, SWT.CENTER, SWT.BOTTOM, or SWT.DEFAULT.
    */
   public AlignPrint( Print target, int hAlign, int vAlign ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.target = target;
     this.hAlign = checkHAlign( hAlign );
     this.vAlign = checkVAlign( vAlign );
@@ -60,16 +61,18 @@ public class AlignPrint implements Print {
     if ( hAlign == SWT.LEFT || hAlign == SWT.CENTER || hAlign == SWT.RIGHT )
       return hAlign;
     if ( hAlign == SWT.DEFAULT )
-      return DEFAULT_H_ALIGN;
-    throw new IllegalArgumentException( "hAlign must be one of SWT.LEFT, SWT.CENTER or SWT.RIGHT" );
+      return DEFAULT_HORIZONTAL_ALIGN;
+    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "hAlign must be one of SWT.LEFT, SWT.CENTER or SWT.RIGHT" );
+    return hAlign;
   }
 
   private static int checkVAlign( int vAlign ) {
     if ( vAlign == SWT.TOP || vAlign == SWT.CENTER || vAlign == SWT.BOTTOM )
       return vAlign;
     if ( vAlign == SWT.DEFAULT )
-      return DEFAULT_V_ALIGN;
-    throw new IllegalArgumentException( "vAlign must be one of SWT.TOP, SWT.CENTER or SWT.BOTTOM" );
+      return DEFAULT_VERTICAL_ALIGN;
+    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "vAlign must be one of SWT.TOP, SWT.CENTER or SWT.BOTTOM" );
+    return vAlign;
   }
 
   public PrintIterator iterator( Device device, GC gc ) {

@@ -56,7 +56,7 @@ class BreakIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content" );
 
     hasNext = false;
     return new EmptyPiece( new Point( width, height ) );

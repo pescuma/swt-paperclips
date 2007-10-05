@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 /**
  * Instances of this class represent a prepared print job.
  * @author Matthew Hall
@@ -25,8 +27,7 @@ public class PrintJob {
    * @param document the document to be printed.
    */
   public PrintJob( String name, Print document ) {
-    if ( name == null || document == null )
-      throw new NullPointerException();
+    NullUtil.notNull( name, document );
     this.name = name;
     this.document = document;
   }
@@ -69,9 +70,9 @@ public class PrintJob {
 
   private int checkOrientation( int orientation ) {
     switch ( orientation ) {
-      case PaperClips.ORIENTATION_DEFAULT:
       case PaperClips.ORIENTATION_LANDSCAPE:
       case PaperClips.ORIENTATION_PORTRAIT:
+      case PaperClips.ORIENTATION_DEFAULT:
         return orientation;
       default:
         return PaperClips.ORIENTATION_DEFAULT;
@@ -92,8 +93,7 @@ public class PrintJob {
    * @return this PrintJob (for chaining method calls)
    */
   public PrintJob setMargins( Margins margins ) {
-    if ( margins == null )
-      throw new NullPointerException();
+    NullUtil.notNull( margins );
     this.margins = margins;
     return this;
   }

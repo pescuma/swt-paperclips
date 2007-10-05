@@ -8,23 +8,28 @@
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
 
-class TextPiece extends AbstractPiece implements TextPrintPiece {
+import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.TextStyleResource;
+
+class TextPiece implements TextPrintPiece {
+  private final Point             size;
   private final String[]          lines;
   private final TextStyleResource style;
   private final int               ascent;
 
   TextPiece( Device device, Point size, TextIterator iter, String[] text, int ascent ) {
-    super( iter, size );
+    NullUtil.notNull( device, size, iter );
+    NullUtil.noNulls( text );
+    this.size = size;
     this.lines = text;
     this.style = new TextStyleResource( device, iter.style );
     this.ascent = ascent;
+  }
+
+  public Point getSize() {
+    return new Point( size.x, size.y );
   }
 
   public int getAscent() {
@@ -36,9 +41,8 @@ class TextPiece extends AbstractPiece implements TextPrintPiece {
     Color oldForeground = gc.getForeground();
     Color oldBackground = gc.getBackground();
 
-    Point size = getSize();
-
-    int align = style.getAlignment();
+    final int width = getSize().x;
+    final int align = style.getAlignment();
 
     try {
       setFont( gc );
@@ -46,20 +50,18 @@ class TextPiece extends AbstractPiece implements TextPrintPiece {
       boolean transparent = setBackground( gc );
 
       FontMetrics fm = gc.getFontMetrics();
+      int lineHeight = fm.getHeight();
 
       boolean strikeout = style.getStrikeout();
       boolean underline = style.getUnderline();
-      int lineThickness = strikeout || underline ? Math.max( 1, fm.getDescent() / 3 ) : 1;
-
-      int strikeoutOffset = strikeout ? fm.getLeading() + fm.getAscent() / 2 : 0;
+      int lineThickness = Math.max( 1, fm.getDescent() / 3 );
+      int strikeoutOffset = fm.getLeading() + fm.getAscent() / 2;
       int underlineOffset = ascent + lineThickness;
-
-      final int lineHeight = fm.getHeight();
 
       for ( int i = 0; i < lines.length; i++ ) {
         String line = lines[i];
         int lineWidth = gc.stringExtent( line ).x;
-        int offset = getHorzAlignmentOffset( align, lineWidth, size.x );
+        int offset = getHorzAlignmentOffset( align, lineWidth, width );
 
         gc.drawString( lines[i], x + offset, y + lineHeight * i, transparent );
         if ( strikeout || underline ) {
@@ -74,21 +76,22 @@ class TextPiece extends AbstractPiece implements TextPrintPiece {
       }
     }
     finally {
-      gc.setFont( oldFont );
-      gc.setForeground( oldForeground );
-      gc.setBackground( oldBackground );
+      restoreGC( gc, oldFont, oldForeground, oldBackground );
     }
   }
 
+  private void restoreGC( final GC gc, Font font, Color foreground, Color background ) {
+    gc.setFont( font );
+    gc.setForeground( foreground );
+    gc.setBackground( background );
+  }
+
   private int getHorzAlignmentOffset( int align, int lineWidth, int totalWidth ) {
-    int offset = 0;
-    if ( align != SWT.LEFT ) {
-      if ( align == SWT.CENTER )
-        offset = ( totalWidth - lineWidth ) / 2;
-      else if ( align == SWT.RIGHT )
-        offset = totalWidth - lineWidth;
-    }
-    return offset;
+    if ( align == SWT.CENTER )
+      return ( totalWidth - lineWidth ) / 2;
+    else if ( align == SWT.RIGHT )
+      return totalWidth - lineWidth;
+    return 0;
   }
 
   private boolean setBackground( GC gc ) {

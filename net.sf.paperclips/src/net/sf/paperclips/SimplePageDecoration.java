@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 /**
  * A PageDecoration which displays the same decoration on every page (ignoring the page number).
  * <p>
@@ -23,8 +25,7 @@ public class SimplePageDecoration implements PageDecoration {
    * @param print the decoration which will appear on every page.
    */
   public SimplePageDecoration( Print print ) {
-    if ( print == null )
-      throw new NullPointerException();
+    NullUtil.notNull( print );
     this.print = print;
   }
 

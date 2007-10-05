@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
@@ -38,8 +40,7 @@ public abstract class BasicGridLookPainter implements GridLookPainter {
    *        {@link #device} field.
    */
   public BasicGridLookPainter( Device device ) {
-    if ( device == null )
-      throw new NullPointerException();
+    NullUtil.notNull( device );
     this.device = device;
   }
 

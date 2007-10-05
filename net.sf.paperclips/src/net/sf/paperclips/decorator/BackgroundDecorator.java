@@ -7,10 +7,11 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.decorator;
 
-import org.eclipse.swt.graphics.RGB;
-
 import net.sf.paperclips.BackgroundPrint;
 import net.sf.paperclips.Print;
+import net.sf.paperclips.internal.NullUtil;
+
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * Decorates prints with a background color.
@@ -24,8 +25,7 @@ public class BackgroundDecorator implements PrintDecorator {
    * @param background the background color.
    */
   public BackgroundDecorator( RGB background ) {
-    if ( background == null )
-      throw new NullPointerException();
+    NullUtil.notNull( background );
     this.background = background;
   }
 

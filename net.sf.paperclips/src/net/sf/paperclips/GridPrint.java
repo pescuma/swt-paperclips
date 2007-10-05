@@ -7,14 +7,13 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.ArrayUtil;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A Print which arranges child prints into a grid. A grid is initialized with a series of GridColumns, and
@@ -86,8 +85,7 @@ public final class GridPrint implements Print {
    * Two-dimension list of all header cells. Each element of this list represents a row in the header. Each
    * element of a row represents a cellspan in that row.
    */
-  // List <List <GridCell>>
-  final List                    header              = new ArrayList();
+  final List                    header              = new ArrayList(); // List <List <GridCell>>
 
   /** Column cursor - the column that the next added header cell will go into. */
   private int                   headerCol           = 0;
@@ -96,8 +94,8 @@ public final class GridPrint implements Print {
    * Two-dimensional list of all body cells. Each element of this list represents a row in the body. Each
    * element of a row represents a cellspan in that row.
    */
-  // List <List <GridCell>>
-  final List                    body                = new ArrayList();
+
+  final List                    body                = new ArrayList(); // List <List <GridCell>>
 
   /** Column cursor - the column that the next added print will go into. */
   private int                   bodyCol             = 0;
@@ -185,9 +183,7 @@ public final class GridPrint implements Print {
    * @param columns the columns for the new grid.
    */
   public GridPrint( GridColumn[] columns ) {
-    for ( int i = 0; i < columns.length; i++ )
-      if ( columns[i] == null )
-        throw new NullPointerException();
+    NullUtil.noNulls( columns );
 
     this.columns = new ArrayList();
     for ( int i = 0; i < columns.length; i++ )
@@ -280,11 +276,9 @@ public final class GridPrint implements Print {
    */
   public void addColumn( int index, GridColumn column ) {
     checkColumnInsert( index );
-    if ( column == null )
-      throw new NullPointerException();
+    NullUtil.notNull( column );
 
     this.columns.add( index, column );
-
     adjustForColumnInsert( index, 1 );
   }
 
@@ -335,7 +329,7 @@ public final class GridPrint implements Print {
    */
   public void addColumns( int index, GridColumn[] columns ) {
     checkColumnInsert( index );
-    checkColumns( columns );
+    NullUtil.noNulls( columns );
 
     this.columns.addAll( index, Arrays.asList( columns ) );
 
@@ -344,13 +338,7 @@ public final class GridPrint implements Print {
 
   private void checkColumnInsert( int index ) {
     if ( index < 0 || index > this.columns.size() )
-      throw new IndexOutOfBoundsException( "index = " + index + ", size = " + this.columns.size() );
-  }
-
-  private void checkColumns( GridColumn[] columns ) {
-    for ( int i = 0; i < columns.length; i++ )
-      if ( columns[i] == null )
-        throw new NullPointerException();
+      PaperClips.error( SWT.ERROR_INVALID_RANGE, "index = " + index + ", size = " + this.columns.size() );
   }
 
   private void adjustForColumnInsert( int index, int count ) {
@@ -397,7 +385,6 @@ public final class GridPrint implements Print {
         if ( group[i] >= index )
           group[i] += count;
     }
-
   }
 
   /**
@@ -847,8 +834,8 @@ public final class GridPrint implements Print {
       if ( row.size() == 0 )
         rows.remove( row );
 
-      throw new IllegalArgumentException( "Colspan " + colspan + " too wide at column " + startColumn + " ("
-          + columns.size() + " columns total)" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Colspan " + colspan + " too wide at column "
+          + startColumn + " (" + columns.size() + " columns total)" );
     }
 
     return startColumn;
@@ -869,8 +856,8 @@ public final class GridPrint implements Print {
 
   private void checkColumnSpan( int startColumn, int colspan ) {
     if ( startColumn + colspan > columns.size() )
-      throw new IllegalArgumentException( "Colspan " + colspan + " too wide at column " + startColumn + " ("
-          + columns.size() + " columns total)" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Colspan " + colspan + " too wide at column "
+          + startColumn + " (" + columns.size() + " columns total)" );
   }
 
   private List getOpenRow( List rows, int startColumn ) {
@@ -890,7 +877,7 @@ public final class GridPrint implements Print {
    * @return the column groups.
    */
   public int[][] getColumnGroups() {
-    return cloneColumnGroups( columnGroups );
+    return ArrayUtil.defensiveCopy( columnGroups );
   }
 
   /**
@@ -911,30 +898,28 @@ public final class GridPrint implements Print {
    * group should be given the same weight to ensure they are laid out at the same width.
    * 
    * @param columnGroups the new column groups.
-   * @throws IndexOutOfBoundsException if any of the column indices are out of bounds [0 , columnCount-1].
    */
   public void setColumnGroups( int[][] columnGroups ) {
     checkColumnGroups( columnGroups );
-    this.columnGroups = cloneColumnGroups( columnGroups );
+    this.columnGroups = ArrayUtil.defensiveCopy( columnGroups );
   }
 
-  void checkColumnGroups( int[][] columnGroups ) {
-    for ( int groupIndex = 0; groupIndex < columnGroups.length; groupIndex++ ) {
-      int[] group = columnGroups[groupIndex];
-      for ( int columnInGroupIndex = 0; columnInGroupIndex < group.length; columnInGroupIndex++ ) {
-        int col = group[columnInGroupIndex];
-        if ( col < 0 || col >= columns.size() )
-          throw new IndexOutOfBoundsException( "Column index in column group must be " + "0 <= " + col
-              + " < " + columns.size() );
-      }
-    }
+  private void checkColumnGroups( int[][] columnGroups ) {
+    NullUtil.notNull( columnGroups );
+    for ( int groupIndex = 0; groupIndex < columnGroups.length; groupIndex++ )
+      checkColumnGroup( columnGroups[groupIndex] );
   }
 
-  static int[][] cloneColumnGroups( int[][] columnGroups ) {
-    int[][] result = (int[][]) columnGroups.clone();
-    for ( int groupIndex = 0; groupIndex < result.length; groupIndex++ )
-      result[groupIndex] = (int[]) result[groupIndex].clone();
-    return result;
+  private void checkColumnGroup( int[] columnGroup ) {
+    NullUtil.notNull( columnGroup );
+    for ( int columnInGroupIndex = 0; columnInGroupIndex < columnGroup.length; columnInGroupIndex++ )
+      checkColumnIndex( columnGroup[columnInGroupIndex] );
+  }
+
+  private void checkColumnIndex( int columnIndex ) {
+    if ( columnIndex < 0 || columnIndex >= columns.size() )
+      PaperClips.error( SWT.ERROR_INVALID_RANGE, "Column index in column group must be " + "0 <= "
+          + columnIndex + " < " + columns.size() );
   }
 
   /**
@@ -1018,9 +1003,7 @@ public final class GridPrint implements Print {
    * @param look the new look.
    */
   public void setLook( GridLook look ) {
-    if ( look == null )
-      throw new NullPointerException();
-
+    NullUtil.notNull( look );
     this.look = look;
   }
 

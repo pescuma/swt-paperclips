@@ -8,13 +8,10 @@
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.BitUtil;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * Displays the page number and page count within the context of a {@link PagePrint}. To properly display
@@ -91,8 +88,7 @@ public class PageNumberPrint implements Print {
    * @param pageNumber the new page number.
    */
   public void setPageNumber( PageNumber pageNumber ) {
-    if ( pageNumber == null )
-      throw new NullPointerException();
+    NullUtil.notNull( pageNumber );
     this.pageNumber = pageNumber;
   }
 
@@ -109,8 +105,7 @@ public class PageNumberPrint implements Print {
    * @param fontData the new text font.
    */
   public void setFontData( FontData fontData ) {
-    if ( fontData == null )
-      throw new NullPointerException();
+    NullUtil.notNull( fontData );
     this.fontData = fontData;
   }
 
@@ -140,15 +135,7 @@ public class PageNumberPrint implements Print {
   }
 
   private int checkAlign( int align ) {
-    if ( ( align & SWT.LEFT ) == SWT.LEFT )
-      return SWT.LEFT;
-    else if ( ( align & SWT.CENTER ) == SWT.CENTER )
-      return SWT.CENTER;
-    else if ( ( align & SWT.RIGHT ) == SWT.RIGHT )
-      return SWT.RIGHT;
-
-    // no alignment bit--default to left.
-    return SWT.LEFT;
+    return BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
   }
 
   /**
@@ -156,8 +143,7 @@ public class PageNumberPrint implements Print {
    * @param format the new page number format.
    */
   public void setPageNumberFormat( PageNumberFormat format ) {
-    if ( format == null )
-      throw new NullPointerException();
+    NullUtil.notNull( format );
     this.format = format;
   }
 
@@ -180,8 +166,7 @@ public class PageNumberPrint implements Print {
    * @param foreground the new text color.
    */
   public void setRGB( RGB foreground ) {
-    if ( foreground == null )
-      throw new NullPointerException();
+    NullUtil.notNull( foreground );
     this.rgb = foreground;
   }
 

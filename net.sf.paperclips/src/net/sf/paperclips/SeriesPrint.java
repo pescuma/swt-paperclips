@@ -10,9 +10,10 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.PrintSizeStrategy;
 
 /**
  * A Print which displays its child prints in series. Each element in the series is displayed one at a time
@@ -30,14 +31,7 @@ public class SeriesPrint implements Print {
    * @param items the Prints to add
    */
   public void add( Print[] items ) {
-    // Check for nulls first.
-    if ( items == null )
-      throw new NullPointerException();
-    for ( int i = 0; i < items.length; i++ )
-      if ( items[i] == null )
-        throw new NullPointerException();
-
-    // OK, add all
+    NullUtil.noNulls( items );
     for ( int i = 0; i < items.length; i++ )
       this.items.add( items[i] );
   }
@@ -47,8 +41,7 @@ public class SeriesPrint implements Print {
    * @param item the Print to add
    */
   public void add( Print item ) {
-    if ( item == null )
-      throw new NullPointerException();
+    NullUtil.notNull( item );
     items.add( item );
   }
 
@@ -119,7 +112,7 @@ class SeriesIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content" );
 
     PrintIterator iter = iters[index];
     PrintPiece printPiece = PaperClips.next( iter, width, height );

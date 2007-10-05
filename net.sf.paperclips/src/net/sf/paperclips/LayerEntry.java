@@ -8,8 +8,11 @@
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+
+import net.sf.paperclips.internal.BitUtil;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * Instances in this class represent an entry in a LayerPrint.
@@ -20,8 +23,7 @@ public class LayerEntry {
   final int   align;
 
   LayerEntry( Print target, int align ) {
-    if ( target == null )
-      throw new NullPointerException();
+    NullUtil.notNull( target );
     this.target = target;
     this.align = checkAlign( align );
   }
@@ -48,10 +50,7 @@ public class LayerEntry {
   }
 
   private static int checkAlign( int align ) {
-    if ( align == SWT.LEFT || align == SWT.CENTER || align == SWT.RIGHT )
-      return align;
-
-    throw new IllegalArgumentException( "Alignment must be one of SWT.LEFT, SWT.CENTER, or SWT.RIGHT" );
+    return BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
   }
 
   LayerEntry copy() {

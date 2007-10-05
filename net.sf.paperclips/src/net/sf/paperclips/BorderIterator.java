@@ -50,7 +50,7 @@ class BorderIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      throw new IllegalStateException();
+      PaperClips.error( "No more content" );
 
     PrintPiece piece = next( width, height, false /* closed bottom border */);
 

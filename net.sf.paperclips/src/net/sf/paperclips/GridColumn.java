@@ -12,6 +12,9 @@ import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
 
+import net.sf.paperclips.internal.BitUtil;
+import net.sf.paperclips.internal.NullUtil;
+
 /**
  * Describes the properties of a column in a GridPrint.
  * @author Matthew Hall
@@ -77,25 +80,25 @@ public class GridColumn {
   }
 
   private static int checkAlign( int align ) {
-    if ( align == SWT.LEFT || align == SWT.CENTER || align == SWT.RIGHT )
-      return align;
+    align = BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT, SWT.DEFAULT }, 0 );
+    if ( align == 0 )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                        "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
     if ( align == SWT.DEFAULT )
       return DEFAULT_ALIGN;
-
-    throw new IllegalArgumentException( "Illegal alignment value: " + align );
+    return align;
   }
 
   private static int checkSize( int size ) {
-    if ( size == SWT.DEFAULT || size == GridPrint.PREFERRED || size > 0 )
-      return size;
-
-    throw new IllegalArgumentException( "Illegal size value: " + size );
+    if ( size != SWT.DEFAULT && size != GridPrint.PREFERRED && size <= 0 )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                        "Size argument must be SWT.DEFAULT, GridPrint.PREFERRED, or > 0" );
+    return size;
   }
 
   private static int checkWeight( int grow ) {
     if ( grow < 0 )
-      throw new IllegalArgumentException();
-
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Weight argument must be >= 0" );
     return grow;
   }
 
@@ -112,7 +115,7 @@ public class GridColumn {
    *           R | RIGHT
    *  size   = P | PREF | PREFERRED |
    *           D | DEF | DEFAULT |
-   *           [Positive number expressing points (72pts = 1&quot;)]
+   *           (Positive number)[PT|IN|INCH|CM|MM]
    *  weight = N | NONE |
    *           G | GROW | G(#) | GROW(#)
    * </pre>
@@ -125,29 +128,32 @@ public class GridColumn {
    * 
    * <pre>
    *  LEFT:DEFAULT:GROW // left-aligned, default size, weight=1
-   *  R:72:N            // light-aligned, 72 points (1&quot;) wide, weight=0
+   *  R:72PT:N          // light-aligned, 72 points (1&quot;) wide, weight=0
    *  right:72          // identical to previous line
    *  c:pref:none       // center-aligned, preferred size, weight=0
    *  p                 // left-aligned (default), preferred size, weight=0
+   *  r:2inch           // right-aligned, 2 inches (50.8mm)
+   *  r:50.8mm          // right-aligned, 50.8 mm (2&quot;)
    * </pre>
    * 
    * @param spec the column spec that will be parsed.
    * @return a GridColumn matching the column spec.
-   * @throws IllegalArgumentException if the column spec is incorrectly formatted.
    * @see #align
    * @see #size
    * @see #weight
    */
   public static GridColumn parse( String spec ) {
+    NullUtil.notNull( spec );
+
     String[] matches = spec.split( "\\s*:\\s*" );
+    if ( matches.length == 0 )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Missing column spec" );
 
     int align = DEFAULT_ALIGN;
     int size = DEFAULT_SIZE;
     int grow = DEFAULT_WEIGHT;
 
-    if ( matches.length == 0 )
-      throw new IllegalArgumentException( "Missing column spec" );
-    else if ( matches.length == 1 ) {
+    if ( matches.length == 1 ) {
       // One option: must be size
       size = parseSize( matches[0] );
     } else if ( matches.length == 2 ) {
@@ -171,62 +177,84 @@ public class GridColumn {
   }
 
   // Alignment patterns
-  private static final Pattern LEFT_ALIGN_PATTERN   = Pattern.compile( "^l|left|L|LEFT$" );
+  private static final Pattern LEFT_ALIGN_PATTERN   = Pattern.compile( "^l(eft)?$", Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern CENTER_ALIGN_PATTERN = Pattern.compile( "^c|center|C|CENTER$" );
+  private static final Pattern CENTER_ALIGN_PATTERN = Pattern.compile( "^c(enter)?$",
+                                                                       Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern RIGHT_ALIGN_PATTERN  = Pattern.compile( "^r|right|R|RIGHT$" );
+  private static final Pattern RIGHT_ALIGN_PATTERN  = Pattern.compile( "^r(ight)?$", Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern ANY_ALIGN_PATTERN    =
-                                                        Pattern.compile( "^l|left|L|LEFT|c|center|C|CENTER|r|right|R|RIGHT$" );
+  private static final Pattern ANY_ALIGN_PATTERN    = Pattern.compile( "^l(eft)?|c(enter)?|r(ight)?$",
+                                                                       Pattern.CASE_INSENSITIVE );
 
-  private static boolean isAlign( String align ) {
-    return ANY_ALIGN_PATTERN.matcher( align ).matches();
+  private static boolean isAlign( String alignmentString ) {
+    return ANY_ALIGN_PATTERN.matcher( alignmentString ).matches();
   }
 
-  private static int parseAlign( String align ) {
-    if ( LEFT_ALIGN_PATTERN.matcher( align ).matches() )
+  private static int parseAlign( String alignmentString ) {
+    if ( LEFT_ALIGN_PATTERN.matcher( alignmentString ).matches() )
       return SWT.LEFT;
-    else if ( CENTER_ALIGN_PATTERN.matcher( align ).matches() )
+    else if ( CENTER_ALIGN_PATTERN.matcher( alignmentString ).matches() )
       return SWT.CENTER;
-    else if ( RIGHT_ALIGN_PATTERN.matcher( align ).matches() )
+    else if ( RIGHT_ALIGN_PATTERN.matcher( alignmentString ).matches() )
       return SWT.RIGHT;
-    else
-      throw new IllegalArgumentException( "Invalid alignment: \"" + align + "\"" );
+    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Unknown alignment \"" + alignmentString + "\"" );
+    return 0; // unreachable
   }
 
   // Size patterns.
-  private static final Pattern DEFAULT_SIZE_PATTERN   = Pattern.compile( "^d|def|default|D|DEF|DEFAULT$" );
+  private static final Pattern DEFAULT_SIZE_PATTERN   = Pattern.compile( "^d(ef(ault)?)?$",
+                                                                         Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern PREFERRED_SIZE_PATTERN =
-                                                          Pattern.compile( "^p|pref|preferred|P|PREF|PREFERRED" );
+  private static final Pattern PREFERRED_SIZE_PATTERN = Pattern.compile( "^p(ref(erred)?)?",
+                                                                         Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern POINT_SIZE_PATTERN     = Pattern.compile( "^\\d+(pt|PT)?$" );
+  private static final Pattern EXPLICIT_SIZE_PATTERN  = Pattern.compile( "^(\\d+(\\.d+)?)\\s*(pt|in(ch)?|mm|cm)?$",
+                                                                         Pattern.CASE_INSENSITIVE );
 
-  private static int parseSize( String size ) {
-    if ( DEFAULT_SIZE_PATTERN.matcher( size ).matches() )
+  private static int parseSize( String sizeString ) {
+    Matcher matcher;
+    if ( DEFAULT_SIZE_PATTERN.matcher( sizeString ).matches() )
       return SWT.DEFAULT;
-    else if ( PREFERRED_SIZE_PATTERN.matcher( size ).matches() )
+    else if ( PREFERRED_SIZE_PATTERN.matcher( sizeString ).matches() )
       return GridPrint.PREFERRED;
-    else if ( POINT_SIZE_PATTERN.matcher( size ).matches() ) {
-      return Integer.parseInt( size );
+    else if ( ( matcher = EXPLICIT_SIZE_PATTERN.matcher( sizeString ) ).matches() ) {
+      return (int) Math.ceil( convertToPoints( Double.parseDouble( matcher.group( 1 ) ), matcher.group( 3 ) ) );
     } else {
-      throw new IllegalArgumentException( "Unknown size pattern: \"" + size + "\"" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Unknown size pattern: \"" + sizeString + "\"" );
+      return 0; // unreachable
     }
   }
 
-  private static final Pattern NO_WEIGHT_PATTERN   = Pattern.compile( "n|none|N|NONE" );
+  private static double convertToPoints( double value, String unit ) {
+    if ( unit == null || unit.length() == 0 || unit.equalsIgnoreCase( "pt" ) )
+      return value;
+    else if ( unit.equalsIgnoreCase( "in" ) || unit.equalsIgnoreCase( "inch" ) )
+      return value / 72;
+    else if ( unit.equalsIgnoreCase( "cm" ) )
+      return 2.54 * value / 72;
+    else if ( unit.equalsIgnoreCase( "mm" ) )
+      return 25.4 * value / 72;
+    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Unknown unit \"" + unit + "\"." );
+    return 0;
+  }
 
-  private static final Pattern GROW_WEIGHT_PATTERN = Pattern.compile( "(g|grow|G|GROW)(\\((\\d+)\\))?" ); // yikes
+  private static final Pattern WEIGHTLESS_PATTERN = Pattern.compile( "n(one)?", Pattern.CASE_INSENSITIVE );
 
-  private static int parseWeight( String weight ) {
+  private static final Pattern WEIGHTED_PATTERN   = Pattern.compile( "(g(row)?)(\\((\\d+)\\))?", // yikes
+                                                                     Pattern.CASE_INSENSITIVE );
+
+  private static int parseWeight( String weightString ) {
     Matcher matcher;
-    if ( NO_WEIGHT_PATTERN.matcher( weight ).matches() )
+    if ( WEIGHTLESS_PATTERN.matcher( weightString ).matches() )
       return 0;
-    else if ( ( matcher = GROW_WEIGHT_PATTERN.matcher( weight ) ).matches() ) {
-      return ( matcher.group( 3 ) == null ) ? 1 : Integer.parseInt( matcher.group( 3 ) );
-    } else
-      throw new IllegalArgumentException( "Illegal grow pattern: \"" + weight + "\"" );
+    else if ( ( matcher = WEIGHTED_PATTERN.matcher( weightString ) ).matches() ) {
+      String weight = matcher.group( 4 );
+      return ( weight == null ) ? 1 : Integer.parseInt( weight );
+    } else {
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Illegal grow pattern: \"" + weightString + "\"" );
+      return 0; // unreachable
+    }
   }
 
   GridColumn copy() {

@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.NullUtil;
+
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -36,8 +38,7 @@ public abstract class AbstractPiece implements PrintPiece {
    * @param size the value to be returned by getSize().
    */
   protected AbstractPiece( Device device, GC gc, Point size ) {
-    if ( device == null || gc == null || size == null )
-      throw new NullPointerException();
+    NullUtil.notNull( device, gc, size );
     this.device = device;
     this.gc = gc;
     this.size = size;

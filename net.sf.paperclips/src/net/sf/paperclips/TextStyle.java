@@ -11,8 +11,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
+import net.sf.paperclips.internal.BitUtil;
+import net.sf.paperclips.internal.GraphicsUtil;
+
 /**
- * Defines a set of styles that can be applied to text.
+ * Defines a set of styles that can be applied to text. Instances of this class are immutable.
  * @author Matthew Hall
  */
 public class TextStyle {
@@ -70,7 +73,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the font changed to the argument.
    */
   public TextStyle font( FontData fontData ) {
-    return internalFont( defensiveCopy( fontData ) );
+    return internalFont( GraphicsUtil.defensiveCopy( fontData ) );
   }
 
   /**
@@ -100,13 +103,6 @@ public class TextStyle {
     return font( fontData.getName(), fontData.getHeight(), style );
   }
 
-  private RGB deriveRGB( final int rgb ) {
-    int red = ( rgb >> 16 ) & 0xFF;
-    int green = ( rgb >> 8 ) & 0xFF;
-    int blue = rgb & 0xFF;
-    return new RGB( red, green, blue );
-  }
-
   private TextStyle internalForeground( RGB foreground ) {
     TextStyle result = new TextStyle( this );
     result.foreground = foreground;
@@ -120,7 +116,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the foreground changed to the argument.
    */
   public TextStyle foreground( RGB foreground ) {
-    return internalForeground( defensiveCopy( foreground ) );
+    return internalForeground( GraphicsUtil.defensiveCopy( foreground ) );
   }
 
   /**
@@ -142,7 +138,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the foreground changed to the color described by the argument.
    */
   public TextStyle foreground( int rgb ) {
-    return internalForeground( deriveRGB( rgb ) );
+    return internalForeground( GraphicsUtil.deriveRGB( rgb ) );
   }
 
   private TextStyle internalBackground( RGB background ) {
@@ -157,7 +153,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the background changed to the argument.
    */
   public TextStyle background( RGB background ) {
-    return internalBackground( defensiveCopy( background ) );
+    return internalBackground( GraphicsUtil.defensiveCopy( background ) );
   }
 
   /**
@@ -179,7 +175,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the background changed to the color described by the argument.
    */
   public TextStyle background( int rgb ) {
-    return internalBackground( deriveRGB( rgb ) );
+    return internalBackground( GraphicsUtil.deriveRGB( rgb ) );
   }
 
   /**
@@ -190,20 +186,8 @@ public class TextStyle {
    */
   public TextStyle align( int alignment ) {
     TextStyle result = new TextStyle( this );
-    result.alignment = checkAlignment( alignment );
+    result.alignment = BitUtil.firstMatch( alignment, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
     return result;
-  }
-
-  private int checkAlignment( int alignment ) {
-    if ( ( alignment & SWT.LEFT ) == SWT.LEFT )
-      return SWT.LEFT;
-    else if ( ( alignment & SWT.CENTER ) == SWT.CENTER )
-      return SWT.CENTER;
-    else if ( ( alignment & SWT.RIGHT ) == SWT.RIGHT )
-      return SWT.RIGHT;
-
-    // no alignment bit--default to left.
-    return SWT.LEFT;
   }
 
   /**
@@ -249,7 +233,7 @@ public class TextStyle {
    * @return the font applied to the text.
    */
   public FontData getFontData() {
-    return defensiveCopy( fontData );
+    return GraphicsUtil.defensiveCopy( fontData );
   }
 
   /**
@@ -258,7 +242,7 @@ public class TextStyle {
    * @return the text foreground color.
    */
   public RGB getForeground() {
-    return defensiveCopy( foreground );
+    return GraphicsUtil.defensiveCopy( foreground );
   }
 
   /**
@@ -266,7 +250,7 @@ public class TextStyle {
    * @return the text background color. A null value indicates that the background will be transparent.
    */
   public RGB getBackground() {
-    return defensiveCopy( background );
+    return GraphicsUtil.defensiveCopy( background );
   }
 
   /**
@@ -291,15 +275,5 @@ public class TextStyle {
    */
   public boolean getStrikeout() {
     return strikeout;
-  }
-
-  private FontData defensiveCopy( FontData fontData ) {
-    return fontData == null ? null : new FontData( fontData.getName(),
-                                                   fontData.getHeight(),
-                                                   fontData.getStyle() );
-  }
-
-  private RGB defensiveCopy( RGB rgb ) {
-    return rgb == null ? null : new RGB( rgb.red, rgb.green, rgb.blue );
   }
 }

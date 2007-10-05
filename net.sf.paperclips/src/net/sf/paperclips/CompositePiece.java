@@ -10,6 +10,8 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.paperclips.internal.NullUtil;
+
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
@@ -63,8 +65,7 @@ public class CompositePiece implements PrintPiece {
    *        increase this size to fit any entries that extend outside the given size.
    */
   public CompositePiece( List entries, Point size ) {
-    if ( entries.contains( null ) )
-      throw new NullPointerException();
+    NullUtil.noNulls( entries );
 
     this.entries = (CompositeEntry[]) entries.toArray( new CompositeEntry[entries.size()] );
     this.size = new Point( size.x, size.y );
@@ -82,12 +83,11 @@ public class CompositePiece implements PrintPiece {
   }
 
   public void paint( GC gc, int x, int y ) {
-    // SWT on OSX has problems with the clipping. A GC(Printer) always returns a clipping
-    // rectangle of [0,0,0,0] so that throws off the ability to check each entry against the hit
-    // rectangle. In addition it appears that a GC(Image(Printer))'s clipping on OSX is not
-    // affected by the GC's transform, so that throws off the hit clip as well. For this reason we
-    // are no longer checking entries to see if they intersect the clipping region before drawing
-    // them.
+    // SWT on OSX has problems with the clipping. A GC(Printer) always returns a clipping rectangle of
+    // [0,0,0,0] so that inhibits our ability to check each entry against the hit rectangle. In addition it
+    // appears that a GC(Image(Printer))'s clipping on OSX is not affected by the GC's transform, so that
+    // screws up the hit clip as well. For this reason we are no longer checking entries to see if they
+    // intersect the clipping region before drawing them.
 
     for ( int i = 0; i < entries.length; i++ ) {
       CompositeEntry entry = entries[i];
@@ -97,6 +97,6 @@ public class CompositePiece implements PrintPiece {
 
   public void dispose() {
     for ( int i = 0; i < entries.length; i++ )
-      entries[i].piece.dispose();
+      entries[i].dispose();
   }
 }
