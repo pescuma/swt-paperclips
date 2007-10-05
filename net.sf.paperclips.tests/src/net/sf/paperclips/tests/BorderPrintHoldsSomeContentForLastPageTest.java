@@ -7,17 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.tests;
 
-import net.sf.paperclips.BorderPrint;
-import net.sf.paperclips.ColumnPrint;
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.FactoryPrint;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.*;
 
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 
@@ -27,7 +20,7 @@ import org.eclipse.swt.widgets.Display;
  * 
  * @author Matthew
  */
-public class BorderPrintHoldsSomeContentForLastPageTest extends FactoryPrint {
+public class BorderPrintHoldsSomeContentForLastPageTest implements Print {
   protected Print createPrint() {
     GridPrint grid = new GridPrint( "d:g", new DefaultGridLook( 10, 10 ) );
 
@@ -40,6 +33,10 @@ public class BorderPrintHoldsSomeContentForLastPageTest extends FactoryPrint {
     }
 
     return new ColumnPrint( grid, 2, 10 );
+  }
+
+  public PrintIterator iterator( Device device, GC gc ) {
+    return createPrint().iterator( device, gc );
   }
 
   /**
