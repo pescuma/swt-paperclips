@@ -8,15 +8,15 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
+
+import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.PrintPieceUtil;
 
 /**
  * This class contains static constants and methods for preparing and printing documents. Methods in this
@@ -25,6 +25,8 @@ import org.eclipse.swt.printing.PrinterData;
  */
 public class PaperClips {
   private PaperClips() {} // no instances
+
+  private static boolean  debug                 = false;
 
   /**
    * Indicates that the printer's default page orientation should be used.
@@ -41,12 +43,37 @@ public class PaperClips {
    */
   public static final int ORIENTATION_LANDSCAPE = SWT.HORIZONTAL;
 
-  private static boolean  debug                 = false;
+  /**
+   * Triggers an appropriate exception based on the passed in error code.
+   * 
+   * @param code the SWT error code.
+   */
+  public static void error( int code ) {
+    error( code, null );
+  }
+
+  /**
+   * Triggers an unspecified exception with the passed in detail.
+   * 
+   * @param detail more information about error.
+   */
+  public static void error( String detail ) {
+    error( SWT.ERROR_UNSPECIFIED, detail );
+  }
+
+  /**
+   * Triggers an appropriate exception based on the passed in error code.
+   * 
+   * @param code the SWT error code.
+   * @param detail more information about error.
+   */
+  public static void error( int code, String detail ) {
+    SWT.error( code, null, detail );
+  }
 
   /**
    * <b>EXPERIMENTAL</b>: Sets whether debug mode is enabled. This mode may be used for troubleshooting
-   * documents that cannot be laid out for some reason (e.g. a RuntimeException "cannot layout page x" is
-   * thrown).
+   * documents that cannot be laid out for some reason (e.g. "Cannot layout page x" error occurs).
    * 
    * <p>
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
@@ -68,27 +95,33 @@ public class PaperClips {
   }
 
   /**
-   * Calls iterator.next(width, height) and returns the result, or throws a RuntimeException if the returned
-   * PrintPiece is larger than the width or height given.
+   * Calls iterator.next(width, height) and returns the result. This method checks multiple conditions to
+   * ensure proper usage and behavior of PrintIterators.
    * <p>
    * This method is intended to be used by PrintIterator classes, as a results-checking alternative to
    * calling next(int, int) directly on the target iterator. All PrintIterator classes in the PaperClips
    * library use this method instead of directly calling the {@link PrintIterator#next(int, int)} method.
+   * 
    * @param iterator the PrintIterator
    * @param width the available width.
    * @param height the available height.
    * @return the next portion of the Print, or null if the width and height are not enough to display any of
    *         the iterator's contents.
-   * @throws RuntimeException if the iterator returns a PrintPiece that is larger than the width or height
-   *         given.
    */
   public static PrintPiece next( PrintIterator iterator, int width, int height ) {
+    NullUtil.notNull( iterator );
+    if ( width < 0 || height < 0 )
+      error( SWT.ERROR_INVALID_ARGUMENT, "PrintPiece size " + width + "x" + height + " not possible" );
+    if ( !iterator.hasNext() )
+      error( "Iterator " + iterator + " has no more content." );
+
     PrintPiece result = iterator.next( width, height );
+
     if ( result != null ) {
       Point size = result.getSize();
       if ( size.x > width || size.y > height )
-        throw new RuntimeException( iterator + " produced a " + size.x + "x" + size.y + " piece for a "
-            + width + "x" + height + " area." );
+        error( iterator + " produced a " + size.x + "x" + size.y + " piece for a " + width + "x" + height
+            + " area." );
     } else if ( debug ) {
       return new NullPrintPiece();
     }
@@ -115,15 +148,14 @@ public class PaperClips {
    * Prints the print job to the given printer.
    * @param printJob the print job.
    * @param printer the printer device.
-   * @throws RuntimeException if the document could not be printed for any reason.
    */
   public static void print( PrintJob printJob, Printer printer ) {
     // Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by default.
-    if ( !printer.startJob( printJob.getName() ) )
-      throw new RuntimeException( "Unable to start print job" );
+    startJob( printer, printJob.getName() );
 
+    boolean completed = false;
     try {
-      GC gc = createConfiguredGC( printer );
+      GC gc = createAndConfigureGC( printer );
       try {
         print( printJob, printer, gc );
       }
@@ -131,14 +163,20 @@ public class PaperClips {
         gc.dispose();
       }
       printer.endJob();
+      completed = true;
     }
-    catch ( RuntimeException e ) {
-      printer.cancelJob();
-      throw e;
+    finally {
+      if ( !completed )
+        printer.cancelJob();
     }
   }
 
-  private static GC createConfiguredGC( Printer printer ) {
+  private static void startJob( Printer printer, String jobName ) {
+    if ( !printer.startJob( jobName ) )
+      error( "Unable to start print job" );
+  }
+
+  private static GC createAndConfigureGC( Printer printer ) {
     GC gc = new GC( printer );
     gc.setAdvanced( true );
     return gc;
@@ -177,11 +215,11 @@ public class PaperClips {
     printPages( printer, gc, pages, startPage, endPage, collatedCopies, noncollatedCopies );
   }
 
-  private static void printPages( Printer printer,
+  private static void printPages( final Printer printer,
                                   final GC gc,
-                                  PrintPiece[] pages,
-                                  int startPage,
-                                  int endPage,
+                                  final PrintPiece[] pages,
+                                  final int startPage,
+                                  final int endPage,
                                   final int collatedCopies,
                                   final int noncollatedCopies ) {
     disposeUnusedPages( pages, startPage, endPage );
@@ -199,23 +237,20 @@ public class PaperClips {
               pages[pageIndex].dispose();
               printer.endPage();
             } else {
-              throw new RuntimeException( "Unable to start page " + pageIndex );
+              error( "Unable to start page " + pageIndex );
             }
           }
         }
       }
     }
     finally {
-      for ( int i = 0; i < pages.length; i++ )
-        pages[i].dispose();
+      PrintPieceUtil.dispose( pages );
     }
   }
 
   private static void disposeUnusedPages( PrintPiece[] pages, int startPage, int endPage ) {
-    for ( int i = 0; i < startPage; i++ )
-      pages[i].dispose();
-    for ( int i = endPage + 1; i < pages.length; i++ )
-      pages[i].dispose();
+    PrintPieceUtil.dispose( pages, 0, startPage );
+    PrintPieceUtil.dispose( pages, endPage + 1, pages.length );
   }
 
   /**
@@ -226,24 +261,24 @@ public class PaperClips {
    * the position where the page's content is drawn is determined solely by the margin, and is not offset by
    * the trim. This behavior is helpful for screen display, and is already compensated for in the
    * {@link #print(PrintJob, Printer) } method.
+   * 
    * @param printer the printing device.
    * @param printJob the print job.
    * @return an array of all pages of the print job. Each element of the returned array represents one page
    *         in the printed document.
-   * @throws RuntimeException if the document could not be properly laid out for any reason.
    */
   public static PrintPiece[] getPages( PrintJob printJob, Printer printer ) {
     String platform = SWT.getPlatform();
-    boolean carbon = platform.equals( "carbon" );
-    boolean gtk = platform.equals( "gtk" );
+    boolean carbon = platform.equals( "carbon" ); // Mac OSX
+    boolean gtk = platform.equals( "gtk" ); // Linux GTK
 
-    // Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by default.
+    // On Mac OSX and Linux GTK: If Printer.startJob() is not called first, the GC will already be disposed
+    // at creation.
     if ( carbon || gtk )
-      if ( !printer.startJob( "" ) )
-        throw new RuntimeException( "Unable to start print job" );
+      startJob( printer, printJob.getName() );
 
     try {
-      GC gc = createConfiguredGC( printer );
+      GC gc = createAndConfigureGC( printer );
       try {
         return getPages( printJob, printer, gc );
       }
@@ -254,9 +289,9 @@ public class PaperClips {
     finally {
       if ( gtk )
         printer.cancelJob();
-      // 2007-04-30: A bug in OSX renders Printer instances useless after a call to cancelJob(). Therefore on
-      // OSX we call endJob() instead of cancelJob().
       else if ( carbon )
+        // 2007-04-30: A bug in Mac OSX renders Printer instances useless after a call to cancelJob().
+        // Therefore on Mac OSX we call endJob() instead of cancelJob().
         printer.endJob();
     }
   }
@@ -273,18 +308,19 @@ public class PaperClips {
     List pages = new ArrayList();
     while ( iterator.hasNext() ) {
       PrintPiece page = next( iterator, marginBounds.width, marginBounds.height );
-      if ( page == null ) {
-        for ( Iterator it = pages.iterator(); it.hasNext(); )
-          ( (PrintPiece) it.next() ).dispose();
-        pages.clear();
-        throw new RuntimeException( "Unable to layout page " + ( pages.size() + 1 ) );
-      }
+      if ( page == null )
+        errorOnPage( pages.size() + 1, pages );
       pages.add( createPagePiece( page, marginBounds, paperBounds ) );
       if ( debug && page instanceof NullPrintPiece )
         break;
     }
 
     return (PrintPiece[]) pages.toArray( new PrintPiece[pages.size()] );
+  }
+
+  private static void errorOnPage( int pageNumber, List pages ) {
+    PrintPieceUtil.dispose( pages );
+    error( "Unable to layout page " + pageNumber );
   }
 
   private static PrintJob applyOrientation( PrintJob printJob, Printer printer ) {
