@@ -8,24 +8,12 @@
 package net.sf.paperclips.ui;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.*;
 
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.PrintPiece;
+import net.sf.paperclips.*;
 
 /**
  * A WYSIWYG (what you see is what you get) print preview panel. This control displays a preview of what a
@@ -70,9 +58,9 @@ public class PrintPreview extends Canvas {
   public PrintPreview( Composite parent, int style ) {
     super( parent, style | SWT.DOUBLE_BUFFERED );
 
-    addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent e ) {
-        paint( e );
+    addListener( SWT.Paint, new Listener() {
+      public void handleEvent( Event event ) {
+        paint( event );
       }
     } );
 
@@ -236,14 +224,17 @@ public class PrintPreview extends Canvas {
    */
   public void setScale( float scale ) {
     checkWidget();
-    if ( scale > 0 ) {
-      this.scale = scale;
-      if ( !( fitVertical || fitHorizontal ) ) {
-        invalidatePageDisplayBounds();
-        redraw();
-      }
-    } else
-      throw new IllegalArgumentException( "Scale must be > 0" );
+    this.scale = checkScale( scale );
+    if ( !( fitVertical || fitHorizontal ) ) {
+      invalidatePageDisplayBounds();
+      redraw();
+    }
+  }
+
+  private static float checkScale( float scale ) {
+    if ( !( scale > 0 ) )
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale must be > 0" );
+    return scale;
   }
 
   /**
@@ -303,7 +294,7 @@ public class PrintPreview extends Canvas {
     pageDisplayLocations = null;
   }
 
-  private void paint( PaintEvent event ) {
+  private void paint( Event event ) {
     drawBackground( event );
 
     if ( printJob == null || printerData == null )
@@ -327,7 +318,7 @@ public class PrintPreview extends Canvas {
     }
   }
 
-  private void paintPage( PaintEvent event, PrintPiece page, Point location ) {
+  private void paintPage( Event event, PrintPiece page, Point location ) {
     // Check whether any "paper" is in the dirty region
     Rectangle rectangle = new Rectangle( location.x, location.y, pageDisplaySize.x, pageDisplaySize.y );
     Rectangle dirtyBounds = new Rectangle( event.x, event.y, event.width, event.height );
@@ -357,15 +348,22 @@ public class PrintPreview extends Canvas {
       event.gc.drawImage( displayImage, dirtyPaperBounds.x, dirtyPaperBounds.y );
     }
     finally {
-      if ( printerImage != null )
-        printerImage.dispose();
-      if ( displayImage != null )
-        displayImage.dispose();
-      if ( printerGC != null )
-        printerGC.dispose();
-      if ( printerTransform != null )
-        printerTransform.dispose();
+      disposeResources( printerImage, printerGC, printerTransform, displayImage );
     }
+  }
+
+  private void disposeResources( Image printerImage,
+                                 GC printerGC,
+                                 Transform printerTransform,
+                                 Image displayImage ) {
+    if ( printerImage != null )
+      printerImage.dispose();
+    if ( displayImage != null )
+      displayImage.dispose();
+    if ( printerGC != null )
+      printerGC.dispose();
+    if ( printerTransform != null )
+      printerTransform.dispose();
   }
 
   private void configureAntialiasing( GC printerGC ) {
@@ -413,7 +411,7 @@ public class PrintPreview extends Canvas {
     return pages;
   }
 
-  private void drawBackground( PaintEvent event ) {
+  private void drawBackground( Event event ) {
     Color oldBackground = event.gc.getBackground();
     Color bg = event.display.getSystemColor( SWT.COLOR_WIDGET_DARK_SHADOW );
     try {

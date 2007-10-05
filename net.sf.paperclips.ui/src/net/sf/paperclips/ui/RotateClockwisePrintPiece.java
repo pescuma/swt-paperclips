@@ -7,12 +7,11 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.ui;
 
-import net.sf.paperclips.PrintPiece;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.*;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Transform;
+import net.sf.paperclips.PaperClips;
+import net.sf.paperclips.PrintPiece;
 
 class RotateClockwisePrintPiece implements PrintPiece {
   private final Device     device;
@@ -21,7 +20,7 @@ class RotateClockwisePrintPiece implements PrintPiece {
 
   RotateClockwisePrintPiece( Device device, PrintPiece target ) {
     if ( device == null || target == null )
-      throw new NullPointerException();
+      PaperClips.error( SWT.ERROR_NULL_ARGUMENT );
     this.device = device;
     this.target = target;
     Point targetSize = target.getSize();
