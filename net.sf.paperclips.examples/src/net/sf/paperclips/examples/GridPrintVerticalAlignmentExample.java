@@ -7,36 +7,21 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.FactoryPrint;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.ImagePrint;
-import net.sf.paperclips.LinePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.ui.PrintPreview;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.*;
+import net.sf.paperclips.ui.PrintPreview;
 
 /**
  * Example for the GridPrint class.
  * 
  * @author Matthew
  */
-public class GridPrintVerticalAlignmentExample extends FactoryPrint {
+public class GridPrintVerticalAlignmentExample implements Print {
   /**
    * Executes the GridPrint example.
    * 
@@ -50,8 +35,8 @@ public class GridPrintVerticalAlignmentExample extends FactoryPrint {
     shell.setLayout( new GridLayout() );
     shell.setSize( 600, 800 );
 
-    final PrintJob job =
-        new PrintJob( "GridPrintVerticalAlignmentExample.java", new GridPrintVerticalAlignmentExample() );
+    final PrintJob job = new PrintJob( "GridPrintVerticalAlignmentExample.java",
+                                       new GridPrintVerticalAlignmentExample() );
 
     Composite buttonPanel = new Composite( shell, SWT.NONE );
     buttonPanel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ) );
@@ -102,8 +87,7 @@ public class GridPrintVerticalAlignmentExample extends FactoryPrint {
     look.setHeaderGap( 5 );
     GridPrint grid = new GridPrint( "d:g, d, d:g, d, d:g, d, d:g", look );
 
-    ImageData imageData =
-        new ImageData( GridPrintVerticalAlignmentExample.class.getResourceAsStream( "logo.png" ) );
+    ImageData imageData = new ImageData( GridPrintVerticalAlignmentExample.class.getResourceAsStream( "logo.png" ) );
     ImagePrint image = new ImagePrint( imageData );
     image.setDPI( 300, 300 );
 
@@ -138,5 +122,9 @@ public class GridPrintVerticalAlignmentExample extends FactoryPrint {
     grid.add( SWT.RIGHT, SWT.FILL, verticalRule );
 
     return grid;
+  }
+
+  public PrintIterator iterator( Device device, GC gc ) {
+    return createPrint().iterator( device, gc );
   }
 }

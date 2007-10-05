@@ -7,38 +7,21 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.FactoryPrint;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.ImagePrint;
-import net.sf.paperclips.PageDecoration;
-import net.sf.paperclips.PageNumber;
-import net.sf.paperclips.PageNumberPrint;
-import net.sf.paperclips.PagePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.ui.PrintPreview;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.*;
+import net.sf.paperclips.ui.PrintPreview;
 
 /**
  * Demonstrate use of PagePrint and friends PageDecoration, PageNumberPrint, and PageNumber.
  * 
  * @author Matthew
  */
-public class PagePrintExample extends FactoryPrint {
+public class PagePrintExample implements Print {
   /**
    * Executes the GridPrint example.
    * 
@@ -98,6 +81,47 @@ public class PagePrintExample extends FactoryPrint {
     display.dispose();
   }
 
+  protected Print createPrint() {
+    PageDecoration header = createHeader();
+    Print body = createBody();
+    PageDecoration footer = createFooter();
+
+    PagePrint page = new PagePrint( header, body, footer );
+    page.setHeaderGap( 72 / 4 );
+    page.setFooterGap( 72 / 8 );
+
+    return page;
+  }
+
+  private PageDecoration createHeader() {
+    PageDecoration header = new PageDecoration() {
+      public Print createPrint( PageNumber pageNumber ) {
+        // Only show a header on the first page
+        if ( pageNumber.getPageNumber() == 0 ) {
+          ImageData imageData = new ImageData( PagePrintExample.class.getResourceAsStream( "logo.png" ) );
+          ImagePrint image = new ImagePrint( imageData );
+          image.setDPI( 300, 300 );
+          return image;
+        }
+
+        return null;
+      }
+    };
+    return header;
+  }
+
+  private PageDecoration createFooter() {
+    PageDecoration footer = new PageDecoration() {
+      public Print createPrint( PageNumber pageNumber ) {
+        GridPrint grid = new GridPrint( "d:g, r:d" );
+        grid.add( new TextPrint( "Copyright 2006 ABC Corp, All Rights Reserved" ) );
+        grid.add( new PageNumberPrint( pageNumber, SWT.RIGHT ) );
+        return grid;
+      }
+    };
+    return footer;
+  }
+
   private Print createBody() {
     GridPrint grid = new GridPrint();
 
@@ -115,36 +139,7 @@ public class PagePrintExample extends FactoryPrint {
     return grid;
   }
 
-  protected Print createPrint() {
-    Print body = createBody();
-
-    PageDecoration header = new PageDecoration() {
-      public Print createPrint( PageNumber pageNumber ) {
-        // Only show a header on the first page
-        if ( pageNumber.getPageNumber() == 0 ) {
-          ImageData imageData = new ImageData( PagePrintExample.class.getResourceAsStream( "logo.png" ) );
-          ImagePrint image = new ImagePrint( imageData );
-          image.setDPI( 300, 300 );
-          return image;
-        }
-
-        return null;
-      }
-    };
-
-    PageDecoration footer = new PageDecoration() {
-      public Print createPrint( PageNumber pageNumber ) {
-        GridPrint grid = new GridPrint( "d:g, r:d" );
-        grid.add( new TextPrint( "Copyright 2006 ABC Corp, All Rights Reserved" ) );
-        grid.add( new PageNumberPrint( pageNumber, SWT.RIGHT ) );
-        return grid;
-      }
-    };
-
-    PagePrint page = new PagePrint( body, header, footer );
-    page.setHeaderGap( 72 / 4 );
-    page.setFooterGap( 72 / 8 );
-
-    return page;
+  public PrintIterator iterator( Device device, GC gc ) {
+    return createPrint().iterator( device, gc );
   }
 }

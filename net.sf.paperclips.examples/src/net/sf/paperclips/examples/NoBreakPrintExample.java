@@ -7,19 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 
-import net.sf.paperclips.ColumnPrint;
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.FactoryPrint;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.NoBreakPrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.*;
 
 /**
  * Prints "The quick brown fox jumps over the lazy dog." in increasingly large blocks, using a NoBreakPrint
@@ -27,7 +20,7 @@ import net.sf.paperclips.TextPrint;
  * 
  * @author Matthew
  */
-public class NoBreakPrintExample extends FactoryPrint {
+public class NoBreakPrintExample implements Print {
   protected Print createPrint() {
     DefaultGridLook look = new DefaultGridLook( 10, 10 );
     look.setCellBorder( new LineBorder() );
@@ -48,6 +41,10 @@ public class NoBreakPrintExample extends FactoryPrint {
     }
 
     return new ColumnPrint( grid, 2, 10 );
+  }
+
+  public PrintIterator iterator( Device device, GC gc ) {
+    return createPrint().iterator( device, gc );
   }
 
   /**

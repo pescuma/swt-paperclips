@@ -8,19 +8,14 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import net.sf.paperclips.BorderPrint;
-import net.sf.paperclips.ColumnPrint;
-import net.sf.paperclips.FactoryPrint;
-import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.*;
 import net.sf.paperclips.ui.PrintViewer;
 
 /**
@@ -28,7 +23,7 @@ import net.sf.paperclips.ui.PrintViewer;
  * 
  * @author Matthew
  */
-public class ColumnPrintExample extends FactoryPrint {
+public class ColumnPrintExample implements Print {
   /**
    * Executes the ColumnPrint example.
    * 
@@ -62,5 +57,9 @@ public class ColumnPrintExample extends FactoryPrint {
     }
 
     return new ColumnPrint( new BorderPrint( new TextPrint( buf.toString() ), new LineBorder() ), 3, 18 );
+  }
+
+  public PrintIterator iterator( Device device, GC gc ) {
+    return createPrint().iterator( device, gc );
   }
 }
