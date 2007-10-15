@@ -314,7 +314,6 @@ public class PrintPreview extends Canvas {
     int count = Math.min( verticalPageCount * horizontalPageCount, pages.length - pageIndex );
     for ( int i = 0; i < count; i++ ) {
       paintPage( event, pages[pageIndex + i], pageDisplayLocations[i] );
-      pages[pageIndex].dispose();
     }
   }
 
@@ -348,14 +347,15 @@ public class PrintPreview extends Canvas {
       event.gc.drawImage( displayImage, dirtyPaperBounds.x, dirtyPaperBounds.y );
     }
     finally {
-      disposeResources( printerImage, printerGC, printerTransform, displayImage );
+      disposeResources( printerImage, printerGC, printerTransform, displayImage, page );
     }
   }
 
   private void disposeResources( Image printerImage,
                                  GC printerGC,
                                  Transform printerTransform,
-                                 Image displayImage ) {
+                                 Image displayImage,
+                                 PrintPiece page ) {
     if ( printerImage != null )
       printerImage.dispose();
     if ( displayImage != null )
@@ -364,6 +364,7 @@ public class PrintPreview extends Canvas {
       printerGC.dispose();
     if ( printerTransform != null )
       printerTransform.dispose();
+    page.dispose();
   }
 
   private void configureAntialiasing( GC printerGC ) {
