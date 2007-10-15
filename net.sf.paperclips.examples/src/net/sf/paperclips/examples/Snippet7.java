@@ -241,7 +241,7 @@ public class Snippet7 implements Print {
 
       Listener dragListener = new Listener() {
         private final Point dpi                   = display.getDPI();
-        private boolean     scrollable             = false;
+        private boolean     scrollable            = false;
 
         private boolean     dragging              = false;
         private Point       dragStartScrollOrigin = null;
@@ -280,7 +280,8 @@ public class Snippet7 implements Print {
               break;
             case SWT.MouseWheel:
               if ( event.count != 0 ) {
-                if ( scrollable && !dragging && ( event.stateMask == SWT.NONE || event.stateMask == SWT.SHIFT ) ) {
+                if ( scrollable && !dragging
+                    && ( event.stateMask == SWT.NONE || event.stateMask == SWT.SHIFT ) ) {
                   forgetScrollingPosition();
                   bounds = scroll.getClientArea();
                   size = preview.getSize();

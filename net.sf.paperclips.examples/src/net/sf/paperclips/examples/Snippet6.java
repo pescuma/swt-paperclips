@@ -7,38 +7,18 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
+import java.util.Calendar;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.CellBackgroundProvider;
-import net.sf.paperclips.GridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.LinePrint;
-import net.sf.paperclips.PageDecoration;
-import net.sf.paperclips.PageNumber;
-import net.sf.paperclips.PageNumberPrint;
-import net.sf.paperclips.PagePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.*;
 import net.sf.paperclips.ui.PrintViewer;
-
-import java.util.Calendar;
 
 /**
  * Demonstrate use of PagePrint and PageNumberPrint.

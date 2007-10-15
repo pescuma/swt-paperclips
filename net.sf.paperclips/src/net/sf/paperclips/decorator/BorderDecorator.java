@@ -7,9 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.decorator;
 
-import net.sf.paperclips.Border;
-import net.sf.paperclips.BorderPrint;
-import net.sf.paperclips.Print;
+import net.sf.paperclips.*;
 import net.sf.paperclips.internal.NullUtil;
 
 /**

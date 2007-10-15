@@ -7,14 +7,11 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.ui;
 
-import net.sf.paperclips.PrintPiece;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.PrintPiece;
 
 /**
  * A canvas for displaying Print objects.

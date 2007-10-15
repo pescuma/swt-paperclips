@@ -7,11 +7,11 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.decorator;
 
+import org.eclipse.swt.graphics.RGB;
+
 import net.sf.paperclips.BackgroundPrint;
 import net.sf.paperclips.Print;
 import net.sf.paperclips.internal.NullUtil;
-
-import org.eclipse.swt.graphics.RGB;
 
 /**
  * Decorates prints with a background color.

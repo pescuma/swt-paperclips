@@ -10,10 +10,10 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.paperclips.internal.NullUtil;
-
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A composite PrintPiece for displaying child PrintPieces. This class is especially useful for Print

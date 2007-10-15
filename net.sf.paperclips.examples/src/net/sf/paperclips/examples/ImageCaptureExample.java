@@ -7,24 +7,13 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.PrintPiece;
-import net.sf.paperclips.TextPrint;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
+
+import net.sf.paperclips.*;
 
 /**
  * Demonstrate capturing the pages of a print job to in-memory images.

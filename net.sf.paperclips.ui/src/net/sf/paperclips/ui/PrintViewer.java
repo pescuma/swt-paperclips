@@ -7,18 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.ui;
 
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintPiece;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.*;
 
 /**
  * A JFace-style {@link Print} viewer which displays a Print in a scrollable pane.

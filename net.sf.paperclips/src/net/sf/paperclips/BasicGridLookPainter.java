@@ -7,11 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.NullUtil;
+import org.eclipse.swt.graphics.*;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A abstract GridLookPainter which simplifies implementation of custom GridLooks.

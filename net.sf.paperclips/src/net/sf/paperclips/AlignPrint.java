@@ -7,12 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.NullUtil;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A wrapper print that aligns its target vertically and/or horizontally. An AlignPrint is vertically greedy

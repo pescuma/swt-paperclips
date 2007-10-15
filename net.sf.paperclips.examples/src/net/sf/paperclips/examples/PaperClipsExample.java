@@ -7,18 +7,13 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.ImagePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
+
+import net.sf.paperclips.*;
 
 /**
  * Example for PaperClips.

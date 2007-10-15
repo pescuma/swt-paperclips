@@ -7,31 +7,15 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.ImagePrint;
-import net.sf.paperclips.LinePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.StyledTextPrint;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.printing.PrinterData;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.*;
 import net.sf.paperclips.TextStyle;
 import net.sf.paperclips.ui.PrintPreview;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * Demonstrates use of the StyledTextPrint class.

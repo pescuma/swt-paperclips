@@ -8,10 +8,10 @@
 
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.NullUtil;
-
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+
+import net.sf.paperclips.internal.NullUtil;
 
 class BorderPiece implements PrintPiece {
   private final PrintPiece    target;

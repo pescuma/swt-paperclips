@@ -15,14 +15,7 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.LinePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.*;
 
 /**
  * First example in the PaperClips online tutorial.

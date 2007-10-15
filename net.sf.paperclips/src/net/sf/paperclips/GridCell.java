@@ -73,8 +73,8 @@ public class GridCell {
 
   private static int checkHorizontalAlignment( int hAlignment ) {
     hAlignment = BitUtil.firstMatch( hAlignment,
-                                       new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT },
-                                       0 );
+                                     new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT },
+                                     0 );
     if ( hAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );

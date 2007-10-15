@@ -7,9 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
 
 /**
  * A print which inserts a page break (or a column break, if inside a ColumnPrint).

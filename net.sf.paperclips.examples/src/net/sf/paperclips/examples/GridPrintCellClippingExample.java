@@ -7,21 +7,15 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.ui.PrintPreview;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+
+import net.sf.paperclips.*;
+import net.sf.paperclips.ui.PrintPreview;
 
 /**
  * Example for the GridPrint class using.

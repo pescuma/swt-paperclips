@@ -7,10 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.NullUtil;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * An entry in a CompositePiece.

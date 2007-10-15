@@ -7,16 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import net.sf.paperclips.internal.NullUtil;
+import java.util.*;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A wrapper Print which splits its child print into multiple columns.

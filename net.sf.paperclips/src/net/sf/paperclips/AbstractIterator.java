@@ -7,10 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.NullUtil;
-
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
+
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * An abstract PrintIterator class which maintains references to the device and gc arguments passed to

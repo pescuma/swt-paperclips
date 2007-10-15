@@ -10,7 +10,6 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
-
 class GridCellIterator {
   final int           hAlignment;
   final int           vAlignment;

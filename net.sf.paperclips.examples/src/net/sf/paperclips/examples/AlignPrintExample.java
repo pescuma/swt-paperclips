@@ -15,11 +15,7 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import net.sf.paperclips.AlignPrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintJob;
+import net.sf.paperclips.*;
 
 /**
  * Prints the contents of TutorialExample2, but centered horizontally and vertically on the page.

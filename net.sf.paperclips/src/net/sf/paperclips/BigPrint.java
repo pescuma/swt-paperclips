@@ -7,12 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.NullUtil;
+import org.eclipse.swt.graphics.*;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Region;
+import net.sf.paperclips.internal.NullUtil;
 
 /**
  * A wrapper for prints whose minimum size is too large to fit on one page. The target's content is divided

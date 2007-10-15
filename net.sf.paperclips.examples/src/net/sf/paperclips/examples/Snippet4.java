@@ -14,21 +14,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.LineBorder;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.ScalePrint;
-import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.*;
 import net.sf.paperclips.ui.PrintPreview;
 
 /**
@@ -38,10 +26,8 @@ import net.sf.paperclips.ui.PrintPreview;
  */
 public class Snippet4 implements Print {
   private Print createPrint() {
-    // Using "preferred" size columns, to force the document to be wider than
-    // the page. In most
-    // cases it is recommended to use "d" for "default" columns, which can
-    // shrink when needed.
+    // Using "preferred" size columns, to force the document to be wider than the page. In most cases it is
+    // recommended to use "d" for "default" columns, which can shrink when needed.
     DefaultGridLook look = new DefaultGridLook();
     look.setCellBorder( new LineBorder() );
     GridPrint grid = new GridPrint( look );
