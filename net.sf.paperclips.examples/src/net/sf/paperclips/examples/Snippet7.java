@@ -60,6 +60,8 @@ public class Snippet7 implements Print {
     ScrolledComposite scroll;
     PrintPreview      preview;
 
+    double[]          scrollingPosition;
+
     public UI( Display display ) {
       this.display = display;
     }
@@ -76,7 +78,7 @@ public class Snippet7 implements Print {
       createScrollingPreview( shell ).setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
 
       preview.setPrintJob( printJob );
-      updatePreviewSizePreservingScrolling();
+      updatePreviewSize();
       updatePageNumber();
 
       shell.setVisible( true );
@@ -93,7 +95,8 @@ public class Snippet7 implements Print {
 
       previousPage = createIconButton( composite, "previous_page.gif", "Previous Page", new Listener() {
         public void handleEvent( Event event ) {
-          setPreviewPageIndex( preview.getPageIndex() - 1 );
+          setPreviewPageIndex( preview.getPageIndex() - preview.getHorizontalPageCount()
+              * preview.getVerticalPageCount() );
         }
       } );
 
@@ -101,7 +104,8 @@ public class Snippet7 implements Print {
 
       nextPage = createIconButton( composite, "next_page.gif", "Next Page", new Listener() {
         public void handleEvent( Event event ) {
-          setPreviewPageIndex( preview.getPageIndex() + 1 );
+          setPreviewPageIndex( preview.getPageIndex() + preview.getHorizontalPageCount()
+              * preview.getVerticalPageCount() );
         }
       } );
 
@@ -109,7 +113,9 @@ public class Snippet7 implements Print {
         public void handleEvent( Event event ) {
           preview.setFitHorizontal( true );
           preview.setFitVertical( false );
-          updatePreviewSizePreservingScrolling();
+          rememberScrollingPosition();
+          updatePreviewSize();
+          restoreScrollingPosition();
         }
       } );
 
@@ -117,7 +123,9 @@ public class Snippet7 implements Print {
         public void handleEvent( Event event ) {
           preview.setFitVertical( true );
           preview.setFitHorizontal( false );
-          updatePreviewSizePreservingScrolling();
+          rememberScrollingPosition();
+          updatePreviewSize();
+          restoreScrollingPosition();
         }
       } );
 
@@ -125,7 +133,9 @@ public class Snippet7 implements Print {
         public void handleEvent( Event event ) {
           preview.setFitVertical( true );
           preview.setFitHorizontal( true );
-          updatePreviewSizePreservingScrolling();
+          rememberScrollingPosition();
+          updatePreviewSize();
+          restoreScrollingPosition();
         }
       } );
 
@@ -152,6 +162,7 @@ public class Snippet7 implements Print {
           printJob.setOrientation( PaperClips.ORIENTATION_PORTRAIT );
           preview.setPrintJob( printJob );
 
+          forgetScrollingPosition();
           updatePreviewSize();
           updatePageNumber();
         }
@@ -162,6 +173,7 @@ public class Snippet7 implements Print {
           printJob.setOrientation( PaperClips.ORIENTATION_LANDSCAPE );
           preview.setPrintJob( printJob );
 
+          forgetScrollingPosition();
           updatePreviewSize();
           updatePageNumber();
         }
@@ -182,6 +194,7 @@ public class Snippet7 implements Print {
       createPageCountSpinner( composite, new Listener() {
         public void handleEvent( Event event ) {
           preview.setHorizontalPageCount( ( (Spinner) event.widget ).getSelection() );
+          forgetScrollingPosition();
           updatePreviewSize();
           updatePageNumber();
         }
@@ -191,6 +204,7 @@ public class Snippet7 implements Print {
       createPageCountSpinner( composite, new Listener() {
         public void handleEvent( Event event ) {
           preview.setVerticalPageCount( ( (Spinner) event.widget ).getSelection() );
+          forgetScrollingPosition();
           updatePreviewSize();
           updatePageNumber();
         }
@@ -214,8 +228,11 @@ public class Snippet7 implements Print {
           scroll.getHorizontalBar().setPageIncrement( bounds.width * 2 / 3 );
           scroll.getVerticalBar().setPageIncrement( bounds.height * 2 / 3 );
 
-          if ( preview.isFitHorizontal() ^ preview.isFitVertical() )
-            updatePreviewSizePreservingScrolling();
+          if ( preview.isFitHorizontal() ^ preview.isFitVertical() ) {
+            rememberScrollingPosition();
+            updatePreviewSize();
+            restoreScrollingPosition();
+          }
         }
       } );
 
@@ -224,7 +241,7 @@ public class Snippet7 implements Print {
 
       Listener dragListener = new Listener() {
         private final Point dpi                   = display.getDPI();
-        private boolean     canScroll             = false;
+        private boolean     scrollable             = false;
 
         private boolean     dragging              = false;
         private Point       dragStartScrollOrigin = null;
@@ -233,25 +250,29 @@ public class Snippet7 implements Print {
         public void handleEvent( Event event ) {
           switch ( event.type ) {
             case SWT.Resize:
+              forgetScrollingPosition();
               Rectangle bounds = scroll.getClientArea();
               Point size = preview.getSize();
-              canScroll = size.x > bounds.width || size.y > bounds.height;
-              if ( !canScroll && dragging )
+              scrollable = size.x > bounds.width || size.y > bounds.height;
+              if ( !scrollable && dragging )
                 endDragging();
               break;
             case SWT.MouseDown:
-              if ( canScroll && event.button == 1 )
+              forgetScrollingPosition();
+              if ( scrollable && event.button == 1 )
                 beginDragging( event );
               break;
             case SWT.MouseMove:
               if ( dragging ) {
+                forgetScrollingPosition();
                 Point point = preview.toDisplay( event.x, event.y );
                 scroll.setOrigin( dragStartScrollOrigin.x + dragStartMouseAnchor.x - point.x,
                                   dragStartScrollOrigin.y + dragStartMouseAnchor.y - point.y );
               }
               break;
             case SWT.MouseUp:
-              if ( canScroll )
+              forgetScrollingPosition();
+              if ( dragging )
                 endDragging();
               break;
             case SWT.MouseEnter:
@@ -259,7 +280,8 @@ public class Snippet7 implements Print {
               break;
             case SWT.MouseWheel:
               if ( event.count != 0 ) {
-                if ( canScroll && !dragging && ( event.stateMask == SWT.NONE || event.stateMask == SWT.SHIFT ) ) {
+                if ( scrollable && !dragging && ( event.stateMask == SWT.NONE || event.stateMask == SWT.SHIFT ) ) {
+                  forgetScrollingPosition();
                   bounds = scroll.getClientArea();
                   size = preview.getSize();
                   Point origin = scroll.getOrigin();
@@ -371,18 +393,27 @@ public class Snippet7 implements Print {
       shell.layout( new Control[] { pageNumber } );
     }
 
-    private void updatePreviewSizePreservingScrolling() {
-      // Remember the scrolling position before resizing
-      Point oldSize = preview.getSize();
-      Point oldOrigin = scroll.getOrigin();
+    private void rememberScrollingPosition() {
+      Point size = preview.getSize();
+      if ( size.x == 0 || size.y == 0 ) {
+        forgetScrollingPosition();
+      } else if ( scrollingPosition == null ) {
+        Point origin = scroll.getOrigin();
+        scrollingPosition = new double[] {
+          (double) origin.x / (double) size.x, (double) origin.y / (double) size.y };
+      }
+    }
 
-      updatePreviewSize();
+    private void forgetScrollingPosition() {
+      scrollingPosition = null;
+    }
 
-      // Scroll the top-left corner to the same part of the preview that was visible before resizing
-      if ( oldSize.x == 0 || oldSize.y == 0 )
-        return;
-      Point newSize = preview.getSize();
-      scroll.setOrigin( oldOrigin.x * newSize.x / oldSize.x, oldOrigin.y * newSize.y / oldSize.y );
+    private void restoreScrollingPosition() {
+      if ( scrollingPosition != null ) {
+        Point size = preview.getSize();
+        scroll.setOrigin( (int) Math.round( scrollingPosition[0] * size.x ),
+                          (int) Math.round( scrollingPosition[1] * size.y ) );
+      }
     }
 
     private void updatePreviewSize() {
@@ -406,7 +437,9 @@ public class Snippet7 implements Print {
       preview.setFitVertical( false );
       preview.setFitHorizontal( false );
       preview.setScale( scale );
-      updatePreviewSizePreservingScrolling();
+      rememberScrollingPosition();
+      updatePreviewSize();
+      restoreScrollingPosition();
     }
 
     private void setPreviewPageIndex( int pageIndex ) {
