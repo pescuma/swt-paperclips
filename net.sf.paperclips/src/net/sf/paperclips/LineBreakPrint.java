@@ -10,6 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.*;
 
 import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.ResourcePool;
 
 /**
  * A class for adding line breaks corresponding to a particular font size. Currently this class is used
@@ -51,15 +52,12 @@ class LineBreakIterator implements PrintIterator {
   private static int calculateLineHeight( LineBreakPrint print, Device device, GC gc ) {
     Font oldFont = gc.getFont();
 
-    Font font = new Font( device, print.font );
-    try {
-      gc.setFont( font );
-      return gc.getFontMetrics().getHeight();
-    }
-    finally {
-      gc.setFont( oldFont );
-      font.dispose();
-    }
+    gc.setFont( ResourcePool.forDevice( device ).getFont( print.font ) );
+    int result = gc.getFontMetrics().getHeight();
+
+    gc.setFont( oldFont );
+
+    return result;
   }
 
   public Point minimumSize() {

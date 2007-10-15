@@ -11,6 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
 import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.ResourcePool;
 
 /**
  * A Print for drawing horizontal and vertical lines.
@@ -177,35 +178,22 @@ class LineIterator extends AbstractIterator {
 class LinePiece extends AbstractPiece {
   private final RGB rgb;
 
-  private Color     background;
-
   LinePiece( LineIterator iter, Point size ) {
     super( iter, size );
     this.rgb = iter.rgb;
   }
 
-  private Color getBackground() {
-    if ( background == null )
-      background = new Color( device, rgb );
-    return background;
-  }
-
   public void paint( GC gc, int x, int y ) {
-    Color bg_old = gc.getBackground();
+    Color oldBackground = gc.getBackground();
     Point size = getSize();
     try {
-      gc.setBackground( getBackground() );
+      gc.setBackground( ResourcePool.forDevice( device ).getColor( rgb ) );
       gc.fillRectangle( x, y, size.x, size.y );
     }
     finally {
-      gc.setBackground( bg_old );
+      gc.setBackground( oldBackground );
     }
   }
 
-  public void dispose() {
-    if ( background != null ) {
-      background.dispose();
-      background = null;
-    }
-  }
+  public void dispose() {} // Shared resources, nothing to dispose
 }

@@ -8,16 +8,9 @@
 
 package net.sf.paperclips;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import org.eclipse.swt.graphics.*;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
+import net.sf.paperclips.internal.ResourcePool;
 
 class DefaultGridLookPainter extends BasicGridLookPainter {
   private final Rectangle              cellPadding;
@@ -29,6 +22,8 @@ class DefaultGridLookPainter extends BasicGridLookPainter {
   private final CellBackgroundProvider footerBackground;
 
   private final GridMargins            margins;
+
+  private final ResourcePool           resources;
 
   DefaultGridLookPainter( DefaultGridLook look, Device device, GC gc ) {
     super( device );
@@ -42,6 +37,8 @@ class DefaultGridLookPainter extends BasicGridLookPainter {
     this.bodyBackground = look.bodyBackgroundProvider;
     this.headerBackground = look.headerBackgroundProvider;
     this.footerBackground = look.footerBackgroundProvider;
+
+    this.resources = ResourcePool.forDevice( device );
   }
 
   private Rectangle calculateCellPadding( DefaultGridLook look, Point dpi ) {
@@ -83,21 +80,6 @@ class DefaultGridLookPainter extends BasicGridLookPainter {
     return margins;
   }
 
-  final Map colorMap = new HashMap();
-
-  // colorMap maps RGBs to Color instances to avoid creating a lot of Color objects on the device.
-  private Color getColor( RGB rgb ) {
-    if ( rgb == null )
-      return null;
-
-    Color result = (Color) colorMap.get( rgb );
-    if ( result == null ) {
-      result = new Color( device, rgb );
-      colorMap.put( new RGB( rgb.red, rgb.green, rgb.blue ), result );
-    }
-    return result;
-  }
-
   protected void paintHeaderCell( GC gc, Rectangle bounds, int row, int col, int colspan ) {
     RGB background = headerBackground.getCellBackground( row, col, colspan );
     paintCell( gc, background, bounds, false, false );
@@ -128,7 +110,7 @@ class DefaultGridLookPainter extends BasicGridLookPainter {
         + ( bottomOpen ? 0 : cellPadding.y + cellPadding.height );
 
     // Paint background
-    Color backgroundColor = getColor( background );
+    Color backgroundColor = resources.getColor( background );
     if ( backgroundColor != null ) {
       Color oldBackground = gc.getBackground();
       gc.setBackground( backgroundColor );
@@ -141,12 +123,6 @@ class DefaultGridLookPainter extends BasicGridLookPainter {
   }
 
   public void dispose() {
-    for ( Iterator iter = colorMap.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      Color color = (Color) entry.getValue();
-      color.dispose();
-      iter.remove();
-    }
     border.dispose();
   }
 }

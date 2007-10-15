@@ -11,21 +11,25 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
 import net.sf.paperclips.internal.NullUtil;
-import net.sf.paperclips.internal.TextStyleResource;
+import net.sf.paperclips.internal.ResourcePool;
 
 class TextPiece implements TextPrintPiece {
-  private final Point             size;
-  private final String[]          lines;
-  private final TextStyleResource style;
-  private final int               ascent;
+  private final Point        size;
+  private final String[]     lines;
+  private final TextStyle    style;
+  private final int          ascent;
 
-  TextPiece( Device device, Point size, TextIterator iter, String[] text, int ascent ) {
-    NullUtil.notNull( device, size, iter );
+  private final ResourcePool resources;
+
+  TextPiece( Device device, TextStyle style, String[] text, Point size, int ascent ) {
+    NullUtil.notNull( device, size, style );
     NullUtil.noNulls( text );
     this.size = size;
     this.lines = text;
-    this.style = new TextStyleResource( device, iter.style );
+    this.style = style;
     this.ascent = ascent;
+
+    this.resources = ResourcePool.forDevice( device );
   }
 
   public Point getSize() {
@@ -45,9 +49,7 @@ class TextPiece implements TextPrintPiece {
     final int align = style.getAlignment();
 
     try {
-      setFont( gc );
-      setForeground( gc );
-      boolean transparent = setBackground( gc );
+      boolean transparent = initGC( gc );
 
       FontMetrics fm = gc.getFontMetrics();
       int lineHeight = fm.getHeight();
@@ -80,6 +82,13 @@ class TextPiece implements TextPrintPiece {
     }
   }
 
+  private boolean initGC( final GC gc ) {
+    initGCFont( gc );
+    initGCForeground( gc );
+    boolean transparent = initGCBackground( gc );
+    return transparent;
+  }
+
   private void restoreGC( final GC gc, Font font, Color foreground, Color background ) {
     gc.setFont( font );
     gc.setForeground( foreground );
@@ -94,27 +103,25 @@ class TextPiece implements TextPrintPiece {
     return 0;
   }
 
-  private boolean setBackground( GC gc ) {
-    Color background = style.getBackground();
+  private boolean initGCBackground( GC gc ) {
+    Color background = resources.getColor( style.getBackground() );
     boolean transparent = ( background == null );
     if ( !transparent )
       gc.setBackground( background );
     return transparent;
   }
 
-  private void setForeground( GC gc ) {
-    Color foreground = style.getForeground();
+  private void initGCForeground( GC gc ) {
+    Color foreground = resources.getColor( style.getForeground() );
     if ( foreground != null )
       gc.setForeground( foreground );
   }
 
-  private void setFont( GC gc ) {
-    Font font = style.getFont();
+  private void initGCFont( GC gc ) {
+    Font font = resources.getFont( style.getFontData() );
     if ( font != null )
       gc.setFont( font );
   }
 
-  public void dispose() {
-    style.dispose();
-  }
+  public void dispose() {} // Shared resources, nothing to dispose.
 }

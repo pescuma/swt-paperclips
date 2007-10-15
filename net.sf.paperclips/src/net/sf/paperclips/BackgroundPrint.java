@@ -10,6 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.*;
 
 import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.ResourcePool;
 
 /**
  * A decorator that paints a background color behind it's target.
@@ -107,19 +108,11 @@ class BackgroundPiece implements PrintPiece {
   private final Device     device;
   private final RGB        background;
 
-  private Color            backgroundColor;
-
   BackgroundPiece( PrintPiece target, RGB background, Device device ) {
     NullUtil.notNull( target, background, device );
     this.target = target;
     this.device = device;
     this.background = background;
-  }
-
-  private Color getBackground() {
-    if ( backgroundColor == null )
-      this.backgroundColor = new Color( device, background );
-    return backgroundColor;
   }
 
   public Point getSize() {
@@ -132,24 +125,16 @@ class BackgroundPiece implements PrintPiece {
   }
 
   private void paintBackground( GC gc, int x, int y ) {
-    Color old_bg = gc.getBackground();
+    Color oldBackground = gc.getBackground();
 
-    gc.setBackground( getBackground() );
+    gc.setBackground( ResourcePool.forDevice( device ).getColor( background ) );
     Point size = getSize();
     gc.fillRectangle( x, y, size.x, size.y );
 
-    gc.setBackground( old_bg );
+    gc.setBackground( oldBackground );
   }
 
   public void dispose() {
-    disposeBackground();
     target.dispose();
-  }
-
-  private void disposeBackground() {
-    if ( backgroundColor != null ) {
-      backgroundColor.dispose();
-      backgroundColor = null;
-    }
   }
 }

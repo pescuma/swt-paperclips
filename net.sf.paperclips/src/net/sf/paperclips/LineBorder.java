@@ -10,6 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.*;
 
 import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.ResourcePool;
 
 /**
  * A border that draws a rectangle around a print.
@@ -100,8 +101,6 @@ class LineBorderPainter extends AbstractBorderPainter {
   private final Point  lineWidth;
   private final Point  borderWidth;
 
-  private Color        color;
-
   LineBorderPainter( LineBorder border, Device device, GC gc ) {
     NullUtil.notNull( border, device, gc );
     this.rgb = border.rgb;
@@ -133,17 +132,11 @@ class LineBorderPainter extends AbstractBorderPainter {
     return open ? 0 : borderWidth.y;
   }
 
-  private Color getColor() {
-    if ( color == null )
-      color = new Color( device, rgb );
-    return color;
-  }
-
   public void paint( GC gc, int x, int y, int width, int height, boolean topOpen, boolean bottomOpen ) {
     Color oldColor = gc.getBackground();
 
     try {
-      gc.setBackground( getColor() );
+      gc.setBackground( ResourcePool.forDevice( device ).getColor( rgb ) );
 
       // Left & right
       gc.fillRectangle( x, y, lineWidth.x, height );
@@ -164,10 +157,5 @@ class LineBorderPainter extends AbstractBorderPainter {
     return new Point( lineWidth.x, lineWidth.y );
   }
 
-  public void dispose() {
-    if ( color != null ) {
-      color.dispose();
-      color = null;
-    }
-  }
+  public void dispose() {} // Shared resources -- nothing to dispose
 }

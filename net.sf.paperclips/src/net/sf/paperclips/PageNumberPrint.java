@@ -10,8 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.BitUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.*;
 
 /**
  * Displays the page number and page count within the context of a {@link PagePrint}. To properly display
@@ -204,10 +203,8 @@ class PageNumberIterator extends AbstractIterator {
 
     // Calculate the size for the largest possible page number string.
     Font oldFont = gc.getFont();
-    Font font = null;
     try {
-      font = new Font( device, fontData );
-      gc.setFont( font );
+      gc.setFont( ResourcePool.forDevice( device ).getFont( fontData ) );
 
       size = gc.textExtent( format.format( new PageNumber() {
         public int getPageCount() {
@@ -221,8 +218,6 @@ class PageNumberIterator extends AbstractIterator {
     }
     finally {
       gc.setFont( oldFont );
-      if ( font != null )
-        font.dispose();
     }
   }
 
@@ -275,9 +270,6 @@ class PageNumberPiece extends AbstractPiece {
   private final PageNumberFormat format;
   private final RGB              rgb;
 
-  private Font                   font;
-  private Color                  foreground;
-
   PageNumberPiece( PageNumberIterator iter, Point size ) {
     super( iter, size );
     this.pageNumber = iter.pageNumber;
@@ -287,18 +279,6 @@ class PageNumberPiece extends AbstractPiece {
     this.rgb = iter.rgb;
   }
 
-  private Font getFont() {
-    if ( font == null )
-      font = new Font( device, fontData );
-    return font;
-  }
-
-  private Color getForeground() {
-    if ( foreground == null )
-      foreground = new Color( device, rgb );
-    return foreground;
-  }
-
   public void paint( final GC gc, final int x, final int y ) {
     Font oldFont = gc.getFont();
     Color oldForeground = gc.getForeground();
@@ -306,8 +286,9 @@ class PageNumberPiece extends AbstractPiece {
     Point size = getSize();
 
     try {
-      gc.setFont( getFont() );
-      gc.setForeground( getForeground() );
+      ResourcePool resources = ResourcePool.forDevice( device );
+      gc.setFont( resources.getFont( fontData ) );
+      gc.setForeground( resources.getColor( rgb ) );
 
       String text = format.format( pageNumber );
       gc.drawText( text, x + getHorzAlignmentOffset( gc.textExtent( text ).x, size.x ), y, true );
@@ -331,14 +312,5 @@ class PageNumberPiece extends AbstractPiece {
     return offset;
   }
 
-  public void dispose() {
-    if ( font != null ) {
-      font.dispose();
-      font = null;
-    }
-    if ( foreground != null ) {
-      foreground.dispose();
-      foreground = null;
-    }
-  }
+  public void dispose() {} // Shared resources, nothing to dispose
 }

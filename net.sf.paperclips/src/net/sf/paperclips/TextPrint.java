@@ -14,6 +14,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
 import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.ResourcePool;
 
 /**
  * A Print for displaying text.
@@ -328,54 +329,42 @@ class TextIterator extends AbstractIterator {
     if ( !hasNext() )
       PaperClips.error( "No more content." );
 
-    Font oldFont = gc.getFont();
-    Font font = null;
+    Font oldFont = initGC();
+    PrintPiece result = internalNext( width, height );
+    restoreGC( oldFont );
 
-    try {
-      font = createFontAndInitGC();
-
-      FontMetrics fm = gc.getFontMetrics();
-
-      // Check line height
-      final int lineHeight = fm.getHeight();
-      if ( lineHeight > height )
-        return null;
-
-      // Determine maximum number of lines that could fit in next PrintPiece.
-      final int maxLines = height / lineHeight;
-
-      String[] nextLines = nextLines( width, maxLines );
-      if ( nextLines.length == 0 )
-        return null;
-
-      int maxWidth = maxExtent( nextLines ).x;
-
-      int ascent = fm.getAscent() + fm.getLeading();
-
-      return new TextPiece( device,
-                            new Point( maxWidth, nextLines.length * lineHeight ),
-                            this,
-                            nextLines,
-                            ascent );
-    }
-    finally {
-      restoreGCAndDisposeFont( oldFont, font );
-    }
+    return result;
   }
 
-  private Font createFontAndInitGC() {
-    FontData fontData = style.getFontData();
-    if ( fontData == null )
+  private PrintPiece internalNext( int width, int height ) {
+    FontMetrics fm = gc.getFontMetrics();
+
+    final int lineHeight = fm.getHeight();
+    if ( height < lineHeight )
       return null;
-    Font font = new Font( device, fontData );
-    gc.setFont( font );
-    return font;
+
+    final int maxLines = height / lineHeight;
+    String[] nextLines = nextLines( width, maxLines );
+    if ( nextLines.length == 0 )
+      return null;
+
+    int maxWidth = maxExtent( nextLines ).x;
+    Point size = new Point( maxWidth, nextLines.length * lineHeight );
+    int ascent = fm.getAscent() + fm.getLeading();
+
+    return new TextPiece( device, style, nextLines, size, ascent );
   }
 
-  private void restoreGCAndDisposeFont( Font oldFont, Font font ) {
+  private Font initGC() {
+    Font oldFont = gc.getFont();
+    FontData fontData = style.getFontData();
+    if ( fontData != null )
+      gc.setFont( ResourcePool.forDevice( device ).getFont( fontData ) );
+    return oldFont;
+  }
+
+  private void restoreGC( Font oldFont ) {
     gc.setFont( oldFont );
-    if ( font != null )
-      font.dispose();
   }
 
   private String[] nextLines( final int width, final int maxLines ) {
@@ -428,9 +417,8 @@ class TextIterator extends AbstractIterator {
 
   private Point maxExtent( String[] text ) {
     Font oldFont = gc.getFont();
-    Font font = null;
     try {
-      font = createFontAndInitGC();
+      initGC();
 
       FontMetrics fm = gc.getFontMetrics();
       int maxWidth = 0;
@@ -443,7 +431,7 @@ class TextIterator extends AbstractIterator {
       return new Point( maxWidth, fm.getHeight() );
     }
     finally {
-      restoreGCAndDisposeFont( oldFont, font );
+      restoreGC( oldFont );
     }
   }
 
