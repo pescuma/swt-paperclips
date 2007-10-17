@@ -268,12 +268,7 @@ public class PaperClips {
    *         in the printed document.
    */
   public static PrintPiece[] getPages( PrintJob printJob, Printer printer ) {
-    // On OSX and Linux, GC will be disposed at creation unless Printer.startJob() is called first.
-    String platform = SWT.getPlatform();
-    boolean carbon = platform.equals( "carbon" ); // Mac OSX
-    boolean gtk = platform.equals( "gtk" ); // Linux GTK
-    if ( carbon || gtk )
-      startJob( printer, printJob.getName() );
+    startDummyJob( printer, printJob.getName() );
 
     try {
       GC gc = createAndConfigureGC( printer );
@@ -285,13 +280,31 @@ public class PaperClips {
       }
     }
     finally {
-      if ( gtk )
-        printer.cancelJob();
-      else if ( carbon )
-        // 2007-04-30: A bug in Mac OSX renders Printer instances useless after a call to cancelJob().
-        // Therefore on Mac OSX we call endJob() instead of cancelJob().
-        printer.endJob();
+      endDummyJob( printer );
     }
+  }
+
+  private static void startDummyJob( Printer printer, String name ) {
+    // On OSX and Linux, GC will be disposed at creation unless Printer.startJob() is called first.
+    if ( isCarbon() || isGTK() )
+      startJob( printer, name );
+  }
+
+  private static void endDummyJob( Printer printer ) {
+    if ( isGTK() ) // Linux GTK
+      printer.cancelJob();
+    else if ( isCarbon() ) // Mac OSX
+      // 2007-04-30: A bug in Mac OSX renders Printer instances useless after a call to cancelJob().
+      // Therefore on Mac OSX we call endJob() instead of cancelJob().
+      printer.endJob();
+  }
+
+  private static boolean isCarbon() {
+    return SWT.getPlatform().equals( "carbon" );
+  }
+
+  private static boolean isGTK() {
+    return SWT.getPlatform().equals( "gtk" );
   }
 
   private static PrintPiece[] getPages( PrintJob printJob, Printer printer, GC gc ) {
