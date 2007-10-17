@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-<jar path="C:/Documents and Settings/Matthew Hall/My Documents/My Workspaces/Builds/PaperClips/net.sf.paperclips_1.0.1_javadoc.zip"/>
+<jar path="net.sf.paperclips/build/net.sf.paperclips_1.0.2_javadoc.zip"/>
 <options buildIfNeeded="true" compress="true" descriptionLocation="/net.sf.paperclips/build_javadoc.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="true"/>
 <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
 <selectedProjects/>
 <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="false">
-<folder path="/net.sf.paperclips/api"/>
+<folder path="/net.sf.paperclips/api/"/>
 </selectedElements>
 </jardesc>

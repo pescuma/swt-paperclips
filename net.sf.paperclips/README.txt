@@ -1,9 +1,9 @@
 ==================================
-PaperClips Core 1.0.1
+PaperClips Core 1.0.2
 http://paperclips.sourceforge.net/
 ==================================
 
-Copyright (c) 2005-2006 Woodcraft Mill & Cabinet Corporation and others.  All
+Copyright (c) 2005-2007 Woodcraft Mill & Cabinet Corporation and others.  All
 rights reserved. This program and the accompanying materials are made available
 under the terms of the Eclipse Public License v1.0 which accompanies this
 distribution, and is available at
