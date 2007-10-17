@@ -120,8 +120,8 @@ public class PaperClips {
     if ( result != null ) {
       Point size = result.getSize();
       if ( size.x > width || size.y > height )
-        error( iterator + " produced a " + size.x + "x" + size.y + " piece for a " + width + "x" + height
-            + " area." );
+        error( "Iterator " + iterator + " produced a " + size.x + "x" + size.y + " piece for a " + width
+            + "x" + height + " area." );
     } else if ( debug ) {
       return new NullPrintPiece();
     }
@@ -268,12 +268,10 @@ public class PaperClips {
    *         in the printed document.
    */
   public static PrintPiece[] getPages( PrintJob printJob, Printer printer ) {
+    // On OSX and Linux, GC will be disposed at creation unless Printer.startJob() is called first.
     String platform = SWT.getPlatform();
     boolean carbon = platform.equals( "carbon" ); // Mac OSX
     boolean gtk = platform.equals( "gtk" ); // Linux GTK
-
-    // On Mac OSX and Linux GTK: If Printer.startJob() is not called first, the GC will already be disposed
-    // at creation.
     if ( carbon || gtk )
       startJob( printer, printJob.getName() );
 
@@ -297,51 +295,84 @@ public class PaperClips {
   }
 
   private static PrintPiece[] getPages( PrintJob printJob, Printer printer, GC gc ) {
-    // Rotate the document (and margins with it) depending on print job orientation.
-    printJob = applyOrientation( printJob, printer );
-    Margins margins = printJob.getMargins();
-
-    Rectangle marginBounds = getMarginBounds( margins, printer );
-    Rectangle paperBounds = getPaperBounds( printer );
-
-    PrintIterator iterator = printJob.getDocument().iterator( printer, gc );
+    PrintJobIterator iterator = new PrintJobIterator( printJob, printer, gc );
     List pages = new ArrayList();
     while ( iterator.hasNext() ) {
-      PrintPiece page = next( iterator, marginBounds.width, marginBounds.height );
+      PrintPiece page = iterator.nextPage();
       if ( page == null )
         errorOnPage( pages.size() + 1, pages );
-      pages.add( createPagePiece( page, marginBounds, paperBounds ) );
-      if ( debug && page instanceof NullPrintPiece )
-        break;
+      pages.add( page );
     }
 
     return (PrintPiece[]) pages.toArray( new PrintPiece[pages.size()] );
   }
 
+  private static class PrintJobIterator {
+    private final PrintIterator document;
+    private final Rectangle     marginBounds;
+    private final Rectangle     paperBounds;
+
+    private boolean             hasNext;
+
+    PrintJobIterator( PrintJob job, Printer printer, GC gc ) {
+      // Rotate the document (and margins with it) depending on print job orientation.
+      job = applyOrientation( job, printer );
+      Margins margins = job.getMargins();
+
+      marginBounds = getMarginBounds( margins, printer );
+      paperBounds = getPaperBounds( printer );
+
+      document = job.getDocument().iterator( printer, gc );
+      hasNext = document.hasNext();
+    }
+
+    boolean hasNext() {
+      return hasNext;
+    }
+
+    PrintPiece nextPage() {
+      if ( !hasNext )
+        return null;
+
+      PrintPiece page = next( document, marginBounds.width, marginBounds.height );
+      hasNext = notNull( page ) && notDebugPiece( page ) && document.hasNext();
+      return page == null ? null : createPagePiece( page );
+    }
+
+    private boolean notNull( PrintPiece page ) {
+      return page != null;
+    }
+
+    private static boolean notDebugPiece( PrintPiece page ) {
+      return !( debug && page instanceof NullPrintPiece );
+    }
+
+    private PrintPiece createPagePiece( PrintPiece page ) {
+      Point offset = new Point( marginBounds.x - paperBounds.x, marginBounds.y - paperBounds.y );
+      CompositeEntry entry = new CompositeEntry( page, offset );
+      Point size = new Point( paperBounds.width, paperBounds.height );
+      return new CompositePiece( new CompositeEntry[] { entry }, size );
+    }
+
+    private static PrintJob applyOrientation( PrintJob printJob, Printer printer ) {
+      int orientation = printJob.getOrientation();
+
+      Rectangle paperBounds = getPaperBounds( printer );
+      if ( ( ( orientation == ORIENTATION_LANDSCAPE ) && ( paperBounds.width < paperBounds.height ) )
+          || ( ( orientation == ORIENTATION_PORTRAIT ) && ( paperBounds.height < paperBounds.width ) ) ) {
+        String name = printJob.getName();
+        Print document = new RotatePrint( printJob.getDocument() );
+        Margins margins = printJob.getMargins().rotate();
+        printJob = new PrintJob( name, document ).setMargins( margins ).setOrientation( ORIENTATION_DEFAULT );
+      }
+
+      return printJob;
+    }
+  }
+
   private static void errorOnPage( int pageNumber, List pages ) {
     PrintPieceUtil.dispose( pages );
     error( "Unable to layout page " + pageNumber );
-  }
-
-  private static PrintJob applyOrientation( PrintJob printJob, Printer printer ) {
-    int orientation = printJob.getOrientation();
-
-    Rectangle paperBounds = getPaperBounds( printer );
-    if ( ( ( orientation == ORIENTATION_LANDSCAPE ) && ( paperBounds.width < paperBounds.height ) )
-        || ( ( orientation == ORIENTATION_PORTRAIT ) && ( paperBounds.height < paperBounds.width ) ) ) {
-      String name = printJob.getName();
-      Print document = new RotatePrint( printJob.getDocument() );
-      Margins margins = printJob.getMargins().rotate();
-      printJob = new PrintJob( name, document ).setMargins( margins ).setOrientation( ORIENTATION_DEFAULT );
-    }
-
-    return printJob;
-  }
-
-  private static PrintPiece createPagePiece( PrintPiece page, Rectangle marginBounds, Rectangle paperBounds ) {
-    return new CompositePiece( new CompositeEntry[] { new CompositeEntry( page, new Point( marginBounds.x
-        - paperBounds.x, marginBounds.y - paperBounds.y ) ) }, new Point( paperBounds.width,
-                                                                          paperBounds.height ) );
   }
 
   /**
@@ -350,7 +381,7 @@ public class PaperClips {
    * @return a rectangle whose edges correspond to the edges of the paper.
    */
   public static Rectangle getPaperBounds( Printer printer ) {
-    Rectangle rect = printer.getClientArea();
+    Rectangle rect = getPrintableBounds( printer );
     return printer.computeTrim( rect.x, rect.y, rect.width, rect.height );
   }
 
