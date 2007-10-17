@@ -414,7 +414,7 @@ public class PrintPreview extends Canvas {
 
   private void drawBackground( Event event ) {
     Color oldBackground = event.gc.getBackground();
-    Color bg = event.display.getSystemColor( SWT.COLOR_WIDGET_DARK_SHADOW );
+    Color bg = event.display.getSystemColor( SWT.COLOR_WIDGET_NORMAL_SHADOW );
     try {
       event.gc.setBackground( bg );
       event.gc.fillRectangle( event.x, event.y, event.width, event.height );
@@ -595,8 +595,6 @@ public class PrintPreview extends Canvas {
   private void disposePrinter() {
     disposePages();
     if ( printer != null ) {
-      printer.cancelJob();
-      printer.endJob();
       printer.dispose();
       printer = null;
     }
