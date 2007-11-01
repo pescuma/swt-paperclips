@@ -23,12 +23,15 @@ public abstract class PrintSizeStrategy {
                                                       return iter.minimumSize();
                                                     }
                                                   };
+
   /** Compute the preferred size. */
   public static final PrintSizeStrategy PREFERRED = new PrintSizeStrategy() {
                                                     public Point computeSize( PrintIterator iter ) {
                                                       return iter.preferredSize();
                                                     }
                                                   };
+
+  private PrintSizeStrategy() {}
 
   /**
    * Computes the size of the PrintIterator.

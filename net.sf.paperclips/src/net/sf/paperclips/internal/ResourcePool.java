@@ -8,7 +8,7 @@ import org.eclipse.swt.graphics.*;
 import net.sf.paperclips.PaperClips;
 
 /**
- * Manages a pool of graphics resources (fonts, colors.
+ * Manages a pool of graphics resources for a graphics device (fonts, colors).
  * @author Matthew Hall
  */
 public class ResourcePool {
@@ -29,6 +29,11 @@ public class ResourcePool {
       devices.put( device, sharedGraphics );
     }
     return sharedGraphics;
+  }
+
+  private static void notDisposed( Device device ) {
+    if ( device.isDisposed() )
+      PaperClips.error( SWT.ERROR_DEVICE_DISPOSED );
   }
 
   private final Device device;
@@ -75,10 +80,5 @@ public class ResourcePool {
       colors.put( GraphicsUtil.defensiveCopy( rgb ), color );
     }
     return color;
-  }
-
-  private static void notDisposed( Device device ) {
-    if ( device.isDisposed() )
-      PaperClips.error( SWT.ERROR_DEVICE_DISPOSED );
   }
 }

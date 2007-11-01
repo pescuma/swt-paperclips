@@ -11,6 +11,8 @@ import net.sf.paperclips.PaperClips;
  * @author Matthew Hall
  */
 public class NullUtil {
+  private NullUtil() {} // No instances
+
   /**
    * Triggers a SWT.ERROR_NULL_ARGUMENT exception if the argument or any of its elements is null.
    * @param list a list to test for null elements.
