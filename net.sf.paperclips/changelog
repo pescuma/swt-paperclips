@@ -1,10 +1,8 @@
 Version 1.0.2
 * Bugs fixed:
-  * Document clipping problems on Mac OS X.
+  * Clipping problems on Mac OS X.
   * PrintPreview.getPageCount() returns 0 before pages are first drawn.
   * PrintPreview spits out a blank page on Linux when the window is closed.
-  * Changed ImageCaptureExample.java to capture JPG since PNG was not fully
-    supported until SWT version 3.3 (PaperClips is developed against 3.2).
   * BorderPrint sometimes showed an open bottom border even though the target
     was completely shown.
   * PrintViewer performance improvements when print document is vertically
@@ -13,23 +11,26 @@ Version 1.0.2
   * GridPrint.setCellClippingEnabled() controls whether grid cells may be
     broken across pages.  See GridPrintCellClippingExample.java.
   * DefaultGridLook.setCellPadding()
-  * PrintPreview.setHorizontalPageCount() and .setVerticalPageCount() controls
+  * PrintPreview.setHorizontalPageCount() and setVerticalPageCount() controls
     how many pages are shown on screen.
   * Experimental PaperClips.setDebug() API helps troubleshoot documents that
-    won't lay out properly ("Unable to layout on page X" errors).
+    won't lay out properly ("Unable to layout on page x" errors).
   * BasicGridLookPainter simplifies implementing custom GridLooks.
   * StyledTextPrint for mixing text with different font sizes, styles, colors
     and decorations.  Other printable objects such as ImagePrint may be
     embedded inline with the text.
-  * TextPrint and StyledTextPrint support underline and strikeout text.
+  * TextPrint and StyledTextPrint now support underline and strikeout text.
   * TextPrint.setWordSplitting() controls whether words may be split between
     rows.  This feature only applies when space is very limited.
   * Unified error reporting to PaperClips.error() methods.  Custom Print
     implementations should use these methods to act uniformly with the rest
     of the library. 
-* Enhanced print preview snippet (Snippet7):
-  * Support scrolling with the mouse wheel (horizontally with Shift+Wheel)
-  * Support zooming with Ctrl+Wheel
+* Example snippets:
+  * Changed ImageCaptureExample.java to capture JPG since PNG was not fully
+    supported until SWT version 3.3 (PaperClips is developed against 3.2).
+  * Snippet7 (print preview example):
+    * Support scrolling with the mouse wheel (horizontally with Shift+Wheel)
+    * Support zooming with Ctrl+Wheel
 
 Version 1.0.1
 * Resolved printing problems on Mac OS X.
