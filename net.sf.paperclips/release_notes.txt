@@ -1,6 +1,6 @@
 Release 1.0.2
 * Bugs fixed:
-  * Document clipping problems on Mac OS X.
+  * Clipping problems on Mac OS X.
   * PrintPreview.getPageCount() returns 0 before pages are
     first drawn.
   * PrintPreview spits out a blank page on Linux when the

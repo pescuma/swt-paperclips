@@ -1,10 +1,8 @@
-PaperClips 1.0.1 released
-
-This is a maintenance release to address printing issues on Mac OS X.
+PaperClips 1.0.2 released
 
 Updates in this release:
 * Bugs fixed:
-  * Document clipping problems on Mac OS X.
+  * Clipping problems on Mac OS X.
   * PrintPreview.getPageCount() returns 0 before pages are first drawn.
   * PrintPreview spits out a blank page on Linux when the window is closed.
   * Changed ImageCaptureExample.java to capture JPG since PNG was not fully supported until SWT version 3.3 (PaperClips is developed against 3.2).
@@ -24,7 +22,7 @@ Updates in this release:
   * Support scrolling with the mouse wheel (horizontally with Shift+Wheel)
   * Support zooming with Ctrl+Wheel
 
-PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what you want to print instead of how you're going to print it.
+PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what to print instead of how to print it.
 
 In a nutshell, PaperClips provides an assortment of document "building blocks", which you can tweak and combine to form a document. The assembled document is then sent to PaperClips for printing. PaperClips includes built-in support for printing text, images, borders, headers and footers, column layouts and tabular (grid) layouts.  PaperClips is designed to be extensible, so you can code your own printable document elements.
 
