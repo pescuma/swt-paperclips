@@ -10,6 +10,7 @@ package net.sf.paperclips.examples;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.*;
+import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.*;
 
@@ -30,7 +31,7 @@ public class StyledTextPrintExample implements Print {
   public static void main( String[] args ) {
     final Display display = new Display();
 
-    Shell shell = new Shell( display, SWT.SHELL_TRIM );
+    final Shell shell = new Shell( display, SWT.SHELL_TRIM );
     shell.setText( "StyledTextPrintExample.java" );
     shell.setLayout( new GridLayout() );
     shell.setSize( 600, 800 );
@@ -63,7 +64,10 @@ public class StyledTextPrintExample implements Print {
     print.setText( "Print" );
     print.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event event ) {
-        PaperClips.print( job, new PrinterData() );
+        PrintDialog dialog = new PrintDialog( shell );
+        PrinterData printerData = dialog.open();
+        if ( printerData != null )
+          PaperClips.print( job, printerData );
       }
     } );
 
