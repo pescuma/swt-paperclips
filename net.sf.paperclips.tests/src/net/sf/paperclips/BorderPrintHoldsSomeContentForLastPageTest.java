@@ -5,7 +5,7 @@
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
-package net.sf.paperclips.tests;
+package net.sf.paperclips;
 
 import net.sf.paperclips.*;
 
