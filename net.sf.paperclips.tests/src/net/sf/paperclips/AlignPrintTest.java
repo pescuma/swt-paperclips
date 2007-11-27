@@ -1,3 +1,10 @@
+/************************************************************************************************************
+ * Copyright (c) 2007 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import junit.framework.TestCase;
@@ -21,16 +28,9 @@ public class AlignPrintTest extends TestCase {
     assertEquals( SWT.TOP, alignment.y );
   }
 
-  public void testEquals_equivalent() {
-    Print p1 = new AlignPrint( new PrintStub(), SWT.CENTER, SWT.BOTTOM );
-    Print p2 = new AlignPrint( new PrintStub(), SWT.CENTER, SWT.BOTTOM );
-    assertEquals( p1, p2 );
-  }
-
-  public void testEquals_different() {
-    final PrintStub target = new PrintStub( 0 );
-
-    Print print = new AlignPrint( target, SWT.DEFAULT, SWT.DEFAULT );
+  public void testEquals() {
+    AlignPrint print = new AlignPrint( new PrintStub( 0 ), SWT.CENTER, SWT.BOTTOM );
+    assertEquals( print, new AlignPrint( new PrintStub( 0 ), SWT.CENTER, SWT.BOTTOM ) );
     assertFalse( print.equals( new AlignPrint( new PrintStub( 1 ), SWT.DEFAULT, SWT.DEFAULT ) ) );
     assertFalse( print.equals( new AlignPrint( new PrintStub( 0 ), SWT.CENTER, SWT.DEFAULT ) ) );
     assertFalse( print.equals( new AlignPrint( new PrintStub( 0 ), SWT.DEFAULT, SWT.CENTER ) ) );

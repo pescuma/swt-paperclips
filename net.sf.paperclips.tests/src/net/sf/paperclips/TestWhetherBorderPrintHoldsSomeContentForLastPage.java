@@ -47,6 +47,7 @@ public class TestWhetherBorderPrintHoldsSomeContentForLastPage implements Print 
     Display.getDefault();
 
     PaperClips.print( new PrintJob( "BreakPrintExample.java",
-                                    new TestWhetherBorderPrintHoldsSomeContentForLastPage() ), new PrinterData() );
+                                    new TestWhetherBorderPrintHoldsSomeContentForLastPage() ),
+                      new PrinterData() );
   }
 }
