@@ -9,7 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.*;
 
 /**
  * A Print for displaying images.
@@ -47,6 +47,15 @@ public class ImagePrint implements Print {
     return imageData;
   }
 
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    ImagePrint that = (ImagePrint) obj;
+    return EqualsUtil.areEqual( this.dpi, that.dpi ) && EqualsUtil.areEqual( this.size, that.size )
+        && ImageDataUtil.areEqual( this.imageData, that.imageData );
+  }
+
   /**
    * Sets the ImagePrint to render the image at the given size, in points. 72 points = 1".
    * @param size the explicit size, in points, that the image be printed at.
@@ -54,8 +63,9 @@ public class ImagePrint implements Print {
   public void setSize( Point size ) {
     // The DPI is rounded up, so that the specified width and height will not be exceeded.
     NullUtil.notNull( size );
-    dpi = new Point( (int) Math.ceil( imageData.width * 72f / size.x ), (int) Math.ceil( imageData.height
-        * 72f / size.y ) );
+    dpi =
+        new Point( (int) Math.ceil( imageData.width * 72f / size.x ), (int) Math.ceil( imageData.height * 72f
+            / size.y ) );
     this.size = size;
   }
 
@@ -83,8 +93,9 @@ public class ImagePrint implements Print {
   public void setDPI( Point dpi ) {
     NullUtil.notNull( dpi );
     this.dpi = dpi;
-    size = new Point( (int) Math.ceil( imageData.width * 72 / dpi.x ), (int) Math.ceil( imageData.height * 72
-        / dpi.y ) );
+    size =
+        new Point( (int) Math.ceil( imageData.width * 72 / dpi.x ), (int) Math.ceil( imageData.height * 72
+            / dpi.y ) );
   }
 
   /**

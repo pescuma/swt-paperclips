@@ -10,8 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
-import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.*;
 
 /**
  * A Print for drawing horizontal and vertical lines.
@@ -50,6 +49,15 @@ public class LinePrint implements Print {
   public LinePrint( int orientation, double thickness ) {
     this.orientation = checkOrientation( orientation );
     this.thickness = checkThickness( thickness );
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    LinePrint that = (LinePrint) obj;
+    return this.orientation == that.orientation && EqualsUtil.areEqual( this.thickness, that.thickness )
+        && EqualsUtil.areEqual( this.rgb, that.rgb );
   }
 
   /**
@@ -127,8 +135,9 @@ class LineIterator extends AbstractIterator {
     Point dpi = device.getDPI();
 
     // (convert from points to pixels on device)
-    this.thickness = new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
-                                Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
+    this.thickness =
+        new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
+                   Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
   }
 
   LineIterator( LineIterator that ) {

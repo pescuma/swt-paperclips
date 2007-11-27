@@ -9,6 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -37,6 +38,14 @@ public final class BigPrint implements Print {
   public BigPrint( Print target ) {
     NullUtil.notNull( target );
     this.target = target;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    BigPrint that = (BigPrint) obj;
+    return EqualsUtil.areEqual( this.target, that.target );
   }
 
   /**
@@ -102,8 +111,9 @@ class BigIterator implements PrintIterator {
 
     // Adding width-1 rounds up page count w/out floating point op
     // Same goes for adding height-1
-    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), Math.max( ( min.y + height - 1 )
-        / height, 1 ) );
+    Point minPages =
+        new Point( Math.max( ( min.x + width - 1 ) / width, 1 ),
+                   Math.max( ( min.y + height - 1 ) / height, 1 ) );
 
     return new Point( Math.max( prefPages.x, minPages.x ), Math.max( prefPages.y, minPages.y ) );
   }

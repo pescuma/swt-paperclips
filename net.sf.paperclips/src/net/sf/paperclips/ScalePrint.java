@@ -10,6 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -47,6 +48,14 @@ public class ScalePrint implements Print {
 
     this.target = target;
     this.scale = scale;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    ScalePrint that = (ScalePrint) obj;
+    return EqualsUtil.areEqual( this.scale, that.scale ) && EqualsUtil.areEqual( this.target, that.target );
   }
 
   /**
@@ -159,8 +168,9 @@ final class ScalePiece implements PrintPiece {
     this.target = target;
     this.scale = scale;
     Point targetSize = target.getSize();
-    this.size = new Point( Math.min( (int) Math.ceil( targetSize.x * scale ), maxWidth ),
-                           Math.min( (int) Math.ceil( targetSize.y * scale ), maxHeight ) );
+    this.size =
+        new Point( Math.min( (int) Math.ceil( targetSize.x * scale ), maxWidth ),
+                   Math.min( (int) Math.ceil( targetSize.y * scale ), maxHeight ) );
   }
 
   public Point getSize() {

@@ -7,6 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -27,6 +28,14 @@ public class SimplePageDecoration implements PageDecoration {
   public SimplePageDecoration( Print print ) {
     NullUtil.notNull( print );
     this.print = print;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    SimplePageDecoration that = (SimplePageDecoration) obj;
+    return EqualsUtil.areEqual( this.print, that.print );
   }
 
   public Print createPrint( PageNumber pageNumber ) {

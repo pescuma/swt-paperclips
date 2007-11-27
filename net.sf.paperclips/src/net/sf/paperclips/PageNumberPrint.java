@@ -82,6 +82,17 @@ public class PageNumberPrint implements Print {
     setPageNumberFormat( new DefaultPageNumberFormat() );
   }
 
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    PageNumberPrint that = (PageNumberPrint) obj;
+    return this.align == that.align && EqualsUtil.areEqual( this.fontData, that.fontData )
+        && EqualsUtil.areEqual( this.format, that.format )
+        && EqualsUtil.areEqual( this.pageNumber, that.pageNumber )
+        && EqualsUtil.areEqual( this.rgb, that.rgb );
+  }
+
   /**
    * Sets the page number to the argument.
    * @param pageNumber the new page number.

@@ -10,6 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -47,6 +48,14 @@ public final class SidewaysPrint implements Print {
     NullUtil.notNull( target );
     this.target = target;
     this.angle = checkAngle( angle );
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    SidewaysPrint that = (SidewaysPrint) obj;
+    return this.angle == that.angle && EqualsUtil.areEqual( this.target, that.target );
   }
 
   private static int checkAngle( int angle ) {

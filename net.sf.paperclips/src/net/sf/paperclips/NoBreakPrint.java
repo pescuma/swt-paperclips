@@ -9,6 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -31,6 +32,14 @@ public class NoBreakPrint implements Print {
   public NoBreakPrint( Print target ) {
     NullUtil.notNull( target );
     this.target = target;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    NoBreakPrint that = (NoBreakPrint) obj;
+    return EqualsUtil.areEqual( this.target, that.target );
   }
 
   /**

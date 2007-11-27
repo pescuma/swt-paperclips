@@ -121,6 +121,16 @@ public class PagePrint implements Print {
     setFooter( footer );
   }
 
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    PagePrint that = (PagePrint) obj;
+    return EqualsUtil.areEqual( this.header, that.header ) && this.headerGap == that.headerGap
+        && EqualsUtil.areEqual( this.body, that.body ) && this.footerGap == that.footerGap
+        && EqualsUtil.areEqual( this.footer, that.footer );
+  }
+
   /**
    * Returns the page header.
    * @return the page header.

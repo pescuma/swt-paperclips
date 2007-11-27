@@ -13,8 +13,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
-import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.*;
 
 /**
  * A Print for displaying text.
@@ -96,6 +95,15 @@ public class TextPrint implements Print {
     this.text = text;
     this.style = style;
     this.wordSplitting = true;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    TextPrint that = (TextPrint) obj;
+    return this.wordSplitting == that.wordSplitting && EqualsUtil.areEqual( this.text, that.text )
+        && EqualsUtil.areEqual( this.style, that.style );
   }
 
   /**

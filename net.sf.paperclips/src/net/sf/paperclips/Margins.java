@@ -7,6 +7,8 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.EqualsUtil;
+
 /**
  * Instances of this class represent the page margins to follow when processing a print job.
  * @author Matthew Hall
@@ -52,5 +54,14 @@ public class Margins {
     result.right = bottom;
     result.bottom = left;
     return result;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    Margins that = (Margins) obj;
+    return this.top == that.top && this.left == that.left && this.right == that.right
+        && this.bottom == that.bottom;
   }
 }

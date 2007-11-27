@@ -9,6 +9,8 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
+
 /**
  * A print which inserts a page break (or a column break, if inside a ColumnPrint).
  * <p>
@@ -22,6 +24,10 @@ public class BreakPrint implements Print {
    */
   public BreakPrint() {
   // Nothing to do
+  }
+
+  public boolean equals( Object obj ) {
+    return EqualsUtil.sameClass( this, obj );
   }
 
   public PrintIterator iterator( Device device, GC gc ) {

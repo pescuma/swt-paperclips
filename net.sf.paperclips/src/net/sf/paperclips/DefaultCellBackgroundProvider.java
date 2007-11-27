@@ -9,6 +9,8 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.RGB;
 
+import net.sf.paperclips.internal.EqualsUtil;
+
 /**
  * Default implementation of the CellBackgroundProvider interface.
  * @author Matthew Hall
@@ -37,6 +39,15 @@ public class DefaultCellBackgroundProvider implements CellBackgroundProvider {
   public DefaultCellBackgroundProvider( CellBackgroundProvider chain ) {
     this.chain = chain;
     this.background = null;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    DefaultCellBackgroundProvider that = (DefaultCellBackgroundProvider) obj;
+    return EqualsUtil.areEqual( this.chain, that.chain )
+        && EqualsUtil.areEqual( this.background, that.background );
   }
 
   /**

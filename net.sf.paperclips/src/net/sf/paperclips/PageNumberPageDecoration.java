@@ -11,8 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
-import net.sf.paperclips.internal.BitUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.*;
 
 /**
  * A PageDecoration which displays the page number. This convenience class helps avoid the need for writing a
@@ -37,6 +36,15 @@ public class PageNumberPageDecoration implements PageDecoration {
    */
   public PageNumberPageDecoration( int align ) {
     setAlign( align );
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    PageNumberPageDecoration that = (PageNumberPageDecoration) obj;
+    return this.align == that.align && EqualsUtil.areEqual( this.fontData, that.fontData )
+        && EqualsUtil.areEqual( this.rgb, that.rgb ) && EqualsUtil.areEqual( this.format, that.format );
   }
 
   /**

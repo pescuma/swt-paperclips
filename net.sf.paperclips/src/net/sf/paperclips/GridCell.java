@@ -10,8 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.BitUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.*;
 
 /**
  * Instances of this class represent a single cell in a GridPrint.
@@ -29,6 +28,15 @@ public class GridCell {
     this.vAlignment = checkVerticalAlignment( vAlignment );
     this.target = target;
     this.colspan = checkColspan( colspan );
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    GridCell that = (GridCell) obj;
+    return this.hAlignment == that.hAlignment && this.vAlignment == that.vAlignment
+        && EqualsUtil.areEqual( this.target, that.target ) && this.colspan == that.colspan;
   }
 
   /**
@@ -72,9 +80,8 @@ public class GridCell {
   }
 
   private static int checkHorizontalAlignment( int hAlignment ) {
-    hAlignment = BitUtil.firstMatch( hAlignment,
-                                     new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT },
-                                     0 );
+    hAlignment =
+        BitUtil.firstMatch( hAlignment, new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
     if ( hAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
@@ -82,8 +89,10 @@ public class GridCell {
   }
 
   private static int checkVerticalAlignment( int vAlignment ) {
-    vAlignment = BitUtil.firstMatch( vAlignment, new int[] {
-      SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL }, 0 );
+    vAlignment =
+        BitUtil.firstMatch( vAlignment,
+                            new int[] { SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL },
+                            0 );
     if ( vAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or "

@@ -7,6 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -30,6 +31,16 @@ public class PrintJob {
     NullUtil.notNull( name, document );
     this.name = name;
     this.document = document;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    PrintJob that = (PrintJob) obj;
+    return this.orientation == that.orientation && EqualsUtil.areEqual( this.name, that.name )
+        && EqualsUtil.areEqual( this.margins, that.margins )
+        && EqualsUtil.areEqual( this.document, that.document );
   }
 
   /**

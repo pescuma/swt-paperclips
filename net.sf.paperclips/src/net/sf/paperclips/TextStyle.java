@@ -11,8 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
-import net.sf.paperclips.internal.BitUtil;
-import net.sf.paperclips.internal.GraphicsUtil;
+import net.sf.paperclips.internal.*;
 
 /**
  * Defines a set of styles that can be applied to text. Instances of this class are immutable.
@@ -52,6 +51,17 @@ public class TextStyle {
     TextStyle result = new TextStyle( this );
     result.fontData = fontData;
     return result;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    TextStyle that = (TextStyle) obj;
+    return this.alignment == that.alignment && this.underline == that.underline
+        && this.strikeout == that.strikeout && EqualsUtil.areEqual( this.fontData, that.fontData )
+        && EqualsUtil.areEqual( this.foreground, that.foreground )
+        && EqualsUtil.areEqual( this.background, that.background );
   }
 
   /**
@@ -186,7 +196,8 @@ public class TextStyle {
    */
   public TextStyle align( int alignment ) {
     TextStyle result = new TextStyle( this );
-    result.alignment = BitUtil.firstMatch( alignment, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+    result.alignment =
+        BitUtil.firstMatch( alignment, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
     return result;
   }
 

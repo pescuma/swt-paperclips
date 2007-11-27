@@ -9,6 +9,8 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
+
 /**
  * A GridLook which draws a border around grid cells, with configurable background colors for body, header,
  * and footer cells.
@@ -41,8 +43,10 @@ public class DefaultGridLook implements GridLook {
    */
   public DefaultGridLook() {
     this.bodyBackgroundProvider = defaultBodyBackgroundProvider = new DefaultCellBackgroundProvider();
-    this.headerBackgroundProvider = defaultHeaderBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
-    this.footerBackgroundProvider = defaultFooterBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
+    this.headerBackgroundProvider =
+        defaultHeaderBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
+    this.footerBackgroundProvider =
+        defaultFooterBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
   }
 
   /**
@@ -53,6 +57,21 @@ public class DefaultGridLook implements GridLook {
   public DefaultGridLook( int horizontalSpacing, int verticalSpacing ) {
     this();
     setCellSpacing( horizontalSpacing, verticalSpacing );
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    DefaultGridLook that = (DefaultGridLook) obj;
+    return EqualsUtil.areEqual( this.bodyBackgroundProvider, that.bodyBackgroundProvider )
+        && EqualsUtil.areEqual( this.cellBorder, that.cellBorder )
+        && EqualsUtil.areEqual( this.cellPadding, that.cellPadding )
+        && EqualsUtil.areEqual( this.cellSpacing, that.cellSpacing )
+        && EqualsUtil.areEqual( this.footerBackgroundProvider, that.footerBackgroundProvider )
+        && this.footerGap == that.footerGap
+        && EqualsUtil.areEqual( this.headerBackgroundProvider, that.headerBackgroundProvider )
+        && this.headerGap == that.headerGap;
   }
 
   /**
@@ -178,9 +197,8 @@ public class DefaultGridLook implements GridLook {
    * @param headerBackgroundProvider the new background color provider.
    */
   public void setHeaderBackgroundProvider( CellBackgroundProvider headerBackgroundProvider ) {
-    this.headerBackgroundProvider = headerBackgroundProvider == null
-        ? defaultHeaderBackgroundProvider
-        : headerBackgroundProvider;
+    this.headerBackgroundProvider =
+        headerBackgroundProvider == null ? defaultHeaderBackgroundProvider : headerBackgroundProvider;
   }
 
   /**
@@ -233,9 +251,8 @@ public class DefaultGridLook implements GridLook {
    * @param bodyBackgroundProvider the new background color provider.
    */
   public void setBodyBackgroundProvider( CellBackgroundProvider bodyBackgroundProvider ) {
-    this.bodyBackgroundProvider = bodyBackgroundProvider == null
-        ? defaultBodyBackgroundProvider
-        : bodyBackgroundProvider;
+    this.bodyBackgroundProvider =
+        bodyBackgroundProvider == null ? defaultBodyBackgroundProvider : bodyBackgroundProvider;
   }
 
   /**
@@ -288,9 +305,8 @@ public class DefaultGridLook implements GridLook {
    * @param footerBackgroundProvider the new background color provider.
    */
   public void setFooterBackgroundProvider( CellBackgroundProvider footerBackgroundProvider ) {
-    this.footerBackgroundProvider = footerBackgroundProvider == null
-        ? defaultFooterBackgroundProvider
-        : footerBackgroundProvider;
+    this.footerBackgroundProvider =
+        footerBackgroundProvider == null ? defaultFooterBackgroundProvider : footerBackgroundProvider;
   }
 
   public GridLookPainter getPainter( Device device, GC gc ) {

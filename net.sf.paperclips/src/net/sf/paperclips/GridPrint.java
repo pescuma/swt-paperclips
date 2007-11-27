@@ -12,8 +12,7 @@ import java.util.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.ArrayUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.*;
 
 /**
  * A Print which arranges child prints into a grid. A grid is initialized with a series of GridColumns, and
@@ -230,6 +229,17 @@ public final class GridPrint implements Print {
     defaultLook.setCellSpacing( horizontalSpacing, verticalSpacing );
   }
 
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    GridPrint that = (GridPrint) obj;
+    return EqualsUtil.areEqual( this.look, that.look ) && EqualsUtil.areEqual( this.columns, that.columns )
+        && EqualsUtil.areEqual( this.columnGroups, that.columnGroups )
+        && this.cellClippingEnabled == that.cellClippingEnabled && EqualsUtil.areEqual( this.body, that.body )
+        && EqualsUtil.areEqual( this.header, that.header ) && EqualsUtil.areEqual( this.footer, that.footer );
+  }
+
   /**
    * Adds the column on the right edge of the grid. Any cells which have been added to the grid prior to
    * adding the column will be adjusted as follows: the right-hand cell of each completed row will have it's
@@ -394,6 +404,7 @@ public final class GridPrint implements Print {
    * @return GridColumn array with the requested columns.
    */
   private static GridColumn[] parseColumns( String columns ) {
+    NullUtil.notNull( columns );
     String[] cols = columns.split( "\\s*,\\s*" );
 
     GridColumn[] result = new GridColumn[cols.length];

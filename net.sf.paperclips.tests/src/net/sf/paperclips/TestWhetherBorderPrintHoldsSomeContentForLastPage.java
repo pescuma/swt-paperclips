@@ -7,8 +7,6 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.*;
-
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrinterData;
@@ -20,7 +18,7 @@ import org.eclipse.swt.widgets.Display;
  * 
  * @author Matthew
  */
-public class BorderPrintHoldsSomeContentForLastPageTest implements Print {
+public class TestWhetherBorderPrintHoldsSomeContentForLastPage implements Print {
   protected Print createPrint() {
     GridPrint grid = new GridPrint( "d:g", new DefaultGridLook( 10, 10 ) );
 
@@ -49,6 +47,6 @@ public class BorderPrintHoldsSomeContentForLastPageTest implements Print {
     Display.getDefault();
 
     PaperClips.print( new PrintJob( "BreakPrintExample.java",
-                                    new BorderPrintHoldsSomeContentForLastPageTest() ), new PrinterData() );
+                                    new TestWhetherBorderPrintHoldsSomeContentForLastPage() ), new PrinterData() );
   }
 }

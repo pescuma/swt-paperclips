@@ -11,6 +11,7 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
 import net.sf.paperclips.decorator.BorderDecorator;
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -31,6 +32,13 @@ public class BorderPrint implements Print {
     NullUtil.notNull( target, border );
     this.target = target;
     this.border = border;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+    BorderPrint that = (BorderPrint) obj;
+    return EqualsUtil.areEqual( this.target, that.target ) && EqualsUtil.areEqual( this.border, that.border );
   }
 
   /**

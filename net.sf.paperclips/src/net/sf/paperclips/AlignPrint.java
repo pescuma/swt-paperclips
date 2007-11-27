@@ -10,6 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -37,6 +38,15 @@ public class AlignPrint implements Print {
     this.target = target;
     this.hAlign = checkHAlign( hAlign );
     this.vAlign = checkVAlign( vAlign );
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    AlignPrint that = (AlignPrint) obj;
+    return EqualsUtil.areEqual( this.target, that.target ) && this.hAlign == that.hAlign
+        && this.vAlign == that.vAlign;
   }
 
   /**

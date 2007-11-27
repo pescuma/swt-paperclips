@@ -12,6 +12,7 @@ import java.util.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
+import net.sf.paperclips.internal.EqualsUtil;
 import net.sf.paperclips.internal.NullUtil;
 
 /**
@@ -59,6 +60,15 @@ public class ColumnPrint implements Print {
     this.spacing = spacing;
     this.columns = columns;
     this.compressed = compressed;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( !EqualsUtil.sameClass( this, obj ) )
+      return false;
+
+    ColumnPrint that = (ColumnPrint) obj;
+    return EqualsUtil.areEqual( this.target, that.target ) && this.columns == that.columns
+        && this.spacing == that.spacing && this.compressed == that.compressed;
   }
 
   /**
