@@ -24,21 +24,27 @@ import net.sf.paperclips.ui.PrintPreview;
  * 
  * @author Matthew
  */
-public class Snippet7 implements Print {
+public class Snippet8 implements Print {
   private Print createPrint() {
     DefaultGridLook look = new DefaultGridLook();
     look.setCellSpacing( 5, 2 );
-    GridPrint grid = new GridPrint( "p:g, d:g", look );
+    GridPrint grid = new GridPrint( "p:g, p:g, p:g, p:g, p:g", look );
 
     String text = "The quick brown fox jumps over the lazy dog.";
-    for ( int i = 0; i < 500; i++ )
+    for ( int i = 0; i < 50000; i++ )
       grid.add( new TextPrint( text ) );
 
     PagePrint page = new PagePrint( grid );
     page.setHeader( new SimplePageDecoration( new TextPrint( "Snippet7.java", SWT.CENTER ) ) );
-    page.setFooter( new PageNumberPageDecoration( SWT.CENTER ) );
     page.setHeaderGap( 5 );
     page.setFooterGap( 5 );
+    PageNumberPageDecoration footer = new PageNumberPageDecoration( SWT.CENTER );
+    footer.setFormat( new PageNumberFormat() {
+      public String format( PageNumber pageNumber ) {
+        return "Page " + ( pageNumber.getPageNumber() + 1 );
+      }
+    } );
+    page.setFooter( footer );
 
     return page;
   }
@@ -67,7 +73,7 @@ public class Snippet7 implements Print {
     }
 
     public Shell createShell() {
-      printJob = new PrintJob( "Snippet7.java", new Snippet7() ).setMargins( 108 ); // 1.5"
+      printJob = new PrintJob( "Snippet8.java", new Snippet8() ).setMargins( 108 ); // 1.5"
 
       shell = new Shell( display );
       shell.setText( "Snippet7.java" );
@@ -77,9 +83,14 @@ public class Snippet7 implements Print {
       createButtonPanel( shell ).setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ) );
       createScrollingPreview( shell ).setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
 
-      preview.setPrintJob( printJob );
-      updatePreviewSize();
-      updatePageNumber();
+      preview.setLazyPageLayout( true );
+      display.timerExec( 10, new Runnable() {
+        public void run() {
+          preview.setPrintJob( printJob );
+          updatePreviewSize();
+          updatePageNumber();
+        }
+      } );
 
       shell.setVisible( true );
 
@@ -384,14 +395,16 @@ public class Snippet7 implements Print {
     private void updatePageNumber() {
       int pageIndex = preview.getPageIndex();
       int pageCount = preview.getPageCount();
-      int visiblePageCount = preview.getHorizontalPageCount() * preview.getVerticalPageCount();
+      int visiblePages = preview.getHorizontalPageCount() * preview.getVerticalPageCount();
+      boolean layoutComplete = preview.isPageLayoutComplete();
       String text =
-          ( visiblePageCount > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
-              + Math.min( pageCount, pageIndex + visiblePageCount ) : "Page " + ( pageIndex + 1 ) )
-              + " of " + pageCount;
+          ( visiblePages > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
+              + Math.min( pageCount, pageIndex + visiblePages ) : "Page " + ( pageIndex + 1 ) );
+      if ( layoutComplete )
+        text += " of " + pageCount;
       pageNumber.setText( text );
       previousPage.setEnabled( pageIndex > 0 );
-      nextPage.setEnabled( pageIndex < pageCount - visiblePageCount );
+      nextPage.setEnabled( pageIndex < pageCount - visiblePages || !layoutComplete );
       shell.layout( new Control[] { pageNumber } );
     }
 
@@ -445,7 +458,12 @@ public class Snippet7 implements Print {
     }
 
     private void setPreviewPageIndex( int pageIndex ) {
-      preview.setPageIndex( Math.max( Math.min( pageIndex, preview.getPageCount() - 1 ), 0 ) );
+      if ( preview.isPageLayoutComplete() )
+        pageIndex =
+            Math.min( pageIndex, preview.getPageCount() - preview.getHorizontalPageCount()
+                * preview.getVerticalPageCount() );
+      pageIndex = Math.max( pageIndex, 0 );
+      preview.setPageIndex( pageIndex );
       updatePageNumber();
     }
   }
