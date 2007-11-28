@@ -20,7 +20,7 @@ import net.sf.paperclips.*;
 import net.sf.paperclips.ui.PrintPreview;
 
 /**
- * Demonstrate use of WidePrint.
+ * Demonstrate use of BigPrint.
  * 
  * @author Matthew
  */
