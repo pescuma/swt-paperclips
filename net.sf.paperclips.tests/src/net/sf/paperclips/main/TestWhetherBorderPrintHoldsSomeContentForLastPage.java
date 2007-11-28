@@ -5,12 +5,14 @@
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
-package net.sf.paperclips;
+package net.sf.paperclips.main;
 
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
+
+import net.sf.paperclips.*;
 
 /**
  * Prints "The quick brown fox jumps over the lazy dog." in increasingly large blocks, using a BreakPrint

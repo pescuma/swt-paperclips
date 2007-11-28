@@ -5,13 +5,14 @@
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
-package net.sf.paperclips;
+package net.sf.paperclips.main;
 
 import java.text.NumberFormat;
 
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.Printer;
 
+import net.sf.paperclips.*;
 import net.sf.paperclips.benchmark.Benchmark;
 import net.sf.paperclips.examples.*;
 
