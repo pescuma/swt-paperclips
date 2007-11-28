@@ -7,6 +7,9 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.printing.Printer;
@@ -28,26 +31,31 @@ import net.sf.paperclips.*;
  * @author Matthew Hall
  */
 public class PrintPreview extends Canvas {
-  private PrintJob     printJob             = null;
-  private PrinterData  printerData          = Printer.getDefaultPrinterData();
-  private int          pageIndex            = 0;
-  private boolean      fitHorizontal        = true;
-  private boolean      fitVertical          = true;
-  private float        scale                = 1.0f;
-  private int          horizontalPageCount  = 1;
-  private int          verticalPageCount    = 1;
+  private static final int ALL_PAGES            = -1;
+
+  private PrintJob         printJob             = null;
+  private PrinterData      printerData          = Printer.getDefaultPrinterData();
+  private int              pageIndex            = 0;
+  private boolean          fitHorizontal        = true;
+  private boolean          fitVertical          = true;
+  private float            scale                = 1.0f;
+  private int              horizontalPageCount  = 1;
+  private int              verticalPageCount    = 1;
+  private boolean          lazy                 = false;
 
   // The bounds of the paper on the printer device.
-  private Point        paperSize            = null;
-  private Printer      printer              = null;
+  private Point            paperSize            = null;
+  private Printer          printer              = null;
+  private GC               gc                   = null;
 
-  private PrintPiece[] pages                = null;
-  private Point        pageDisplaySize      = null;
-  private Point[]      pageDisplayLocations = null;
+  private PageEnumeration  pageEnumeration      = null;
+  private List             pages                = null;
+  private Point            pageDisplaySize      = null;
+  private Point[]          pageDisplayLocations = null;
 
   // Margins and page spacing include paper boilerplate.
-  private Rectangle    margins              = new Rectangle( 10, 10, 10, 10 );
-  private Point        pageSpacing          = new Point( 10, 10 );
+  private Rectangle        margins              = new Rectangle( 10, 10, 10, 10 );
+  private Point            pageSpacing          = new Point( 10, 10 );
 
   /**
    * Constructs a PrintPreview control.
@@ -146,15 +154,26 @@ public class PrintPreview extends Canvas {
   }
 
   /**
-   * Returns the number of pages. This method returns 0 when {@link #getPrintJob()} is null or
-   * {@link #getPrinterData()} is null.
+   * Returns the known number of pages in the print job. If {@link #setLazyPageLayout(boolean)} is set to
+   * true, this method returns the number of pages laid out so far. This method returns 0 when
+   * {@link #getPrintJob()} is null or {@link #getPrinterData()} is null.
    * 
-   * @return the number of pages.
+   * @return the known number of pages in the print job.
    */
   public int getPageCount() {
     checkWidget();
-    getPages();
-    return pages == null ? 0 : pages.length;
+    fetchPages( lazy ? horizontalPageCount * verticalPageCount : ALL_PAGES );
+    return pages == null ? 0 : pages.size();
+  }
+
+  /**
+   * Returns whether all pages have been laid out.
+   * @return whether all pages have been laid out.
+   */
+  public boolean isPageLayoutComplete() {
+    checkWidget();
+    fetchPages( horizontalPageCount * verticalPageCount );
+    return pageEnumeration == null ? true : pageEnumeration.hasNext() == false;
   }
 
   /**
@@ -245,6 +264,7 @@ public class PrintPreview extends Canvas {
    * @return how many pages will be displayed in the horizontal direction.
    */
   public int getHorizontalPageCount() {
+    checkWidget();
     return horizontalPageCount;
   }
 
@@ -256,6 +276,7 @@ public class PrintPreview extends Canvas {
    * @param horizontalPages how many pages will be displayed in the horizontal direction.
    */
   public void setHorizontalPageCount( int horizontalPages ) {
+    checkWidget();
     if ( horizontalPages < 1 )
       horizontalPages = 1;
     this.horizontalPageCount = horizontalPages;
@@ -271,6 +292,7 @@ public class PrintPreview extends Canvas {
    * @return how many pages will be displayed in the vertical direction.
    */
   public int getVerticalPageCount() {
+    checkWidget();
     return verticalPageCount;
   }
 
@@ -282,11 +304,32 @@ public class PrintPreview extends Canvas {
    * @param verticalPages how many pages will be displayed in the vertical direction.
    */
   public void setVerticalPageCount( int verticalPages ) {
+    checkWidget();
     if ( verticalPages < 1 )
       verticalPages = 1;
     this.verticalPageCount = verticalPages;
     invalidatePageDisplayBounds();
     redraw();
+  }
+
+  /**
+   * Returns whether the preview lays out pages lazily. Note that total page counts in page numbers will not
+   * display correctly when this is enabled.
+   * @return whether the preview lays out pages lazily.
+   */
+  public boolean isLazyPageLayout() {
+    checkWidget();
+    return lazy;
+  }
+
+  /**
+   * Sets whether the preview lays out pages lazily. Note that total page counts in page numbers will not
+   * display correctly when this is enabled.
+   * @param lazy whether the preview lays out pages lazily.
+   */
+  public void setLazyPageLayout( boolean lazy ) {
+    checkWidget();
+    this.lazy = lazy;
   }
 
   private void invalidatePageDisplayBounds() {
@@ -302,18 +345,18 @@ public class PrintPreview extends Canvas {
 
     getPrinter();
     getPaperSize();
-    getPages();
+    fetchPages( pageIndex + verticalPageCount * horizontalPageCount );
 
     getPageDisplaySize();
     getPageDisplayLocations();
 
     if ( printer == null || paperSize == null || pages == null || pageDisplaySize == null
-        || pageDisplayLocations == null || pageIndex < 0 || pageIndex >= pages.length )
+        || pageDisplayLocations == null || pageIndex < 0 || pageIndex >= pages.size() )
       return;
 
-    int count = Math.min( verticalPageCount * horizontalPageCount, pages.length - pageIndex );
+    int count = Math.min( verticalPageCount * horizontalPageCount, pages.size() - pageIndex );
     for ( int i = 0; i < count; i++ ) {
-      paintPage( event, pages[pageIndex + i], pageDisplayLocations[i] );
+      paintPage( event, (PrintPiece) pages.get( pageIndex + i ), pageDisplayLocations[i] );
     }
   }
 
@@ -384,6 +427,14 @@ public class PrintPreview extends Canvas {
     return printer;
   }
 
+  private GC getGC() {
+    if ( gc == null && printer != null ) {
+      gc = new GC( printer );
+      gc.setAdvanced( true );
+    }
+    return gc;
+  }
+
   private boolean orientationRequiresRotate() {
     int orientation = printJob.getOrientation();
     Rectangle bounds = PaperClips.getPaperBounds( printer );
@@ -395,21 +446,31 @@ public class PrintPreview extends Canvas {
     Printer printer = getPrinter();
     if ( paperSize == null && printer != null && printJob != null ) {
       Rectangle paperBounds = PaperClips.getPaperBounds( printer );
-      this.paperSize = orientationRequiresRotate()
-          ? new Point( paperBounds.height, paperBounds.width )
-          : new Point( paperBounds.width, paperBounds.height );
+      this.paperSize =
+          orientationRequiresRotate()
+              ? new Point( paperBounds.height, paperBounds.width )
+              : new Point( paperBounds.width, paperBounds.height );
     }
     return paperSize;
   }
 
-  private PrintPiece[] getPages() {
-    if ( pages == null && printJob != null && printerData != null ) {
-      pages = PaperClips.getPages( printJob, getPrinter() );
-      if ( orientationRequiresRotate() )
-        for ( int i = 0; i < pages.length; i++ )
-          pages[i] = new RotateClockwisePrintPiece( printer, pages[i] );
+  private void fetchPages( int endIndex ) {
+    if ( getPrintJob() == null || getPrinter() == null || getGC() == null )
+      return;
+    if ( pageEnumeration == null )
+      pageEnumeration = PaperClips.getPageEnumeration( printJob, printer, gc );
+    if ( pages == null )
+      pages = new ArrayList();
+    boolean doRotate = orientationRequiresRotate();
+    boolean allPages = endIndex == ALL_PAGES || !lazy;
+    while ( pageEnumeration.hasNext() && ( allPages || pages.size() < endIndex ) ) {
+      PrintPiece page = pageEnumeration.nextPage();
+      if ( page != null ) {
+        if ( doRotate )
+          page = new RotateClockwisePrintPiece( printer, page );
+        pages.add( page );
+      }
     }
-    return pages;
   }
 
   private void drawBackground( Event event ) {
@@ -584,8 +645,9 @@ public class PrintPreview extends Canvas {
 
   private void disposePages() {
     if ( pages != null ) {
-      for ( int i = 0; i < pages.length; i++ )
-        pages[i].dispose();
+      pageEnumeration = null;
+      for ( int i = 0; i < pages.size(); i++ )
+        ( (PrintPiece) pages.get( i ) ).dispose();
       pages = null;
       paperSize = null;
       invalidatePageDisplayBounds();
@@ -595,8 +657,16 @@ public class PrintPreview extends Canvas {
   private void disposePrinter() {
     disposePages();
     if ( printer != null ) {
+      disposeGC();
       printer.dispose();
       printer = null;
+    }
+  }
+
+  private void disposeGC() {
+    if ( gc != null ) {
+      gc.dispose();
+      gc = null;
     }
   }
 
@@ -610,7 +680,8 @@ public class PrintPreview extends Canvas {
 
     Point size = new Point( wHint, hHint );
 
-    if ( getPrinter() == null ) {
+    fetchPages( horizontalPageCount * verticalPageCount );
+    if ( getPrinter() == null || pages == null ) {
       Point boilerplate = getBoilerplateSize();
       if ( wHint == SWT.DEFAULT )
         size.x = boilerplate.x;
@@ -647,7 +718,8 @@ public class PrintPreview extends Canvas {
 
     Point size = getBoilerplateSize();
 
-    if ( getPrinter() != null ) {
+    fetchPages( horizontalPageCount * verticalPageCount );
+    if ( getPrinter() != null && pages != null ) {
       Point displayDPI = getDisplay().getDPI();
       Point printerDPI = getPrinter().getDPI();
       Point paperSize = getPaperSize();
