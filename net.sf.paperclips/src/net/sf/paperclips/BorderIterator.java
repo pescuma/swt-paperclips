@@ -55,7 +55,8 @@ class BorderIterator implements PrintIterator {
     if ( piece == null )
       piece = next( width, height, true /* open bottom border */);
 
-    opened = ( piece != null );
+    if ( piece != null )
+      opened = true;
 
     return piece;
   }
@@ -67,12 +68,12 @@ class BorderIterator implements PrintIterator {
     if ( width < 0 || height < 0 )
       return null;
 
-    PrintIterator testIterator = target.copy();
-    PrintPiece piece = PaperClips.next( testIterator, width, height );
+    PrintIterator iter = target.copy();
+    PrintPiece piece = PaperClips.next( iter, width, height );
     if ( piece == null )
       return null;
 
-    if ( bottomBorderOpen && !testIterator.hasNext() ) {
+    if ( bottomBorderOpen && !iter.hasNext() ) {
       // The target content was consumed, but the bottom border is open (suggesting that there is more
       // content): find the largest piece that *doesn't* consume all the target's content, and show it with
       // an open bottom border.
@@ -80,13 +81,13 @@ class BorderIterator implements PrintIterator {
       piece = getTallestPieceNotCompletelyConsumingTarget( width, height );
       if ( piece == null )
         return null;
-    } else if ( !bottomBorderOpen && testIterator.hasNext() ) {
+    } else if ( !bottomBorderOpen && iter.hasNext() ) {
       // Bottom border is closed but the target has more content: fail so calling method can try again with
       // an open bottom border.
       piece.dispose();
       return null;
     } else {
-      this.target = testIterator;
+      this.target = iter;
     }
 
     // Decorate the target print piece with border

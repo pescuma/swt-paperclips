@@ -216,7 +216,7 @@ class ColumnIterator implements PrintIterator {
   public PrintPiece next( int width, int height ) {
     int[] colSizes = computeColSizes( width );
 
-    // Iterate on a copy in case a single column fails to iterate.
+    // Iterate on a copy in case any column fails to layout.
     PrintIterator iter = target.copy();
     PrintPiece[] columns = nextColumns( iter, colSizes, height );
     if ( columns == null )
@@ -240,7 +240,7 @@ class ColumnIterator implements PrintIterator {
     PrintPiece[] bestColumns = columns;
 
     while ( lowestValidHeight > highestInvalidHeight + 1 ) {
-      int testHeight = ( highestInvalidHeight + lowestValidHeight + 1 ) / 2;
+      int testHeight = ( lowestValidHeight + highestInvalidHeight + 1 ) / 2;
 
       iter = target.copy();
       columns = nextColumns( iter, colSizes, testHeight );
@@ -259,8 +259,8 @@ class ColumnIterator implements PrintIterator {
       }
     }
 
-    // Now that we've narrowed down the target's best iteration, we
-    // can update the state of this iterator with return the result.
+    // Now that we've narrowed down the target's best iteration, we can update the state of this iterator and
+    // return the result.
     this.target = bestIteration;
     return createResult( bestColumns, colSizes );
   }

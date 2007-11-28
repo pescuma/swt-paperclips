@@ -185,8 +185,10 @@ class StyledTextIterator implements PrintIterator {
 
       maxAscent = Math.max( maxAscent, getAscent( piece ) );
       maxDescent = Math.max( maxDescent, getDescent( piece ) );
-      if ( maxAscent + maxDescent > height )
-        return restoreBackup( backupCursor, backup );
+      if ( maxAscent + maxDescent > height ) {
+        restoreBackup( backupCursor, backup );
+        return null;
+      }
 
       if ( element.hasNext() )
         break;
@@ -213,11 +215,10 @@ class StyledTextIterator implements PrintIterator {
     return new CompositePiece( rowElements );
   }
 
-  private PrintPiece restoreBackup( final int backupCursor, final List backup ) {
+  private void restoreBackup( final int backupCursor, final List backup ) {
     for ( int i = 0; i < backup.size(); i++ )
       elements[backupCursor + i] = (PrintIterator) backup.get( i );
     cursor = backupCursor;
-    return null;
   }
 
   private int getAscent( PrintPiece piece ) {
