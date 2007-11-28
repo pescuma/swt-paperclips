@@ -26,7 +26,7 @@ import net.sf.paperclips.internal.PrintPieceUtil;
 public class PaperClips {
   private PaperClips() {} // no instances
 
-  private static boolean  debug                 = false;
+  static boolean          debug                 = false;
 
   /**
    * Indicates that the printer's default page orientation should be used.
@@ -308,84 +308,31 @@ public class PaperClips {
   }
 
   private static PrintPiece[] getPages( PrintJob printJob, Printer printer, GC gc ) {
-    PrintJobIterator iterator = new PrintJobIterator( printJob, printer, gc );
+    PageEnumeration enumeration = new PageEnumeration( printJob, printer, gc );
     List pages = new ArrayList();
-    while ( iterator.hasNext() ) {
-      PrintPiece page = iterator.nextPage();
-      if ( page == null )
-        errorOnPage( pages.size() + 1, pages );
+    while ( enumeration.hasNext() ) {
+      PrintPiece page = enumeration.nextPage();
+      if ( page == null ) {
+        int pageNumber = pages.size() + 1;
+        PrintPieceUtil.dispose( pages );
+        error( "Unable to layout page " + pageNumber );
+      }
       pages.add( page );
     }
 
     return (PrintPiece[]) pages.toArray( new PrintPiece[pages.size()] );
   }
 
-  private static class PrintJobIterator {
-    private final PrintIterator document;
-    private final Rectangle     marginBounds;
-    private final Rectangle     paperBounds;
-
-    private boolean             hasNext;
-
-    PrintJobIterator( PrintJob job, Printer printer, GC gc ) {
-      // Rotate the document (and margins with it) depending on print job orientation.
-      job = applyOrientation( job, printer );
-      Margins margins = job.getMargins();
-
-      marginBounds = getMarginBounds( margins, printer );
-      paperBounds = getPaperBounds( printer );
-
-      document = job.getDocument().iterator( printer, gc );
-      hasNext = document.hasNext();
-    }
-
-    boolean hasNext() {
-      return hasNext;
-    }
-
-    PrintPiece nextPage() {
-      if ( !hasNext )
-        return null;
-
-      PrintPiece page = next( document, marginBounds.width, marginBounds.height );
-      hasNext = notNull( page ) && notDebugPiece( page ) && document.hasNext();
-      return page == null ? null : createPagePiece( page );
-    }
-
-    private boolean notNull( PrintPiece page ) {
-      return page != null;
-    }
-
-    private static boolean notDebugPiece( PrintPiece page ) {
-      return !( debug && page instanceof NullPrintPiece );
-    }
-
-    private PrintPiece createPagePiece( PrintPiece page ) {
-      Point offset = new Point( marginBounds.x - paperBounds.x, marginBounds.y - paperBounds.y );
-      CompositeEntry entry = new CompositeEntry( page, offset );
-      Point size = new Point( paperBounds.width, paperBounds.height );
-      return new CompositePiece( new CompositeEntry[] { entry }, size );
-    }
-
-    private static PrintJob applyOrientation( PrintJob printJob, Printer printer ) {
-      int orientation = printJob.getOrientation();
-
-      Rectangle paperBounds = getPaperBounds( printer );
-      if ( ( ( orientation == ORIENTATION_LANDSCAPE ) && ( paperBounds.width < paperBounds.height ) )
-          || ( ( orientation == ORIENTATION_PORTRAIT ) && ( paperBounds.height < paperBounds.width ) ) ) {
-        String name = printJob.getName();
-        Print document = new RotatePrint( printJob.getDocument() );
-        Margins margins = printJob.getMargins().rotate();
-        printJob = new PrintJob( name, document ).setMargins( margins ).setOrientation( ORIENTATION_DEFAULT );
-      }
-
-      return printJob;
-    }
-  }
-
-  private static void errorOnPage( int pageNumber, List pages ) {
-    PrintPieceUtil.dispose( pages );
-    error( "Unable to layout page " + pageNumber );
+  /**
+   * Returns a {@link PageEnumeration} for the passed in PrintJob on the given Printer, using the given GC.
+   * The Printer and GC must not be disposed while the enumeration is in use.
+   * @param printJob the print job
+   * @param printer the Printer device, which must not be disposed while the PageEnumeration is in use.
+   * @param gc the GC, which must not be disposed while the PageEnumeration is in use.
+   * @return a {@link PageEnumeration} for the passed in PrintJob.
+   */
+  public static PageEnumeration getPageEnumeration( PrintJob printJob, Printer printer, GC gc ) {
+    return new PageEnumeration( printJob, printer, gc );
   }
 
   /**
@@ -436,15 +383,5 @@ public class PaperClips {
       bottom = printableBounds.y + printableBounds.height;
 
     return new Rectangle( left, top, right - left, bottom - top );
-  }
-
-  private static final class NullPrintPiece implements PrintPiece {
-    public Point getSize() {
-      return new Point( 0, 0 );
-    }
-
-    public void paint( GC gc, int x, int y ) {}
-
-    public void dispose() {}
   }
 }
