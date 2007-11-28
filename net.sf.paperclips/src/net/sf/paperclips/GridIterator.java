@@ -109,15 +109,10 @@ class GridIterator implements PrintIterator {
 
   private static GridCellIterator[][] cloneRows( GridCellIterator[][] rows, int firstRow ) {
     GridCellIterator[][] result = (GridCellIterator[][]) rows.clone();
-    for ( int i = firstRow; i < result.length; i++ )
-      result[i] = cloneRow( result[i] );
-    return result;
-  }
-
-  private static GridCellIterator[] cloneRow( GridCellIterator[] row ) {
-    GridCellIterator[] result = (GridCellIterator[]) row.clone();
-    for ( int i = 0; i < result.length; i++ )
-      result[i] = result[i].copy();
+    // Cloning the outer array is all that's necessary. The inner arrays (rows) are cloned every time a row
+    // is laid out, so all we have to do is make sure different GridIterators have distinct outer arrays.
+    // for ( int i = firstRow; i < result.length; i++ )
+    // result[i] = cloneRow( result[i] );
     return result;
   }
 
@@ -918,6 +913,13 @@ class GridIterator implements PrintIterator {
     }
 
     return new CompositePiece( entries );
+  }
+
+  private static GridCellIterator[] cloneRow( GridCellIterator[] row ) {
+    GridCellIterator[] result = (GridCellIterator[]) row.clone();
+    for ( int i = 0; i < result.length; i++ )
+      result[i] = result[i].copy();
+    return result;
   }
 
   private PrintPiece createResult( final int[] colSizes,
