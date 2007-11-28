@@ -302,6 +302,8 @@ class TextIterator extends AbstractIterator {
   final String[]  lines;
   final TextStyle style;
   final boolean   wordSplitting;
+  final Point     minimumSize;
+  final Point     preferredSize;
 
   int             row;
   int             col;
@@ -312,6 +314,8 @@ class TextIterator extends AbstractIterator {
     this.lines = print.text.split( "(\r)?\n" );
     this.style = print.style;
     this.wordSplitting = print.wordSplitting;
+    this.minimumSize = maxExtent( text.split( "\\s" ) );
+    this.preferredSize = maxExtent( lines );
 
     this.row = 0;
     this.col = 0;
@@ -321,9 +325,11 @@ class TextIterator extends AbstractIterator {
     super( that );
 
     this.text = that.text;
-    this.lines = (String[]) that.lines.clone();
+    this.lines = that.lines;
     this.style = that.style;
     this.wordSplitting = that.wordSplitting;
+    this.minimumSize = that.minimumSize;
+    this.preferredSize = that.preferredSize;
 
     this.row = that.row;
     this.col = that.col;
@@ -416,11 +422,11 @@ class TextIterator extends AbstractIterator {
   }
 
   public Point minimumSize() {
-    return maxExtent( text.split( "\\s" ) );
+    return new Point( minimumSize.x, minimumSize.y );
   }
 
   public Point preferredSize() {
-    return maxExtent( lines );
+    return new Point( preferredSize.x, preferredSize.y );
   }
 
   private Point maxExtent( String[] text ) {
