@@ -35,18 +35,18 @@ public class SnippetBenchmarks {
     final PrintJob job = new PrintJob( "Snippet8", new Snippet8() );
 
     final GC gc = new GC( printer );
-    new Benchmark( new Runnable() {
+    new Benchmark().setName( "getPageEnumeration" ).setRunCount( 10 ).execute( new Runnable() {
       public void run() {
         PaperClips.getPageEnumeration( job, printer, gc ).nextPage();
       }
-    } ).setName( "getPageEnumeration" ).setRunCount( 10 ).execute();
+    } );
     gc.dispose();
 
-    new Benchmark( new Runnable() {
+    new Benchmark().setName( "getPages" ).setRunCount( 10 ).execute( new Runnable() {
       public void run() {
         PaperClips.getPages( job, printer );
       }
-    } ).setName( "getPages" ).setRunCount( 10 ).execute();
+    } );
 
     printer.dispose();
   }
@@ -61,11 +61,11 @@ public class SnippetBenchmarks {
     long total = 0;
     for ( int i = 0; i < documents.length; i++ ) {
       final PrintJob job = new PrintJob( names[i], documents[i] ).setMargins( 108 );
-      total += new Benchmark( new Runnable() {
+      total += new Benchmark().setRunCount( RUN_COUNT ).setName( names[i] ).execute( new Runnable() {
         public void run() {
           PaperClips.getPages( job, printer );
         }
-      } ).setRunCount( RUN_COUNT ).setName( names[i] ).execute();
+      } );
     }
 
     printer.dispose();

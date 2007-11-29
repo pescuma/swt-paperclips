@@ -6,17 +6,24 @@ import java.io.PrintStream;
 import junit.framework.TestCase;
 
 public class BenchmarkTest extends TestCase {
-  StopClock    clock;
-  RunnableStub runnable;
-  Benchmark    benchmark;
-  int          executionTime;
+  StopClock             clock;
+  ByteArrayOutputStream output;
+  Benchmark             benchmark;
+  RunnableStub          runnable;
+  int                   executionTime;
 
   protected void setUp() throws Exception {
     super.setUp();
     clock = new StopClock( 0 );
+    output = new ByteArrayOutputStream();
+    final PrintStream printStream = new PrintStream( output );
+    benchmark = new Benchmark().setName( getName() ).setClock( clock ).setPrintStream( printStream );
     runnable = new RunnableStub();
-    benchmark = new Benchmark( runnable ).setClock( clock ).setName( getName() );
     executionTime = 100;
+  }
+
+  protected void tearDown() throws Exception {
+    output.close();
   }
 
   public void testTime() {
@@ -25,52 +32,31 @@ public class BenchmarkTest extends TestCase {
   }
 
   public void testExecute() {
-    assertEquals( executionTime, benchmark.execute() );
+    assertEquals( executionTime, benchmark.execute( runnable ) );
   }
 
   public void testSetRunCount() {
     int runCount = 10;
-    assertEquals( runCount * executionTime, benchmark.setRunCount( 10 ).execute() );
+    assertEquals( runCount * executionTime, benchmark.setRunCount( 10 ).execute( runnable ) );
     assertEquals( runCount, runnable.callbackCount );
   }
 
   public void testOutput() throws Exception {
-    ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
     String newline = System.getProperty( "line.separator" );
     String expected =
-        new StringBuffer().append( "Starting benchmark \"testOutput\":" )
-                          .append( newline )
-                          .append( "\tRun 1/5:\t10ms" )
-                          .append( newline )
-                          .append( "\tRun 2/5:\t20ms" )
-                          .append( newline )
-                          .append( "\tRun 3/5:\t30ms" )
-                          .append( newline )
-                          .append( "\tRun 4/5:\t40ms" )
-                          .append( newline )
-                          .append( "\tRun 5/5:\t50ms" )
-                          .append( newline )
-                          .append( "Total:  \t150ms" )
-                          .append( newline )
-                          .append( "Average:\t30.0ms" )
-                          .append( newline )
-                          .toString();
-    Runnable runnable = new Runnable() {
-      int   runIndex = 0;
-      int[] runTimes = { 10, 20, 30, 40, 50 };
+        "Benchmarking 'testOutput':" + newline + "\tRun 1/3:\t10ms" + newline + "\tRun 2/3:\t20ms" + newline
+            + "\tRun 3/3:\t30ms" + newline + "Total:  \t60ms" + newline + "Average:\t20.0ms" + newline;
+
+    final int[] runTimes = { 10, 20, 30 };
+    benchmark.setRunCount( runTimes.length ).execute( new Runnable() {
+      int runIndex = 0;
 
       public void run() {
         clock.time += runTimes[runIndex++];
       }
-    };
+    } );
 
-    new Benchmark( runnable ).setName( "testOutput" )
-                             .setClock( clock )
-                             .setPrintStream( new PrintStream( byteArrayStream ) )
-                             .setRunCount( 5 )
-                             .execute();
-
-    assertEquals( expected, byteArrayStream.toString() );
+    assertEquals( expected, output.toString() );
   }
 
   class RunnableStub implements Runnable {

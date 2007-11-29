@@ -5,15 +5,12 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class Benchmark {
-  private Runnable    runnable;
   private int         runCount    = 1;
   private Clock       clock       = getDefaultClock();
   private String      name        = "Unnamed benchmark";
   private PrintStream printStream = System.out;
 
-  public Benchmark( Runnable runnable ) {
-    this.runnable = runnable;
-  }
+  public Benchmark() {}
 
   public Benchmark setName( String name ) {
     this.name = name;
@@ -35,9 +32,9 @@ public class Benchmark {
     return this;
   }
 
-  public long execute() {
+  public long execute( Runnable runnable ) {
     long total = 0;
-    printStream.println( "Starting benchmark \"" + name + "\":" );
+    printStream.println( "Benchmarking '" + name + "':" );
     for ( int i = 0; i < runCount; i++ ) {
       long time = time( clock, runnable );
       printStream.println( "\tRun " + ( i + 1 ) + "/" + runCount + ":\t" + time + "ms" );
