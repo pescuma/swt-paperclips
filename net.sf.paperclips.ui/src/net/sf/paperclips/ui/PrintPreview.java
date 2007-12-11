@@ -10,13 +10,24 @@ package net.sf.paperclips.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.paperclips.PageEnumeration;
+import net.sf.paperclips.PaperClips;
+import net.sf.paperclips.PrintJob;
+import net.sf.paperclips.PrintPiece;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.*;
-
-import net.sf.paperclips.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 /**
  * A WYSIWYG (what you see is what you get) print preview panel. This control displays a preview of what a
@@ -420,6 +431,7 @@ public class PrintPreview extends Canvas {
   private Printer getPrinter() {
     if ( printer == null && printerData != null ) {
       printer = new Printer( printerData );
+      PaperClips.startDummyJob( printer, "" );
       disposePages(); // just in case
       pageDisplaySize = null;
       pageDisplayLocations = null;
@@ -446,19 +458,21 @@ public class PrintPreview extends Canvas {
     Printer printer = getPrinter();
     if ( paperSize == null && printer != null && printJob != null ) {
       Rectangle paperBounds = PaperClips.getPaperBounds( printer );
-      this.paperSize =
-          orientationRequiresRotate()
-              ? new Point( paperBounds.height, paperBounds.width )
-              : new Point( paperBounds.width, paperBounds.height );
+      this.paperSize = orientationRequiresRotate()
+          ? new Point( paperBounds.height, paperBounds.width )
+          : new Point( paperBounds.width, paperBounds.height );
     }
     return paperSize;
   }
 
   private void fetchPages( int endIndex ) {
-    if ( getPrintJob() == null || getPrinter() == null || getGC() == null )
+    if ( getPrintJob() == null || getPrinter() == null )
       return;
-    if ( pageEnumeration == null )
+    if ( pageEnumeration == null ) {
+      if ( getGC() == null )
+        return;
       pageEnumeration = PaperClips.getPageEnumeration( printJob, printer, gc );
+    }
     if ( pages == null )
       pages = new ArrayList();
     boolean doRotate = orientationRequiresRotate();
@@ -471,6 +485,8 @@ public class PrintPreview extends Canvas {
         pages.add( page );
       }
     }
+    if ( !pageEnumeration.hasNext() )
+      disposeGC();
   }
 
   private void drawBackground( Event event ) {
@@ -658,6 +674,7 @@ public class PrintPreview extends Canvas {
     disposePages();
     if ( printer != null ) {
       disposeGC();
+      PaperClips.endDummyJob( printer );
       printer.dispose();
       printer = null;
     }
