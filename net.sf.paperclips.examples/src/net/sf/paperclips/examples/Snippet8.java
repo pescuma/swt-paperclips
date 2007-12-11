@@ -7,17 +7,40 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
+import net.sf.paperclips.DefaultGridLook;
+import net.sf.paperclips.GridPrint;
+import net.sf.paperclips.PageNumber;
+import net.sf.paperclips.PageNumberFormat;
+import net.sf.paperclips.PageNumberPageDecoration;
+import net.sf.paperclips.PagePrint;
+import net.sf.paperclips.PaperClips;
+import net.sf.paperclips.Print;
+import net.sf.paperclips.PrintIterator;
+import net.sf.paperclips.PrintJob;
+import net.sf.paperclips.SimplePageDecoration;
+import net.sf.paperclips.TextPrint;
+import net.sf.paperclips.ui.PrintPreview;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.*;
-
-import net.sf.paperclips.*;
-import net.sf.paperclips.ui.PrintPreview;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 
 /**
  * Demonstrate use of PrintPreview control.
@@ -31,11 +54,11 @@ public class Snippet8 implements Print {
     GridPrint grid = new GridPrint( "p:g, p:g, p:g, p:g, p:g", look );
 
     String text = "The quick brown fox jumps over the lazy dog.";
-    for ( int i = 0; i < 50000; i++ )
+    for ( int i = 0; i < 20000; i++ )
       grid.add( new TextPrint( text ) );
 
     PagePrint page = new PagePrint( grid );
-    page.setHeader( new SimplePageDecoration( new TextPrint( "Snippet7.java", SWT.CENTER ) ) );
+    page.setHeader( new SimplePageDecoration( new TextPrint( "Snippet8.java", SWT.CENTER ) ) );
     page.setHeaderGap( 5 );
     page.setFooterGap( 5 );
     PageNumberPageDecoration footer = new PageNumberPageDecoration( SWT.CENTER );
@@ -76,7 +99,7 @@ public class Snippet8 implements Print {
       printJob = new PrintJob( "Snippet8.java", new Snippet8() ).setMargins( 108 ); // 1.5"
 
       shell = new Shell( display );
-      shell.setText( "Snippet7.java" );
+      shell.setText( "Snippet8.java" );
       shell.setBounds( 100, 100, 800, 600 );
       shell.setLayout( new GridLayout( 1, false ) );
 
@@ -397,9 +420,8 @@ public class Snippet8 implements Print {
       int pageCount = preview.getPageCount();
       int visiblePages = preview.getHorizontalPageCount() * preview.getVerticalPageCount();
       boolean layoutComplete = preview.isPageLayoutComplete();
-      String text =
-          ( visiblePages > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
-              + Math.min( pageCount, pageIndex + visiblePages ) : "Page " + ( pageIndex + 1 ) );
+      String text = ( visiblePages > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
+          + Math.min( pageCount, pageIndex + visiblePages ) : "Page " + ( pageIndex + 1 ) );
       if ( layoutComplete )
         text += " of " + pageCount;
       pageNumber.setText( text );
@@ -414,8 +436,8 @@ public class Snippet8 implements Print {
         forgetScrollingPosition();
       } else if ( scrollingPosition == null ) {
         Point origin = scroll.getOrigin();
-        scrollingPosition =
-            new double[] { (double) origin.x / (double) size.x, (double) origin.y / (double) size.y };
+        scrollingPosition = new double[] {
+          (double) origin.x / (double) size.x, (double) origin.y / (double) size.y };
       }
     }
 
@@ -459,9 +481,8 @@ public class Snippet8 implements Print {
 
     private void setPreviewPageIndex( int pageIndex ) {
       if ( preview.isPageLayoutComplete() )
-        pageIndex =
-            Math.min( pageIndex, preview.getPageCount() - preview.getHorizontalPageCount()
-                * preview.getVerticalPageCount() );
+        pageIndex = Math.min( pageIndex, preview.getPageCount() - preview.getHorizontalPageCount()
+            * preview.getVerticalPageCount() );
       pageIndex = Math.max( pageIndex, 0 );
       preview.setPageIndex( pageIndex );
       updatePageNumber();
