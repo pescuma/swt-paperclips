@@ -10,17 +10,20 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.printing.Printer;
-import org.eclipse.swt.printing.PrinterData;
-
 import net.sf.paperclips.internal.NullUtil;
 import net.sf.paperclips.internal.PrintPieceUtil;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
 
 /**
  * This class contains static constants and methods for preparing and printing documents. Methods in this
  * class supersede those in PrintUtil.
+ * 
  * @author Matthew Hall
  */
 public class PaperClips {
@@ -77,6 +80,7 @@ public class PaperClips {
    * 
    * <p>
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * 
    * @param debug true to enable debug mode, false to disable it.
    */
   public static void setDebug( boolean debug ) {
@@ -88,6 +92,7 @@ public class PaperClips {
    * 
    * <p>
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
+   * 
    * @return whether debug mode is enabled.
    */
   public static boolean getDebug() {
@@ -131,6 +136,7 @@ public class PaperClips {
   /**
    * Prints the print job to the given printer. This method constructs a Printer, forwards to
    * {@link #print(PrintJob, Printer) }, and disposes the printer before returning.
+   * 
    * @param printJob the print job.
    * @param printerData the PrinterData of the selected printer.
    */
@@ -146,6 +152,7 @@ public class PaperClips {
 
   /**
    * Prints the print job to the given printer.
+   * 
    * @param printJob the print job.
    * @param printer the printer device.
    */
@@ -185,6 +192,7 @@ public class PaperClips {
   /**
    * Prints the print job to the specified printer using the GC. This method does not manage the print job
    * lifecycle (it does not call startJob or endJob).
+   * 
    * @param printJob the print job
    * @param printer the printer
    * @param gc the GC
@@ -284,13 +292,24 @@ public class PaperClips {
     }
   }
 
-  private static void startDummyJob( Printer printer, String name ) {
+  /**
+   * Starts a dummy job on the given Printer if the platform requires it.  On platforms that require it, dummy jobs must be started before a GC is created on the Printer.
+   * 
+   * @param printer the Printer hosting the dummy print job.
+   * @param name the name of the dummy print job.
+   */
+  public static void startDummyJob( Printer printer, String name ) {
     // On OSX and Linux, GC will be disposed at creation unless Printer.startJob() is called first.
     if ( isCarbon() || isGTK() )
       startJob( printer, name );
   }
 
-  private static void endDummyJob( Printer printer ) {
+  /**
+   * Ends a dummy job on the given Printer if the platform requires a dummy job.
+   * 
+   * @param printer the Printer hosting the dummy print job.
+   */
+  public static void endDummyJob( Printer printer ) {
     if ( isGTK() ) // Linux GTK
       printer.cancelJob();
     else if ( isCarbon() ) // Mac OSX
@@ -326,6 +345,7 @@ public class PaperClips {
   /**
    * Returns a {@link PageEnumeration} for the passed in PrintJob on the given Printer, using the given GC.
    * The Printer and GC must not be disposed while the enumeration is in use.
+   * 
    * @param printJob the print job
    * @param printer the Printer device, which must not be disposed while the PageEnumeration is in use.
    * @param gc the GC, which must not be disposed while the PageEnumeration is in use.
@@ -337,6 +357,7 @@ public class PaperClips {
 
   /**
    * Returns the bounding rectangle of the paper, including non-printable margins.
+   * 
    * @param printer the printer device.
    * @return a rectangle whose edges correspond to the edges of the paper.
    */
@@ -347,6 +368,7 @@ public class PaperClips {
 
   /**
    * Returns the bounding rectangle of the printable area on the paper.
+   * 
    * @param printer the printer device.
    * @return the bounding rectangle of the printable area on the paper.
    */
@@ -357,6 +379,7 @@ public class PaperClips {
   /**
    * Returns the bounding rectangle of the printable area which is inside the given margins on the paper. The
    * printer's minimum margins are reflected in the returned rectangle.
+   * 
    * @param printer the printer device.
    * @param margins the desired page margins.
    * @return the bounding rectangle on the printable area which is within the margins.
