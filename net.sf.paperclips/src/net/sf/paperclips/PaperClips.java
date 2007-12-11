@@ -293,13 +293,15 @@ public class PaperClips {
   }
 
   /**
-   * Starts a dummy job on the given Printer if the platform requires it.  On platforms that require it, dummy jobs must be started before a GC is created on the Printer.
+   * Starts a dummy job on the given Printer if the platform requires it. Dummy jobs allow the various Print
+   * components of PaperClips to perform measurements required for document layout, without actually sending
+   * a job to the printer. Only Mac OS X Carbon and Linux GTK+ are known to require dummy jobs.
    * 
    * @param printer the Printer hosting the dummy print job.
    * @param name the name of the dummy print job.
    */
   public static void startDummyJob( Printer printer, String name ) {
-    // On OSX and Linux, GC will be disposed at creation unless Printer.startJob() is called first.
+    // On Mac OS X Carbon and Linux GTK+, created GC is disposed unless Printer.startJob() is called first.
     if ( isCarbon() || isGTK() )
       startJob( printer, name );
   }
@@ -310,9 +312,18 @@ public class PaperClips {
    * @param printer the Printer hosting the dummy print job.
    */
   public static void endDummyJob( Printer printer ) {
-    if ( isGTK() ) // Linux GTK
-      printer.cancelJob();
-    else if ( isCarbon() ) // Mac OSX
+    if ( isGTK() ) { // Linux GTK
+      // Printer.cancelJob() is not implemented in SWT since GTK has no API for cancelling a print job.
+      // For now we must use endJob(), even though it spits out an empty page.
+      // http://sourceforge.net/tracker/index.php?func=detail&aid=1773091&group_id=148509&atid=771872
+
+      // printer.cancelJob(); // Not implemented in SWT on GTK
+      printer.endJob();
+
+      // See also:
+      // http://bugzilla.gnome.org/show_bug.cgi?id=339323
+      // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212594
+    } else if ( isCarbon() ) // Mac OSX
       // 2007-04-30: A bug in Mac OSX renders Printer instances useless after a call to cancelJob().
       // Therefore on Mac OSX we call endJob() instead of cancelJob().
       printer.endJob();
