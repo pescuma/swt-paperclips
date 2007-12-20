@@ -174,13 +174,20 @@ public class PaperClips {
     }
     finally {
       if ( !completed )
-        printer.cancelJob();
+        cancelJob( printer );
     }
   }
 
   private static void startJob( Printer printer, String jobName ) {
     if ( !printer.startJob( jobName ) )
       error( "Unable to start print job" );
+  }
+
+  private static void cancelJob( Printer printer ) {
+    if ( isGTK() )
+      printer.endJob(); // Printer.cancelJob() not implemented on GTK
+    else
+      printer.cancelJob();
   }
 
   private static GC createAndConfigureGC( Printer printer ) {
