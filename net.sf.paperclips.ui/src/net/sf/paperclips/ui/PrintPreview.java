@@ -184,7 +184,7 @@ public class PrintPreview extends Canvas {
   public boolean isPageLayoutComplete() {
     checkWidget();
     fetchPages( horizontalPageCount * verticalPageCount );
-    return pageEnumeration == null ? true : pageEnumeration.hasNext() == false;
+    return pageEnumeration == null || !pageEnumeration.hasNext();
   }
 
   /**
