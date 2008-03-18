@@ -83,14 +83,14 @@ public class PageNumberPrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     PageNumberPrint that = (PageNumberPrint) obj;
-    return this.align == that.align && EqualsUtil.areEqual( this.fontData, that.fontData )
-        && EqualsUtil.areEqual( this.format, that.format )
-        && EqualsUtil.areEqual( this.pageNumber, that.pageNumber )
-        && EqualsUtil.areEqual( this.rgb, that.rgb );
+    return this.align == that.align && Util.equal( this.fontData, that.fontData )
+        && Util.equal( this.format, that.format )
+        && Util.equal( this.pageNumber, that.pageNumber )
+        && Util.equal( this.rgb, that.rgb );
   }
 
   /**
@@ -98,7 +98,7 @@ public class PageNumberPrint implements Print {
    * @param pageNumber the new page number.
    */
   public void setPageNumber( PageNumber pageNumber ) {
-    NullUtil.notNull( pageNumber );
+    Util.notNull( pageNumber );
     this.pageNumber = pageNumber;
   }
 
@@ -115,7 +115,7 @@ public class PageNumberPrint implements Print {
    * @param fontData the new text font.
    */
   public void setFontData( FontData fontData ) {
-    NullUtil.notNull( fontData );
+    Util.notNull( fontData );
     this.fontData = fontData;
   }
 
@@ -145,7 +145,7 @@ public class PageNumberPrint implements Print {
   }
 
   private int checkAlign( int align ) {
-    return BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+    return PaperClipsUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
   }
 
   /**
@@ -153,7 +153,7 @@ public class PageNumberPrint implements Print {
    * @param format the new page number format.
    */
   public void setPageNumberFormat( PageNumberFormat format ) {
-    NullUtil.notNull( format );
+    Util.notNull( format );
     this.format = format;
   }
 
@@ -176,7 +176,7 @@ public class PageNumberPrint implements Print {
    * @param foreground the new text color.
    */
   public void setRGB( RGB foreground ) {
-    NullUtil.notNull( foreground );
+    Util.notNull( foreground );
     this.rgb = foreground;
   }
 

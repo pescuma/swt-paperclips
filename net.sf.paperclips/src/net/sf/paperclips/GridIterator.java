@@ -8,12 +8,16 @@
 package net.sf.paperclips;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.PrintSizeStrategy;
 
-import net.sf.paperclips.internal.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 class GridIterator implements PrintIterator {
   final Device               device;
@@ -206,7 +210,7 @@ class GridIterator implements PrintIterator {
         GridCellIterator entry = row[cellIndex];
         int colspan = entry.colspan;
         if ( colspan > 1 ) {
-          int currentWidth = ArrayUtil.sum( colSizes, columnIndex, colspan );
+          int currentWidth = PaperClipsUtil.sum( colSizes, columnIndex, colspan );
 
           // Subtract column spacing so the weighted distribution of extra width stays proportional.
           int minimumWidth = strategy.computeSize( entry.target ).x - horizontalSpacing * ( colspan - 1 );
@@ -215,7 +219,7 @@ class GridIterator implements PrintIterator {
             int extraWidth = minimumWidth - currentWidth;
 
             int[] indices = getExpandableColumnIndices( columnIndex, colspan );
-            int totalWidth = ArrayUtil.sumByIndex( colSizes, indices );
+            int totalWidth = PaperClipsUtil.sumByIndex( colSizes, indices );
 
             if ( totalWidth == 0 )
               resizeColumnsEqually( colSizes, extraWidth, indices );
@@ -375,7 +379,7 @@ class GridIterator implements PrintIterator {
   private Point computeSize( PrintSizeStrategy strategy, int[] colSizes ) {
     final GridMargins margins = look.getMargins();
 
-    int width = computeMarginWidth() + ArrayUtil.sum( colSizes );
+    int width = computeMarginWidth() + PaperClipsUtil.sum( colSizes );
     int height = 0;
 
     // This algorithm is not strictly accurate but probably good enough. The header and footer row heights
@@ -475,7 +479,7 @@ class GridIterator implements PrintIterator {
     Condition[] conditions = getShrinkableColumnConditions();
     for ( int i = 0; i < conditions.length; i++ ) {
       int[] indices = findColumns( conditions[i] );
-      if ( ArrayUtil.sumByIndex( minimumColSizes, indices ) >= extraWidth )
+      if ( PaperClipsUtil.sumByIndex( minimumColSizes, indices ) >= extraWidth )
         return indices;
     }
 
@@ -490,8 +494,8 @@ class GridIterator implements PrintIterator {
   }
 
   private int[] computeColumnWidths( int width ) {
-    int minimumWidth = ArrayUtil.sum( minimumColSizes );
-    int preferredWidth = ArrayUtil.sum( preferredColSizes );
+    int minimumWidth = PaperClipsUtil.sum( minimumColSizes );
+    int preferredWidth = PaperClipsUtil.sum( preferredColSizes );
 
     if ( width < minimumWidth )
       return reduceMinimumColumnWidths( minimumWidth - width );
@@ -516,7 +520,7 @@ class GridIterator implements PrintIterator {
     for ( int i = 0; i < weightedCols.length; i++ )
       totalWeight += columns[weightedCols[i]].weight;
 
-    int[] colSizes = ArrayUtil.defensiveCopy( preferredColSizes );
+    int[] colSizes = PaperClipsUtil.copy( preferredColSizes );
     for ( int weightedColIndex = 0; weightedColIndex < weightedCols.length; weightedColIndex++ ) {
       int columnIndex = weightedCols[weightedColIndex];
 
@@ -535,8 +539,8 @@ class GridIterator implements PrintIterator {
   }
 
   private int[] expandMinimumColumnWidths( int expansion ) {
-    int difference = ArrayUtil.sum( preferredColSizes ) - ArrayUtil.sum( minimumColSizes );
-    int[] colSizes = ArrayUtil.defensiveCopy( minimumColSizes );
+    int difference = PaperClipsUtil.sum( preferredColSizes ) - PaperClipsUtil.sum( minimumColSizes );
+    int[] colSizes = PaperClipsUtil.copy( minimumColSizes );
     for ( int i = 0; i < columns.length && difference != 0 && expansion != 0; i++ ) {
       int columnDifference = preferredColSizes[i] - minimumColSizes[i];
 
@@ -558,10 +562,10 @@ class GridIterator implements PrintIterator {
   }
 
   private int[] reduceMinimumColumnWidths( int reduction ) {
-    int[] colSizes = ArrayUtil.defensiveCopy( minimumColSizes );
+    int[] colSizes = PaperClipsUtil.copy( minimumColSizes );
 
     int[] shrinkableCols = findShrinkableColumns( reduction );
-    int shrinkableWidth = ArrayUtil.sumByIndex( colSizes, shrinkableCols );
+    int shrinkableWidth = PaperClipsUtil.sumByIndex( colSizes, shrinkableCols );
 
     for ( int i = 0; i < shrinkableCols.length && shrinkableWidth != 0 && reduction != 0; i++ ) {
       int col = shrinkableCols[i];
@@ -625,7 +629,7 @@ class GridIterator implements PrintIterator {
     int col = 0;
     for ( int cellIndex = 0; cellIndex < cells.length; cellIndex++ ) {
       int colspan = cells[cellIndex].colspan;
-      result[cellIndex] = ( colspan - 1 ) * horzSpacing + ArrayUtil.sum( columnWidths, col, colspan );
+      result[cellIndex] = ( colspan - 1 ) * horzSpacing + PaperClipsUtil.sum( columnWidths, col, colspan );
       col += colspan;
     }
     return result;
@@ -645,7 +649,7 @@ class GridIterator implements PrintIterator {
       if ( iter.hasNext() && cell.vAlignment != SWT.FILL ) {
         PrintPiece piece = pieces[cellIndex] = PaperClips.next( iter, cellWidth, height );
         if ( ( piece == null ) || ( iter.hasNext() && !bottomOpen ) ) {
-          PrintPieceUtil.dispose( piece, pieces );
+          PaperClipsUtil.dispose( piece, pieces );
           return null;
         }
       }
@@ -676,7 +680,7 @@ class GridIterator implements PrintIterator {
       if ( cell.vAlignment == SWT.FILL ) {
         PrintPiece piece = cellPieces[cellIndex] = PaperClips.next( iter, cellWidths[cellIndex], height );
         if ( piece == null || iter.hasNext() ) {
-          PrintPieceUtil.dispose( piece, cellPieces );
+          PaperClipsUtil.dispose( piece, cellPieces );
           return null;
         }
       }
@@ -780,7 +784,7 @@ class GridIterator implements PrintIterator {
       height -= margins.getFooterBottom();
       footerPiece = nextFooterPiece( colSizes, height, footerHeights, footerColSpans );
       if ( footerPiece == null ) {
-        PrintPieceUtil.dispose( headerPiece );
+        PaperClipsUtil.dispose( headerPiece );
         return null;
       }
       height -= footerPiece.getSize().y;
@@ -802,8 +806,8 @@ class GridIterator implements PrintIterator {
                          firstRow,
                          topOpen,
                          bodyPiece,
-                         ArrayUtil.toPrimitiveIntArray( bodyRows ),
-                         ArrayUtil.toPrimitiveIntIntArray( bodyColSpans ),
+                         PaperClipsUtil.toIntArray( bodyRows ),
+                         PaperClipsUtil.toIntIntArray( bodyColSpans ),
                          bottomOpen,
                          footerPiece,
                          footerHeights,
@@ -853,8 +857,11 @@ class GridIterator implements PrintIterator {
       boolean hasNext = hasNext( row );
 
       if ( rowPiece == null || hasNext ) {
-        PrintPieceUtil.dispose( rowPiece );
-        CompositeUtil.disposeEntries( entries );
+        PaperClipsUtil.dispose( rowPiece );
+        for ( Iterator iter = entries.iterator(); iter.hasNext(); ) {
+          CompositeEntry entry = (CompositeEntry) iter.next();
+          entry.dispose();
+        }
         return null;
       }
 

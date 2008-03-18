@@ -9,8 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A wrapper for prints whose minimum size is too large to fit on one page. The target's content is divided
@@ -36,16 +35,16 @@ public final class BigPrint implements Print {
    * @param target
    */
   public BigPrint( Print target ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.target = target;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     BigPrint that = (BigPrint) obj;
-    return EqualsUtil.areEqual( this.target, that.target );
+    return Util.equal( this.target, that.target );
   }
 
   /**
@@ -70,7 +69,7 @@ class BigIterator implements PrintIterator {
   private int                 yOffset;
 
   BigIterator( Print target, Device device, GC gc ) {
-    NullUtil.notNull( device, gc, target );
+    Util.notNull( device, gc, target );
     this.target = target.iterator( device, gc );
     this.device = device;
     currentPiece = null;
@@ -159,7 +158,7 @@ class BigPiece implements PrintPiece {
   private final Point      offset;
 
   BigPiece( PrintPiece target, Point size, int xOffset, int yOffset ) {
-    NullUtil.notNull( target, size );
+    Util.notNull( target, size );
     this.target = target;
     this.size = new Point( size.x, size.y );
     this.offset = new Point( xOffset, yOffset );

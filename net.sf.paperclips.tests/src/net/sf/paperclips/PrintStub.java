@@ -10,7 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 final class PrintStub implements Print {
   private int id;
@@ -24,7 +24,7 @@ final class PrintStub implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     PrintStub that = (PrintStub) obj;

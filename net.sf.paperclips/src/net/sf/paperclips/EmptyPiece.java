@@ -10,13 +10,13 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 class EmptyPiece implements PrintPiece {
   private final Point size;
 
   EmptyPiece( Point size ) {
-    NullUtil.notNull( size );
+    Util.notNull( size );
     this.size = size;
   }
 

@@ -10,7 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * An abstract PrintIterator class which maintains references to the device and gc arguments passed to
@@ -34,7 +34,7 @@ public abstract class AbstractIterator implements PrintIterator {
    * @param gc a GC used for drawing on the print device.
    */
   protected AbstractIterator( Device device, GC gc ) {
-    NullUtil.notNull( device, gc );
+    Util.notNull( device, gc );
     this.device = device;
     this.gc = gc;
   }

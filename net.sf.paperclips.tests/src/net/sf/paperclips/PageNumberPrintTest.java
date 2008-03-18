@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 public class PageNumberPrintTest extends TestCase {
   public void testConstructor_illegalArguments() {
@@ -65,7 +65,7 @@ public class PageNumberPrintTest extends TestCase {
     }
 
     public boolean equals( Object obj ) {
-      if ( !EqualsUtil.sameClass( this, obj ) )
+      if ( !Util.sameClass( this, obj ) )
         return false;
 
       PageNumberStub that = (PageNumberStub) obj;

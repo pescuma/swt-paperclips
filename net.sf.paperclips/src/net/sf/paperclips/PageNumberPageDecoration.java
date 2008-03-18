@@ -39,12 +39,12 @@ public class PageNumberPageDecoration implements PageDecoration {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     PageNumberPageDecoration that = (PageNumberPageDecoration) obj;
-    return this.align == that.align && EqualsUtil.areEqual( this.fontData, that.fontData )
-        && EqualsUtil.areEqual( this.rgb, that.rgb ) && EqualsUtil.areEqual( this.format, that.format );
+    return this.align == that.align && Util.equal( this.fontData, that.fontData )
+        && Util.equal( this.rgb, that.rgb ) && Util.equal( this.format, that.format );
   }
 
   /**
@@ -60,7 +60,7 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param fontData the new font.
    */
   public void setFontData( FontData fontData ) {
-    NullUtil.notNull( fontData );
+    Util.notNull( fontData );
     this.fontData = fontData;
   }
 
@@ -82,7 +82,7 @@ public class PageNumberPageDecoration implements PageDecoration {
   }
 
   private int checkAlign( int align ) {
-    return BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+    return PaperClipsUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
   }
 
   /**
@@ -98,7 +98,7 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param rgb the new text color.
    */
   public void setRGB( RGB rgb ) {
-    NullUtil.notNull( rgb );
+    Util.notNull( rgb );
     this.rgb = rgb;
   }
 
@@ -115,7 +115,7 @@ public class PageNumberPageDecoration implements PageDecoration {
    * @param format the page number format.
    */
   public void setFormat( PageNumberFormat format ) {
-    NullUtil.notNull( format );
+    Util.notNull( format );
     this.format = format;
   }
 

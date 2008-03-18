@@ -26,11 +26,11 @@ public class SeriesPrint implements Print {
   final List items = new ArrayList();
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     SeriesPrint that = (SeriesPrint) obj;
-    return EqualsUtil.areEqual( this.items, that.items );
+    return Util.equal( this.items, that.items );
   }
 
   /**
@@ -38,7 +38,7 @@ public class SeriesPrint implements Print {
    * @param items the Prints to add
    */
   public void add( Print[] items ) {
-    NullUtil.noNulls( items );
+    Util.noNulls( items );
     for ( int i = 0; i < items.length; i++ )
       this.items.add( items[i] );
   }
@@ -48,7 +48,7 @@ public class SeriesPrint implements Print {
    * @param item the Print to add
    */
   public void add( Print item ) {
-    NullUtil.notNull( item );
+    Util.notNull( item );
     items.add( item );
   }
 

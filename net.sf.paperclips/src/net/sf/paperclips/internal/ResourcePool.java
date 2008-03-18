@@ -1,18 +1,24 @@
 package net.sf.paperclips.internal;
 
-import java.util.*;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import net.sf.paperclips.PaperClips;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * Manages a pool of graphics resources for a graphics device (fonts, colors).
  * @author Matthew Hall
  */
 public class ResourcePool {
-  private static Map devices = new WeakHashMap(); // Map <Device, SharedGraphics>
+  private static Map devices = new WeakHashMap(); // Map <Device, ResourcePool>
 
   /**
    * Returns a SharedGraphics which creates resources on the given device.
@@ -20,7 +26,7 @@ public class ResourcePool {
    * @return a SharedGraphics which creates resources on the given device.
    */
   public synchronized static ResourcePool forDevice( Device device ) {
-    NullUtil.notNull( device );
+    Util.notNull( device );
     notDisposed( device );
 
     ResourcePool sharedGraphics = (ResourcePool) devices.get( device );
@@ -59,7 +65,7 @@ public class ResourcePool {
     Font font = (Font) fonts.get( fontData );
     if ( font == null ) {
       font = new Font( device, fontData );
-      fonts.put( GraphicsUtil.defensiveCopy( fontData ), font );
+      fonts.put( SWTUtil.copy( fontData ), font );
     }
     return font;
   }
@@ -77,7 +83,7 @@ public class ResourcePool {
     Color color = (Color) colors.get( rgb );
     if ( color == null ) {
       color = new Color( device, rgb );
-      colors.put( GraphicsUtil.defensiveCopy( rgb ), color );
+      colors.put( SWTUtil.copy( rgb ), color );
     }
     return color;
   }

@@ -10,7 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A Print which displays nothing but takes up space. Useful for putting blank cells in a GridPrint.
@@ -46,7 +46,7 @@ public class EmptyPrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
     EmptyPrint that = (EmptyPrint) obj;
     return this.width == that.width && this.height == that.height;

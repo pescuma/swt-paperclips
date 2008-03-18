@@ -182,7 +182,7 @@ public final class GridPrint implements Print {
    * @param columns the columns for the new grid.
    */
   public GridPrint( GridColumn[] columns ) {
-    NullUtil.noNulls( columns );
+    Util.noNulls( columns );
 
     this.columns = new ArrayList();
     for ( int i = 0; i < columns.length; i++ )
@@ -230,14 +230,14 @@ public final class GridPrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     GridPrint that = (GridPrint) obj;
-    return EqualsUtil.areEqual( this.look, that.look ) && EqualsUtil.areEqual( this.columns, that.columns )
-        && EqualsUtil.areEqual( this.columnGroups, that.columnGroups )
-        && this.cellClippingEnabled == that.cellClippingEnabled && EqualsUtil.areEqual( this.body, that.body )
-        && EqualsUtil.areEqual( this.header, that.header ) && EqualsUtil.areEqual( this.footer, that.footer );
+    return Util.equal( this.look, that.look ) && Util.equal( this.columns, that.columns )
+        && Util.equal( this.columnGroups, that.columnGroups )
+        && this.cellClippingEnabled == that.cellClippingEnabled && Util.equal( this.body, that.body )
+        && Util.equal( this.header, that.header ) && Util.equal( this.footer, that.footer );
   }
 
   /**
@@ -286,7 +286,7 @@ public final class GridPrint implements Print {
    */
   public void addColumn( int index, GridColumn column ) {
     checkColumnInsert( index );
-    NullUtil.notNull( column );
+    Util.notNull( column );
 
     this.columns.add( index, column );
     adjustForColumnInsert( index, 1 );
@@ -339,7 +339,7 @@ public final class GridPrint implements Print {
    */
   public void addColumns( int index, GridColumn[] columns ) {
     checkColumnInsert( index );
-    NullUtil.noNulls( columns );
+    Util.noNulls( columns );
 
     this.columns.addAll( index, Arrays.asList( columns ) );
 
@@ -404,7 +404,7 @@ public final class GridPrint implements Print {
    * @return GridColumn array with the requested columns.
    */
   private static GridColumn[] parseColumns( String columns ) {
-    NullUtil.notNull( columns );
+    Util.notNull( columns );
     String[] cols = columns.split( "\\s*,\\s*" );
 
     GridColumn[] result = new GridColumn[cols.length];
@@ -888,7 +888,7 @@ public final class GridPrint implements Print {
    * @return the column groups.
    */
   public int[][] getColumnGroups() {
-    return ArrayUtil.defensiveCopy( columnGroups );
+    return PaperClipsUtil.copy( columnGroups );
   }
 
   /**
@@ -912,17 +912,17 @@ public final class GridPrint implements Print {
    */
   public void setColumnGroups( int[][] columnGroups ) {
     checkColumnGroups( columnGroups );
-    this.columnGroups = ArrayUtil.defensiveCopy( columnGroups );
+    this.columnGroups = PaperClipsUtil.copy( columnGroups );
   }
 
   private void checkColumnGroups( int[][] columnGroups ) {
-    NullUtil.notNull( columnGroups );
+    Util.notNull( columnGroups );
     for ( int groupIndex = 0; groupIndex < columnGroups.length; groupIndex++ )
       checkColumnGroup( columnGroups[groupIndex] );
   }
 
   private void checkColumnGroup( int[] columnGroup ) {
-    NullUtil.notNull( columnGroup );
+    Util.notNull( columnGroup );
     for ( int columnInGroupIndex = 0; columnInGroupIndex < columnGroup.length; columnInGroupIndex++ )
       checkColumnIndex( columnGroup[columnInGroupIndex] );
   }
@@ -1014,7 +1014,7 @@ public final class GridPrint implements Print {
    * @param look the new look.
    */
   public void setLook( GridLook look ) {
-    NullUtil.notNull( look );
+    Util.notNull( look );
     this.look = look;
   }
 

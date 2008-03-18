@@ -91,19 +91,19 @@ public class TextPrint implements Print {
    * @param style the style to apply to the text.
    */
   public TextPrint( String text, TextStyle style ) {
-    NullUtil.notNull( text, style );
+    Util.notNull( text, style );
     this.text = text;
     this.style = style;
     this.wordSplitting = true;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     TextPrint that = (TextPrint) obj;
-    return this.wordSplitting == that.wordSplitting && EqualsUtil.areEqual( this.text, that.text )
-        && EqualsUtil.areEqual( this.style, that.style );
+    return this.wordSplitting == that.wordSplitting && Util.equal( this.text, that.text )
+        && Util.equal( this.style, that.style );
   }
 
   /**
@@ -119,7 +119,7 @@ public class TextPrint implements Print {
    * @param text the text to print.
    */
   public void setText( String text ) {
-    NullUtil.notNull( text );
+    Util.notNull( text );
     this.text = text;
   }
 
@@ -136,7 +136,7 @@ public class TextPrint implements Print {
    * @param style the new text style.
    */
   public void setStyle( TextStyle style ) {
-    NullUtil.notNull( style );
+    Util.notNull( style );
     this.style = style;
   }
 

@@ -9,7 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A GridLook which draws a border around grid cells, with configurable background colors for body, header,
@@ -60,17 +60,17 @@ public class DefaultGridLook implements GridLook {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     DefaultGridLook that = (DefaultGridLook) obj;
-    return EqualsUtil.areEqual( this.bodyBackgroundProvider, that.bodyBackgroundProvider )
-        && EqualsUtil.areEqual( this.cellBorder, that.cellBorder )
-        && EqualsUtil.areEqual( this.cellPadding, that.cellPadding )
-        && EqualsUtil.areEqual( this.cellSpacing, that.cellSpacing )
-        && EqualsUtil.areEqual( this.footerBackgroundProvider, that.footerBackgroundProvider )
+    return Util.equal( this.bodyBackgroundProvider, that.bodyBackgroundProvider )
+        && Util.equal( this.cellBorder, that.cellBorder )
+        && Util.equal( this.cellPadding, that.cellPadding )
+        && Util.equal( this.cellSpacing, that.cellSpacing )
+        && Util.equal( this.footerBackgroundProvider, that.footerBackgroundProvider )
         && this.footerGap == that.footerGap
-        && EqualsUtil.areEqual( this.headerBackgroundProvider, that.headerBackgroundProvider )
+        && Util.equal( this.headerBackgroundProvider, that.headerBackgroundProvider )
         && this.headerGap == that.headerGap;
   }
 

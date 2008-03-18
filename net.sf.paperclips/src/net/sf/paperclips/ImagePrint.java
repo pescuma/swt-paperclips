@@ -34,7 +34,7 @@ public class ImagePrint implements Print {
    * @param dpi the DPI that the image will be displayed at.
    */
   public ImagePrint( ImageData imageData, Point dpi ) {
-    NullUtil.notNull( imageData, dpi );
+    Util.notNull( imageData, dpi );
     this.imageData = imageData;
     setDPI( dpi );
   }
@@ -48,12 +48,12 @@ public class ImagePrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     ImagePrint that = (ImagePrint) obj;
-    return EqualsUtil.areEqual( this.dpi, that.dpi ) && EqualsUtil.areEqual( this.size, that.size )
-        && ImageDataUtil.areEqual( this.imageData, that.imageData );
+    return Util.equal( this.dpi, that.dpi ) && Util.equal( this.size, that.size )
+        && SWTUtil.equal( this.imageData, that.imageData );
   }
 
   /**
@@ -62,7 +62,7 @@ public class ImagePrint implements Print {
    */
   public void setSize( Point size ) {
     // The DPI is rounded up, so that the specified width and height will not be exceeded.
-    NullUtil.notNull( size );
+    Util.notNull( size );
     dpi =
         new Point( (int) Math.ceil( imageData.width * 72f / size.x ), (int) Math.ceil( imageData.height * 72f
             / size.y ) );
@@ -91,7 +91,7 @@ public class ImagePrint implements Print {
    * @param dpi the DPI of the image.
    */
   public void setDPI( Point dpi ) {
-    NullUtil.notNull( dpi );
+    Util.notNull( dpi );
     this.dpi = dpi;
     size =
         new Point( (int) Math.ceil( imageData.width * 72 / dpi.x ), (int) Math.ceil( imageData.height * 72
@@ -129,7 +129,7 @@ class ImageIterator implements PrintIterator {
   boolean         hasNext;
 
   ImageIterator( ImagePrint print, Device device ) {
-    NullUtil.notNull( print, device );
+    Util.notNull( print, device );
     this.device = device;
     this.imageData = print.imageData;
     Point dpi = device.getDPI();
@@ -181,7 +181,7 @@ class ImagePiece implements PrintPiece {
   private Image           image;
 
   ImagePiece( Device device, ImageData imageData, Point size ) {
-    NullUtil.notNull( device, imageData, size );
+    Util.notNull( device, imageData, size );
     this.device = device;
     this.imageData = imageData;
     this.size = size;

@@ -7,8 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * Instances of this class represent a prepared print job.
@@ -28,19 +27,19 @@ public class PrintJob {
    * @param document the document to be printed.
    */
   public PrintJob( String name, Print document ) {
-    NullUtil.notNull( name, document );
+    Util.notNull( name, document );
     this.name = name;
     this.document = document;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     PrintJob that = (PrintJob) obj;
-    return this.orientation == that.orientation && EqualsUtil.areEqual( this.name, that.name )
-        && EqualsUtil.areEqual( this.margins, that.margins )
-        && EqualsUtil.areEqual( this.document, that.document );
+    return this.orientation == that.orientation && Util.equal( this.name, that.name )
+        && Util.equal( this.margins, that.margins )
+        && Util.equal( this.document, that.document );
   }
 
   /**
@@ -104,7 +103,7 @@ public class PrintJob {
    * @return this PrintJob (for chaining method calls)
    */
   public PrintJob setMargins( Margins margins ) {
-    NullUtil.notNull( margins );
+    Util.notNull( margins );
     this.margins = margins;
     return this;
   }

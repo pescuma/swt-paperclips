@@ -10,8 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A wrapper print that aligns its target vertically and/or horizontally. An AlignPrint is vertically greedy
@@ -34,18 +33,18 @@ public class AlignPrint implements Print {
    * @param vAlign the vertical alignment. One of SWT.TOP, SWT.CENTER, SWT.BOTTOM, or SWT.DEFAULT.
    */
   public AlignPrint( Print target, int hAlign, int vAlign ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.target = target;
     this.hAlign = checkHAlign( hAlign );
     this.vAlign = checkVAlign( vAlign );
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     AlignPrint that = (AlignPrint) obj;
-    return EqualsUtil.areEqual( this.target, that.target ) && this.hAlign == that.hAlign
+    return Util.equal( this.target, that.target ) && this.hAlign == that.hAlign
         && this.vAlign == that.vAlign;
   }
 

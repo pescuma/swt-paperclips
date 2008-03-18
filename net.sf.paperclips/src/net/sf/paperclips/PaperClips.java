@@ -10,8 +10,8 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.paperclips.internal.NullUtil;
-import net.sf.paperclips.internal.PrintPieceUtil;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.Util;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
@@ -114,7 +114,7 @@ public class PaperClips {
    *         the iterator's contents.
    */
   public static PrintPiece next( PrintIterator iterator, int width, int height ) {
-    NullUtil.notNull( iterator );
+    Util.notNull( iterator );
     if ( width < 0 || height < 0 )
       error( SWT.ERROR_INVALID_ARGUMENT, "PrintPiece size " + width + "x" + height + " not possible" );
     if ( !iterator.hasNext() )
@@ -259,13 +259,13 @@ public class PaperClips {
       }
     }
     finally {
-      PrintPieceUtil.dispose( pages );
+      PaperClipsUtil.dispose( pages );
     }
   }
 
   private static void disposeUnusedPages( PrintPiece[] pages, int startPage, int endPage ) {
-    PrintPieceUtil.dispose( pages, 0, startPage );
-    PrintPieceUtil.dispose( pages, endPage + 1, pages.length );
+    PaperClipsUtil.dispose( pages, 0, startPage );
+    PaperClipsUtil.dispose( pages, endPage + 1, pages.length );
   }
 
   /**
@@ -351,7 +351,7 @@ public class PaperClips {
       PrintPiece page = enumeration.nextPage();
       if ( page == null ) {
         int pageNumber = pages.size() + 1;
-        PrintPieceUtil.dispose( pages );
+        PaperClipsUtil.dispose( pages );
         error( "Unable to layout page " + pageNumber );
       }
       pages.add( page );

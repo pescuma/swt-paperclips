@@ -1,13 +1,18 @@
 package net.sf.paperclips.internal;
 
 import java.util.Arrays;
+import java.util.List;
+
+import net.sf.paperclips.PaperClips;
+
+import org.eclipse.swt.SWT;
 
 /**
- * Utility methods for implementing equals(Object)
+ * General use convenience methods: null checking, equality
  * 
  * @author Matthew Hall
  */
-public class EqualsUtil {
+public class Util {
   /**
    * Returns whether the objects are of the same class.
    * @param left object to test
@@ -28,7 +33,7 @@ public class EqualsUtil {
    * @param right object to test
    * @return whether the arguments are equal.
    */
-  public static boolean areEqual( Object left, Object right ) {
+  public static boolean equal( Object left, Object right ) {
     if ( !sameClass( left, right ) )
       return false;
     if ( left == right )
@@ -54,17 +59,17 @@ public class EqualsUtil {
         if ( componentType == Boolean.TYPE )
           return Arrays.equals( (boolean[]) left, (boolean[]) right );
       }
-      return areEqual( (Object[]) left, (Object[]) right );
+      return equal( (Object[]) left, (Object[]) right );
     }
     return left.equals( right );
   }
 
-  private static boolean areEqual( Object[] left, Object[] right ) {
+  private static boolean equal( Object[] left, Object[] right ) {
     int length = left.length;
     if ( length != right.length )
       return false;
     for ( int i = 0; i < length; i++ )
-      if ( !areEqual( left[i], right[i] ) )
+      if ( !equal( left[i], right[i] ) )
         return false;
     return true;
   }
@@ -75,7 +80,58 @@ public class EqualsUtil {
    * @param right double value to test
    * @return whether the arguments are equal.
    */
-  public static boolean areEqual( double left, double right ) {
+  public static boolean equal( double left, double right ) {
     return Double.doubleToLongBits( left ) == Double.doubleToLongBits( right );
+  }
+
+  /**
+   * Triggers a SWT.ERROR_NULL_ARGUMENT exception if the argument or any of its elements is null.
+   * @param list a list to test for null elements.
+   */
+  public static void noNulls( List list ) {
+    notNull( list );
+    if ( list.contains( null ) )
+      PaperClips.error( SWT.ERROR_NULL_ARGUMENT );
+  }
+
+  /**
+   * Triggers a SWT.ERROR_NULL_ARGUMENT exception if the argument or any of its elements is null.
+   * @param objs an array to test for null elements.
+   */
+  public static void noNulls( Object[] objs ) {
+    notNull( objs );
+    for ( int i = 0; i < objs.length; i++ )
+      notNull( objs[i] );
+  }
+
+  /**
+   * Triggers a SWT.ERROR_NULL_ARGUMENT exception if the argument is null.
+   * @param obj the object to test for null.
+   */
+  public static void notNull( Object obj ) {
+    if ( obj == null )
+      PaperClips.error( SWT.ERROR_NULL_ARGUMENT );
+  }
+
+  /**
+   * Triggers a SWT.ERROR_NULL_ARGUMENT exception if any argument is null.
+   * @param o1 an object to test for null.
+   * @param o2 an object to test for null.
+   */
+  public static void notNull( Object o1, Object o2 ) {
+    notNull( o1 );
+    notNull( o2 );
+  }
+
+  /**
+   * Triggers a SWT.ERROR_NULL_ARGUMENT exception if any argument is null.
+   * @param o1 an object to test for null.
+   * @param o2 an object to test for null.
+   * @param o3 an object to test for null.
+   */
+  public static void notNull( Object o1, Object o2, Object o3 ) {
+    notNull( o1 );
+    notNull( o2 );
+    notNull( o3 );
   }
 }

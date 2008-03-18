@@ -11,7 +11,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 class BorderPiece implements PrintPiece {
   private final PrintPiece    target;
@@ -25,7 +25,7 @@ class BorderPiece implements PrintPiece {
   private final Point         size;
 
   BorderPiece( PrintPiece target, BorderPainter border, boolean topOpen, boolean bottomOpen ) {
-    NullUtil.notNull( target, border );
+    Util.notNull( target, border );
     this.target = target;
     this.border = border;
 

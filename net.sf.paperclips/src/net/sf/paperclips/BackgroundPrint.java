@@ -25,18 +25,18 @@ public class BackgroundPrint implements Print {
    * @param background
    */
   public BackgroundPrint( Print target, RGB background ) {
-    NullUtil.notNull( target, background );
+    Util.notNull( target, background );
     this.target = target;
     this.background = background;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     BackgroundPrint that = (BackgroundPrint) obj;
-    return EqualsUtil.areEqual( this.target, that.target )
-        && EqualsUtil.areEqual( this.background, that.background );
+    return Util.equal( this.target, that.target )
+        && Util.equal( this.background, that.background );
 
   }
 
@@ -61,7 +61,7 @@ public class BackgroundPrint implements Print {
    * @param background the new background color.
    */
   public void setBackground( RGB background ) {
-    NullUtil.notNull( background );
+    Util.notNull( background );
     this.background = background;
   }
 
@@ -76,7 +76,7 @@ class BackgroundIterator implements PrintIterator {
   private final Device        device;
 
   BackgroundIterator( BackgroundPrint print, Device device, GC gc ) {
-    NullUtil.notNull( print, device, gc );
+    Util.notNull( print, device, gc );
     this.device = device;
     this.target = print.target.iterator( device, gc );
     this.background = print.background;
@@ -118,7 +118,7 @@ class BackgroundPiece implements PrintPiece {
   private final RGB        background;
 
   BackgroundPiece( PrintPiece target, RGB background, Device device ) {
-    NullUtil.notNull( target, background, device );
+    Util.notNull( target, background, device );
     this.target = target;
     this.device = device;
     this.background = background;

@@ -54,14 +54,14 @@ public class TextStyle {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     TextStyle that = (TextStyle) obj;
     return this.alignment == that.alignment && this.underline == that.underline
-        && this.strikeout == that.strikeout && EqualsUtil.areEqual( this.fontData, that.fontData )
-        && EqualsUtil.areEqual( this.foreground, that.foreground )
-        && EqualsUtil.areEqual( this.background, that.background );
+        && this.strikeout == that.strikeout && Util.equal( this.fontData, that.fontData )
+        && Util.equal( this.foreground, that.foreground )
+        && Util.equal( this.background, that.background );
   }
 
   /**
@@ -83,7 +83,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the font changed to the argument.
    */
   public TextStyle font( FontData fontData ) {
-    return internalFont( GraphicsUtil.defensiveCopy( fontData ) );
+    return internalFont( SWTUtil.copy( fontData ) );
   }
 
   /**
@@ -126,7 +126,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the foreground changed to the argument.
    */
   public TextStyle foreground( RGB foreground ) {
-    return internalForeground( GraphicsUtil.defensiveCopy( foreground ) );
+    return internalForeground( SWTUtil.copy( foreground ) );
   }
 
   /**
@@ -148,7 +148,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the foreground changed to the color described by the argument.
    */
   public TextStyle foreground( int rgb ) {
-    return internalForeground( GraphicsUtil.deriveRGB( rgb ) );
+    return internalForeground( SWTUtil.deriveRGB( rgb ) );
   }
 
   private TextStyle internalBackground( RGB background ) {
@@ -163,7 +163,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the background changed to the argument.
    */
   public TextStyle background( RGB background ) {
-    return internalBackground( GraphicsUtil.defensiveCopy( background ) );
+    return internalBackground( SWTUtil.copy( background ) );
   }
 
   /**
@@ -185,7 +185,7 @@ public class TextStyle {
    * @return a copy of this TextStyle, with the background changed to the color described by the argument.
    */
   public TextStyle background( int rgb ) {
-    return internalBackground( GraphicsUtil.deriveRGB( rgb ) );
+    return internalBackground( SWTUtil.deriveRGB( rgb ) );
   }
 
   /**
@@ -197,7 +197,7 @@ public class TextStyle {
   public TextStyle align( int alignment ) {
     TextStyle result = new TextStyle( this );
     result.alignment =
-        BitUtil.firstMatch( alignment, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+        PaperClipsUtil.firstMatch( alignment, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
     return result;
   }
 
@@ -244,7 +244,7 @@ public class TextStyle {
    * @return the font applied to the text.
    */
   public FontData getFontData() {
-    return GraphicsUtil.defensiveCopy( fontData );
+    return SWTUtil.copy( fontData );
   }
 
   /**
@@ -253,7 +253,7 @@ public class TextStyle {
    * @return the text foreground color.
    */
   public RGB getForeground() {
-    return GraphicsUtil.defensiveCopy( foreground );
+    return SWTUtil.copy( foreground );
   }
 
   /**
@@ -261,7 +261,7 @@ public class TextStyle {
    * @return the text background color. A null value indicates that the background will be transparent.
    */
   public RGB getBackground() {
-    return GraphicsUtil.defensiveCopy( background );
+    return SWTUtil.copy( background );
   }
 
   /**

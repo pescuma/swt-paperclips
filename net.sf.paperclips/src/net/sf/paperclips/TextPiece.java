@@ -10,8 +10,8 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
 import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
 class TextPiece implements TextPrintPiece {
   private final Point        size;
@@ -22,8 +22,8 @@ class TextPiece implements TextPrintPiece {
   private final ResourcePool resources;
 
   TextPiece( Device device, TextStyle style, String[] text, Point size, int ascent ) {
-    NullUtil.notNull( device, size, style );
-    NullUtil.noNulls( text );
+    Util.notNull( device, size, style );
+    Util.noNulls( text );
     this.size = size;
     this.lines = text;
     this.style = style;

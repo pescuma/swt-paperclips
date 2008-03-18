@@ -10,8 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A decorator print that scales it's target larger or smaller.
@@ -42,7 +41,7 @@ public class ScalePrint implements Print {
    *        preferred size.
    */
   public ScalePrint( Print target, Double scale ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     if ( scale != null && !( scale.doubleValue() > 0 ) )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale " + scale + " must be > 0" );
 
@@ -51,11 +50,11 @@ public class ScalePrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     ScalePrint that = (ScalePrint) obj;
-    return EqualsUtil.areEqual( this.scale, that.scale ) && EqualsUtil.areEqual( this.target, that.target );
+    return Util.equal( this.scale, that.scale ) && Util.equal( this.target, that.target );
   }
 
   /**
@@ -88,7 +87,7 @@ class ScaleIterator implements PrintIterator {
   private final Point         preferredSize;
 
   ScaleIterator( ScalePrint print, Device device, GC gc ) {
-    NullUtil.notNull( print, device, gc );
+    Util.notNull( print, device, gc );
 
     this.device = device;
     this.target = print.target.iterator( device, gc );
@@ -163,7 +162,7 @@ final class ScalePiece implements PrintPiece {
   private Transform        transform;
 
   ScalePiece( Device device, PrintPiece target, double scale, int maxWidth, int maxHeight ) {
-    NullUtil.notNull( device, target );
+    Util.notNull( device, target );
     this.device = device;
     this.target = target;
     this.scale = scale;

@@ -9,8 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A print wrapper which prevents its target from being broken into multiple pieces when printed. If there
@@ -30,16 +29,16 @@ public class NoBreakPrint implements Print {
    * @param target the print to
    */
   public NoBreakPrint( Print target ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.target = target;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     NoBreakPrint that = (NoBreakPrint) obj;
-    return EqualsUtil.areEqual( this.target, that.target );
+    return Util.equal( this.target, that.target );
   }
 
   /**
@@ -59,7 +58,7 @@ class NoBreakIterator implements PrintIterator {
   private PrintIterator target;
 
   NoBreakIterator( PrintIterator target ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.target = target;
   }
 

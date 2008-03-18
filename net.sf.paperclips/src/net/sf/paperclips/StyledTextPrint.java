@@ -28,12 +28,12 @@ public class StyledTextPrint implements Print {
   public StyledTextPrint() {}
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     StyledTextPrint that = (StyledTextPrint) obj;
-    return EqualsUtil.areEqual( this.style, that.style )
-        && EqualsUtil.areEqual( this.elements, that.elements );
+    return Util.equal( this.style, that.style )
+        && Util.equal( this.elements, that.elements );
   }
 
   /**
@@ -42,7 +42,7 @@ public class StyledTextPrint implements Print {
    * @return this StyledTextPrint, for chaining method calls.
    */
   public StyledTextPrint setStyle( TextStyle style ) {
-    NullUtil.notNull( style );
+    Util.notNull( style );
     this.style = style;
     return this;
   }

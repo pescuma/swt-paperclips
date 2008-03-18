@@ -12,7 +12,7 @@ import java.util.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 import net.sf.paperclips.internal.PrintSizeStrategy;
 
 /**
@@ -52,11 +52,11 @@ public class LayerPrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     LayerPrint that = (LayerPrint) obj;
-    return EqualsUtil.areEqual( this.entries, that.entries );
+    return Util.equal( this.entries, that.entries );
   }
 
   /**

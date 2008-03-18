@@ -9,7 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * An abstract PrintPiece class.
@@ -36,7 +36,7 @@ public abstract class AbstractPiece implements PrintPiece {
    * @param size the value to be returned by getSize().
    */
   protected AbstractPiece( Device device, GC gc, Point size ) {
-    NullUtil.notNull( device, gc, size );
+    Util.notNull( device, gc, size );
     this.device = device;
     this.gc = gc;
     this.size = size;

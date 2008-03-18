@@ -10,7 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * An entry in a CompositePiece.
@@ -26,7 +26,7 @@ public class CompositeEntry {
    * @param offset the painting offset within the CompositePrint.
    */
   public CompositeEntry( PrintPiece piece, Point offset ) {
-    NullUtil.notNull( piece, offset );
+    Util.notNull( piece, offset );
     checkOffset( offset );
 
     this.piece = piece;

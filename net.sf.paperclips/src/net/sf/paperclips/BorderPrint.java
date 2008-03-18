@@ -11,8 +11,7 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
 import net.sf.paperclips.decorator.BorderDecorator;
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A decorator that draws a border around the target print.
@@ -29,16 +28,16 @@ public class BorderPrint implements Print {
    * @param border the border which will be drawn around the target.
    */
   public BorderPrint( Print target, Border border ) {
-    NullUtil.notNull( target, border );
+    Util.notNull( target, border );
     this.target = target;
     this.border = border;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
     BorderPrint that = (BorderPrint) obj;
-    return EqualsUtil.areEqual( this.target, that.target ) && EqualsUtil.areEqual( this.border, that.border );
+    return Util.equal( this.target, that.target ) && Util.equal( this.border, that.border );
   }
 
   /**

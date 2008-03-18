@@ -7,7 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * The default PageNumberFormat used by PageNumberPrints.
@@ -21,6 +21,6 @@ public final class DefaultPageNumberFormat implements PageNumberFormat {
   }
 
   public boolean equals( Object obj ) {
-    return EqualsUtil.sameClass( this, obj );
+    return Util.sameClass( this, obj );
   }
 }

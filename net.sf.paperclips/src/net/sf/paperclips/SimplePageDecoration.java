@@ -7,8 +7,7 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A PageDecoration which displays the same decoration on every page (ignoring the page number).
@@ -26,16 +25,16 @@ public class SimplePageDecoration implements PageDecoration {
    * @param print the decoration which will appear on every page.
    */
   public SimplePageDecoration( Print print ) {
-    NullUtil.notNull( print );
+    Util.notNull( print );
     this.print = print;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     SimplePageDecoration that = (SimplePageDecoration) obj;
-    return EqualsUtil.areEqual( this.print, that.print );
+    return Util.equal( this.print, that.print );
   }
 
   public Print createPrint( PageNumber pageNumber ) {

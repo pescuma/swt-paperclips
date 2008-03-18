@@ -22,7 +22,7 @@ public class LayerEntry {
   final int   align;
 
   LayerEntry( Print target, int align ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.target = target;
     this.align = checkAlign( align );
   }
@@ -33,11 +33,11 @@ public class LayerEntry {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     LayerEntry that = (LayerEntry) obj;
-    return this.align == that.align && EqualsUtil.areEqual( this.target, that.target );
+    return this.align == that.align && Util.equal( this.target, that.target );
   }
 
   /**
@@ -57,7 +57,7 @@ public class LayerEntry {
   }
 
   private static int checkAlign( int align ) {
-    return BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+    return PaperClipsUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
   }
 
   LayerEntry copy() {

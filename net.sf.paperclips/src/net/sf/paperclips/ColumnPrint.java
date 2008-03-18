@@ -12,8 +12,7 @@ import java.util.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A wrapper Print which splits its child print into multiple columns.
@@ -50,7 +49,7 @@ public class ColumnPrint implements Print {
    * @param compressed whether the columns on the final page are to be
    */
   public ColumnPrint( Print target, int columns, int spacing, boolean compressed ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     if ( spacing < 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "spacing must be >= 0" );
     if ( columns < 2 )
@@ -63,11 +62,11 @@ public class ColumnPrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     ColumnPrint that = (ColumnPrint) obj;
-    return EqualsUtil.areEqual( this.target, that.target ) && this.columns == that.columns
+    return Util.equal( this.target, that.target ) && this.columns == that.columns
         && this.spacing == that.spacing && this.compressed == that.compressed;
   }
 

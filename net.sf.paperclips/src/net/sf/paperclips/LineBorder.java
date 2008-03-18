@@ -36,12 +36,12 @@ public class LineBorder implements Border {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     LineBorder that = (LineBorder) obj;
     return this.lineWidth == that.lineWidth && this.gapSize == that.gapSize
-        && EqualsUtil.areEqual( this.rgb, that.rgb );
+        && Util.equal( this.rgb, that.rgb );
   }
 
   /**
@@ -110,7 +110,7 @@ class LineBorderPainter extends AbstractBorderPainter {
   private final Point  borderWidth;
 
   LineBorderPainter( LineBorder border, Device device, GC gc ) {
-    NullUtil.notNull( border, device, gc );
+    Util.notNull( border, device, gc );
     this.rgb = border.rgb;
     this.device = device;
 

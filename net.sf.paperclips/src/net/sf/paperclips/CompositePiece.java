@@ -13,7 +13,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A composite PrintPiece for displaying child PrintPieces. This class is especially useful for Print
@@ -65,7 +65,7 @@ public class CompositePiece implements PrintPiece {
    *        increase this size to fit any entries that extend outside the given size.
    */
   public CompositePiece( List entries, Point size ) {
-    NullUtil.noNulls( entries );
+    Util.noNulls( entries );
 
     this.entries = (CompositeEntry[]) entries.toArray( new CompositeEntry[entries.size()] );
     this.size = new Point( size.x, size.y );

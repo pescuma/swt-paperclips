@@ -23,7 +23,7 @@ public class GridCell {
   final int   colspan;
 
   GridCell( int hAlignment, int vAlignment, Print target, int colspan ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.hAlignment = checkHorizontalAlignment( hAlignment );
     this.vAlignment = checkVerticalAlignment( vAlignment );
     this.target = target;
@@ -31,12 +31,12 @@ public class GridCell {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     GridCell that = (GridCell) obj;
     return this.hAlignment == that.hAlignment && this.vAlignment == that.vAlignment
-        && EqualsUtil.areEqual( this.target, that.target ) && this.colspan == that.colspan;
+        && Util.equal( this.target, that.target ) && this.colspan == that.colspan;
   }
 
   /**
@@ -81,7 +81,7 @@ public class GridCell {
 
   private static int checkHorizontalAlignment( int hAlignment ) {
     hAlignment =
-        BitUtil.firstMatch( hAlignment, new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
+        PaperClipsUtil.firstMatch( hAlignment, new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
     if ( hAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
@@ -90,7 +90,7 @@ public class GridCell {
 
   private static int checkVerticalAlignment( int vAlignment ) {
     vAlignment =
-        BitUtil.firstMatch( vAlignment,
+        PaperClipsUtil.firstMatch( vAlignment,
                             new int[] { SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL },
                             0 );
     if ( vAlignment == 0 )

@@ -10,8 +10,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.EqualsUtil;
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A decorator print that rotates it's target by increments of 90 degrees.
@@ -45,17 +44,17 @@ public final class SidewaysPrint implements Print {
    *        multiple of 90.
    */
   public SidewaysPrint( Print target, int angle ) {
-    NullUtil.notNull( target );
+    Util.notNull( target );
     this.target = target;
     this.angle = checkAngle( angle );
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     SidewaysPrint that = (SidewaysPrint) obj;
-    return this.angle == that.angle && EqualsUtil.areEqual( this.target, that.target );
+    return this.angle == that.angle && Util.equal( this.target, that.target );
   }
 
   private static int checkAngle( int angle ) {
@@ -104,7 +103,7 @@ final class SidewaysIterator implements PrintIterator {
   private final Point         preferredSize;
 
   SidewaysIterator( Print target, int angle, Device device, GC gc ) {
-    NullUtil.notNull( target, device, gc );
+    Util.notNull( target, device, gc );
 
     this.device = device;
     this.target = target.iterator( device, gc );

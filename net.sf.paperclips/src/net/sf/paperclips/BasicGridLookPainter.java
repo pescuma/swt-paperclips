@@ -9,7 +9,7 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A abstract GridLookPainter which simplifies implementation of custom GridLooks.
@@ -38,7 +38,7 @@ public abstract class BasicGridLookPainter implements GridLookPainter {
    *        {@link #device} field.
    */
   public BasicGridLookPainter( Device device ) {
-    NullUtil.notNull( device );
+    Util.notNull( device );
     this.device = device;
   }
 

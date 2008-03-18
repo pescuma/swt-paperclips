@@ -122,13 +122,13 @@ public class PagePrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     PagePrint that = (PagePrint) obj;
-    return EqualsUtil.areEqual( this.header, that.header ) && this.headerGap == that.headerGap
-        && EqualsUtil.areEqual( this.body, that.body ) && this.footerGap == that.footerGap
-        && EqualsUtil.areEqual( this.footer, that.footer );
+    return Util.equal( this.header, that.header ) && this.headerGap == that.headerGap
+        && Util.equal( this.body, that.body ) && this.footerGap == that.footerGap
+        && Util.equal( this.footer, that.footer );
   }
 
   /**
@@ -176,7 +176,7 @@ public class PagePrint implements Print {
    * @param body the new page body.
    */
   public void setBody( Print body ) {
-    NullUtil.notNull( body );
+    Util.notNull( body );
     this.body = body;
   }
 
@@ -383,7 +383,7 @@ class PageIterator implements PrintIterator {
       if ( footerPrint != null ) {
         footerPiece = getDecorationPrintPiece( footerPrint, width, availableHeight );
         if ( footerPiece == null ) {
-          PrintPieceUtil.dispose( headerPiece );
+          PaperClipsUtil.dispose( headerPiece );
           return null;
         }
         availableHeight -= ( heightOf( footerPiece ) + footerGap );
@@ -393,7 +393,7 @@ class PageIterator implements PrintIterator {
     // BODY
     PrintPiece bodyPiece = PaperClips.next( body, width, availableHeight );
     if ( bodyPiece == null ) {
-      PrintPieceUtil.dispose( headerPiece, footerPiece );
+      PaperClipsUtil.dispose( headerPiece, footerPiece );
       return null;
     }
 

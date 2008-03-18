@@ -9,7 +9,7 @@ package net.sf.paperclips;
 
 import junit.framework.TestCase;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 public class PagePrintTest extends TestCase {
   public void testEquals() {
@@ -45,7 +45,7 @@ public class PagePrintTest extends TestCase {
 
   static class PageDecorationStub implements PageDecoration {
     public boolean equals( Object obj ) {
-      return EqualsUtil.sameClass( this, obj );
+      return Util.sameClass( this, obj );
     }
 
     public Print createPrint( PageNumber pageNumber ) {

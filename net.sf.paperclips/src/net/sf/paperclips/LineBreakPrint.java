@@ -24,16 +24,16 @@ public class LineBreakPrint implements Print {
    * @param font the font which determines the height of the line break.
    */
   public LineBreakPrint( FontData font ) {
-    NullUtil.notNull( font );
+    Util.notNull( font );
     this.font = font;
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     LineBreakPrint that = (LineBreakPrint) obj;
-    return EqualsUtil.areEqual( this.font, that.font );
+    return Util.equal( this.font, that.font );
   }
 
   public PrintIterator iterator( Device device, GC gc ) {

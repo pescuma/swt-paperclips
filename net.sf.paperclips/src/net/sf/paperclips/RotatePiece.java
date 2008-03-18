@@ -11,7 +11,7 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.NullUtil;
+import net.sf.paperclips.internal.Util;
 
 final class RotatePiece implements PrintPiece {
   private final Device     device;
@@ -23,7 +23,7 @@ final class RotatePiece implements PrintPiece {
   private Transform        transform;
 
   RotatePiece( Device device, PrintPiece target, int angle, Point size ) {
-    NullUtil.notNull( device, target, size );
+    Util.notNull( device, target, size );
     this.device = device;
     this.target = target;
     this.angle = angle;

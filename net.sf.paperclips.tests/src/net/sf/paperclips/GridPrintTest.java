@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
-import net.sf.paperclips.internal.EqualsUtil;
+import net.sf.paperclips.internal.Util;
 
 public class GridPrintTest extends TestCase {
   public void testConstructor_invalidArguments() {
@@ -84,7 +84,7 @@ public class GridPrintTest extends TestCase {
 
   static class GridLookStub implements GridLook {
     public boolean equals( Object obj ) {
-      return EqualsUtil.sameClass( this, obj );
+      return Util.sameClass( this, obj );
     }
 
     public GridLookPainter getPainter( Device device, GC gc ) {

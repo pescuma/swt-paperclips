@@ -79,14 +79,14 @@ public class GridColumn {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
     GridColumn that = (GridColumn) obj;
     return this.size == that.size && this.align == that.align && this.weight == that.weight;
   }
 
   private static int checkAlign( int align ) {
-    align = BitUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT, SWT.DEFAULT }, 0 );
+    align = PaperClipsUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT, SWT.DEFAULT }, 0 );
     if ( align == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
@@ -149,7 +149,7 @@ public class GridColumn {
    * @see #weight
    */
   public static GridColumn parse( String spec ) {
-    NullUtil.notNull( spec );
+    Util.notNull( spec );
 
     String[] matches = spec.split( "\\s*:\\s*" );
     if ( matches.length == 0 )

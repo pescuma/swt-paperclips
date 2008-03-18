@@ -52,12 +52,12 @@ public class LinePrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !EqualsUtil.sameClass( this, obj ) )
+    if ( !Util.sameClass( this, obj ) )
       return false;
 
     LinePrint that = (LinePrint) obj;
-    return this.orientation == that.orientation && EqualsUtil.areEqual( this.thickness, that.thickness )
-        && EqualsUtil.areEqual( this.rgb, that.rgb );
+    return this.orientation == that.orientation && Util.equal( this.thickness, that.thickness )
+        && Util.equal( this.rgb, that.rgb );
   }
 
   /**
@@ -104,7 +104,7 @@ public class LinePrint implements Print {
    * @param foreground the new line color.
    */
   public void setRGB( RGB foreground ) {
-    NullUtil.notNull( foreground );
+    Util.notNull( foreground );
     this.rgb = foreground;
   }
 
