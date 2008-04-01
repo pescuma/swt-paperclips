@@ -461,12 +461,15 @@ class GridIterator implements PrintIterator {
   }
 
   private Condition[] getShrinkableColumnConditions() {
+	  /* Disabled:
+     * new Condition() {
+		 * public boolean satisfiedBy( int col ) {
+		 * // Search first for columns with DEFAULT size.
+		 * return columns[col].size == SWT.DEFAULT;
+		 * }
+		 * },
+     */
     return new Condition[] { new Condition() {
-      public boolean satisfiedBy( int col ) {
-        // Search first for columns with DEFAULT size.
-        return columns[col].size == SWT.DEFAULT;
-      }
-    }, new Condition() {
       public boolean satisfiedBy( int col ) {
         // Search next for columns with DEFAULT or PREFERRED size.
         int size = columns[col].size;
@@ -525,7 +528,6 @@ class GridIterator implements PrintIterator {
       int columnIndex = weightedCols[weightedColIndex];
 
       int columnWeight = columns[columnIndex].weight;
-
       int addWidth = extraWidth * columnWeight / totalWeight;
 
       colSizes[columnIndex] += addWidth;
@@ -797,6 +799,8 @@ class GridIterator implements PrintIterator {
 
     height -= margins.getBodyTop( headerPresent, topOpen );
     final PrintPiece bodyPiece = nextBodyPiece( colSizes, height, bodyRows, bodyColSpans, footerPresent );
+    if ( bodyPiece == null )
+      return null;
     final boolean bottomOpen = rowStarted;
 
     return createResult( colSizes,
@@ -918,6 +922,9 @@ class GridIterator implements PrintIterator {
       y += rowHeight + rowSpacing;
       row++;
     }
+
+    if ( entries.isEmpty() )
+      return null;
 
     return new CompositePiece( entries );
   }
