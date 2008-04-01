@@ -239,7 +239,7 @@ class GridIterator implements PrintIterator {
     for ( int i = 0; i < columnIndices.length && totalWidth != 0 && adjustment != 0; i++ ) {
       int columnIndex = columnIndices[i];
 
-      int addedWidth = adjustment * colSizes[columnIndex] / totalWidth;
+      int addedWidth = (int) ( (long) adjustment * colSizes[columnIndex] / totalWidth );
 
       // Adjust extraWidth and totalCurrentWidth for future iterations.
       totalWidth -= colSizes[columnIndex];
@@ -528,7 +528,7 @@ class GridIterator implements PrintIterator {
       int columnIndex = weightedCols[weightedColIndex];
 
       int columnWeight = columns[columnIndex].weight;
-      int addWidth = extraWidth * columnWeight / totalWeight;
+      int addWidth = (int) ( (long) extraWidth * columnWeight / totalWeight );
 
       colSizes[columnIndex] += addWidth;
 
@@ -546,7 +546,7 @@ class GridIterator implements PrintIterator {
     for ( int i = 0; i < columns.length && difference != 0 && expansion != 0; i++ ) {
       int columnDifference = preferredColSizes[i] - minimumColSizes[i];
 
-      int change = expansion * columnDifference / difference;
+      int change = (int) ( (long) expansion * columnDifference / difference );
 
       colSizes[i] += change;
 
@@ -572,7 +572,7 @@ class GridIterator implements PrintIterator {
     for ( int i = 0; i < shrinkableCols.length && shrinkableWidth != 0 && reduction != 0; i++ ) {
       int col = shrinkableCols[i];
 
-      int columnReduction = colSizes[col] * reduction / shrinkableWidth;
+      int columnReduction = (int) ( (long) colSizes[col] * reduction / shrinkableWidth );
 
       shrinkableWidth -= colSizes[col];
       colSizes[col] -= columnReduction;
