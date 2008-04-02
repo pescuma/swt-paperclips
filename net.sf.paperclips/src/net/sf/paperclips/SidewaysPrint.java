@@ -7,10 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A decorator print that rotates it's target by increments of 90 degrees.
@@ -63,10 +65,10 @@ public final class SidewaysPrint implements Print {
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be a multiple of 90 degrees" );
 
     // Bring angle within the range [0, 360)
-    while ( angle < 0 )
-      angle += 360;
-    while ( angle >= 360 )
-      angle -= 360;
+    if ( angle < 0 )
+    	angle = 360 - (-angle % 360);
+    if ( angle >= 360 )
+      angle = angle % 360;
 
     return angle;
   }
@@ -165,7 +167,7 @@ final class SidewaysIterator implements PrintIterator {
       return null;
 
     Point size = target.getSize();
-    if ( ( angle / 90 ) % 2 == 1 )
+    if ( angle == 90 || angle == 270 )
       size = new Point( size.y, size.x );
 
     return new RotatePiece( device, target, angle, size );
