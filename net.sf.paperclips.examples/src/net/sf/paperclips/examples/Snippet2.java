@@ -8,7 +8,7 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -23,8 +23,8 @@ import net.sf.paperclips.ui.PrintViewer;
  * 
  * @author Matthew
  */
-public class Snippet2 implements Print {
-  private Print createPrint() {
+public class Snippet2 {
+  public static Print createPrint() {
     DefaultGridLook look = new DefaultGridLook();
     look.setCellBorder( new LineBorder() );
     GridPrint grid = new GridPrint( "d, d, d, d", look );
@@ -46,10 +46,6 @@ public class Snippet2 implements Print {
     return new BackgroundPrint( grid, new RGB( 200, 255, 200 ) );
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
   /**
    * Executes the snippet.
    * 
@@ -68,7 +64,7 @@ public class Snippet2 implements Print {
 
     PrintViewer viewer = new PrintViewer( shell, SWT.BORDER );
     viewer.getControl().setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
-    final Print print = new Snippet2();
+    final Print print = createPrint();
     viewer.setPrint( print );
 
     button.addListener( SWT.Selection, new Listener() {

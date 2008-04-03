@@ -8,8 +8,6 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
@@ -22,14 +20,10 @@ import net.sf.paperclips.*;
  * 
  * @author Matthew
  */
-public class AlignPrintExample implements Print {
-  private Print createPrint() {
-    Print print = new TutorialExample2();
+public class AlignPrintExample {
+  public static Print createPrint() {
+    Print print = TutorialExample2.createPrint();
     return new AlignPrint( print, SWT.CENTER, SWT.CENTER );
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 
   /**
@@ -45,6 +39,6 @@ public class AlignPrintExample implements Print {
     shell.dispose();
     display.dispose();
     if ( printerData != null )
-      PaperClips.print( new PrintJob( "AlignPrintExample.java", new AlignPrintExample() ), printerData );
+      PaperClips.print( new PrintJob( "AlignPrintExample.java", createPrint() ), printerData );
   }
 }

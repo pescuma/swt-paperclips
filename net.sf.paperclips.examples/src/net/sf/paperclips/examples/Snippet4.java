@@ -8,8 +8,6 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -24,8 +22,8 @@ import net.sf.paperclips.ui.PrintPreview;
  * 
  * @author Matthew
  */
-public class Snippet4 implements Print {
-  private Print createPrint() {
+public class Snippet4 {
+  public static Print createPrint() {
     // Using "preferred" size columns, to force the document to be wider than the page. In most cases it is
     // recommended to use "d" for "default" columns, which can shrink when needed.
     DefaultGridLook look = new DefaultGridLook();
@@ -43,10 +41,6 @@ public class Snippet4 implements Print {
         grid.add( new TextPrint( "Row " + r + " Col " + c ) );
 
     return new ScalePrint( grid );
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 
   /**
@@ -75,7 +69,7 @@ public class Snippet4 implements Print {
 
     final PrintPreview preview = new PrintPreview( shell, SWT.BORDER );
     preview.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true, 3, 1 ) );
-    final PrintJob job = new PrintJob( "Snippet4.java", new Snippet4() );
+    final PrintJob job = new PrintJob( "Snippet4.java", createPrint() );
     preview.setPrintJob( job );
 
     prevPage.addListener( SWT.Selection, new Listener() {

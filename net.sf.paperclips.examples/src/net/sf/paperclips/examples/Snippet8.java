@@ -7,48 +7,25 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import net.sf.paperclips.DefaultGridLook;
-import net.sf.paperclips.GridPrint;
-import net.sf.paperclips.PageNumber;
-import net.sf.paperclips.PageNumberFormat;
-import net.sf.paperclips.PageNumberPageDecoration;
-import net.sf.paperclips.PagePrint;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.Print;
-import net.sf.paperclips.PrintIterator;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.SimplePageDecoration;
-import net.sf.paperclips.TextPrint;
-import net.sf.paperclips.ui.PrintPreview;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.*;
+import net.sf.paperclips.ui.PrintPreview;
 
 /**
  * Demonstrate use of PrintPreview control.
  * 
  * @author Matthew
  */
-public class Snippet8 implements Print {
-  private Print createPrint() {
+public class Snippet8 {
+  public static Print createPrint() {
     DefaultGridLook look = new DefaultGridLook();
     look.setCellSpacing( 5, 2 );
     GridPrint grid = new GridPrint( "p:g, p:g, p:g, p:g, p:g", look );
@@ -72,10 +49,6 @@ public class Snippet8 implements Print {
     return page;
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
   private static class UI {
     final Display     display;
 
@@ -96,7 +69,7 @@ public class Snippet8 implements Print {
     }
 
     public Shell createShell() {
-      printJob = new PrintJob( "Snippet8.java", new Snippet8() ).setMargins( 108 ); // 1.5"
+      printJob = new PrintJob( "Snippet8.java", createPrint() ).setMargins( 108 ); // 1.5"
 
       shell = new Shell( display );
       shell.setText( "Snippet8.java" );

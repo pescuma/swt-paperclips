@@ -8,21 +8,21 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.*;
 
 import net.sf.paperclips.*;
-import net.sf.paperclips.TextStyle;
 import net.sf.paperclips.ui.PrintPreview;
 
 /**
  * Demonstrates use of the StyledTextPrint class.
  * @author Matthew
  */
-public class StyledTextPrintExample implements Print {
+public class StyledTextPrintExample {
   /**
    * Executes the StyledTextPrint example.
    * 
@@ -36,7 +36,7 @@ public class StyledTextPrintExample implements Print {
     shell.setLayout( new GridLayout() );
     shell.setSize( 600, 800 );
 
-    final PrintJob job = new PrintJob( "StyledTextPrintExample.java", new StyledTextPrintExample() );
+    final PrintJob job = new PrintJob( "StyledTextPrintExample.java", createPrint() );
 
     Composite buttonPanel = new Composite( shell, SWT.NONE );
     buttonPanel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ) );
@@ -85,11 +85,7 @@ public class StyledTextPrintExample implements Print {
     display.dispose();
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
-  private Print createPrint() {
+  public static Print createPrint() {
     StyledTextPrint doc = new StyledTextPrint();
 
     TextStyle normal = new TextStyle().font( "Arial", 14, SWT.NORMAL );
@@ -158,7 +154,8 @@ public class StyledTextPrintExample implements Print {
     return doc;
   }
 
-  private ImagePrint createSampleImage() {
-    return new ImagePrint( new ImageData( getClass().getResourceAsStream( "sp.png" ) ), new Point( 600, 600 ) );
+  private static ImagePrint createSampleImage() {
+    return new ImagePrint( new ImageData( StyledTextPrintExample.class.getResourceAsStream( "sp.png" ) ),
+                           new Point( 600, 600 ) );
   }
 }

@@ -8,8 +8,6 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -24,8 +22,8 @@ import net.sf.paperclips.ui.PrintPreview;
  * 
  * @author Matthew
  */
-public class Snippet3 implements Print {
-  private Print createPrint() {
+public class Snippet3 {
+  public static Print createPrint() {
     // Using "preferred" size columns, to force the document to be wider than
     // the page. In most
     // cases it is recommended to use "d" for "default" columns, which can
@@ -45,10 +43,6 @@ public class Snippet3 implements Print {
 
     // Give entire grid a light green background.
     return new BigPrint( grid );
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 
   /**
@@ -79,7 +73,7 @@ public class Snippet3 implements Print {
     preview.setFitHorizontal( true );
     preview.setFitVertical( true );
     preview.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true, 3, 1 ) );
-    final PrintJob job = new PrintJob( "Snippet3.java", new Snippet3() );
+    final PrintJob job = new PrintJob( "Snippet3.java", createPrint() );
     job.setMargins( 72 );
     preview.setPrintJob( job );
 

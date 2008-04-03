@@ -24,8 +24,8 @@ import net.sf.paperclips.ui.PrintPreview;
  * 
  * @author Matthew
  */
-public class Snippet7 implements Print {
-  private Print createPrint() {
+public class Snippet7 {
+  public static Print createPrint() {
     DefaultGridLook look = new DefaultGridLook();
     look.setCellSpacing( 5, 2 );
     GridPrint grid = new GridPrint( "p:g, d:g", look );
@@ -43,11 +43,7 @@ public class Snippet7 implements Print {
     return page;
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
-  private static class UI {
+  public static class UI {
     final Display     display;
 
     PrintJob          printJob;
@@ -67,7 +63,7 @@ public class Snippet7 implements Print {
     }
 
     public Shell createShell() {
-      printJob = new PrintJob( "Snippet7.java", new Snippet7() ).setMargins( 108 ); // 1.5"
+      printJob = new PrintJob( "Snippet7.java", createPrint() ).setMargins( 108 ); // 1.5"
 
       shell = new Shell( display );
       shell.setText( "Snippet7.java" );
@@ -385,10 +381,9 @@ public class Snippet7 implements Print {
       int pageIndex = preview.getPageIndex();
       int pageCount = preview.getPageCount();
       int visiblePageCount = preview.getHorizontalPageCount() * preview.getVerticalPageCount();
-      String text =
-          ( visiblePageCount > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
-              + Math.min( pageCount, pageIndex + visiblePageCount ) : "Page " + ( pageIndex + 1 ) )
-              + " of " + pageCount;
+      String text = ( visiblePageCount > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
+          + Math.min( pageCount, pageIndex + visiblePageCount ) : "Page " + ( pageIndex + 1 ) )
+          + " of " + pageCount;
       pageNumber.setText( text );
       previousPage.setEnabled( pageIndex > 0 );
       nextPage.setEnabled( pageIndex < pageCount - visiblePageCount );
@@ -401,8 +396,8 @@ public class Snippet7 implements Print {
         forgetScrollingPosition();
       } else if ( scrollingPosition == null ) {
         Point origin = scroll.getOrigin();
-        scrollingPosition =
-            new double[] { (double) origin.x / (double) size.x, (double) origin.y / (double) size.y };
+        scrollingPosition = new double[] {
+          (double) origin.x / (double) size.x, (double) origin.y / (double) size.y };
       }
     }
 

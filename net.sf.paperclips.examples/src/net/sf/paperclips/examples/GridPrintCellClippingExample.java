@@ -50,14 +50,14 @@ public class GridPrintCellClippingExample {
     PaperClips.print( job, new PrinterData() );
   }
 
-  protected static Print createPrint() {
+  public static Print createPrint() {
     GridPrint doc = new GridPrint( "d:g, d:g", new DefaultGridLook( 5, 2 ) );
     doc.add( createGrid( true ) );
     doc.add( createGrid( false ) );
     return doc;
   }
 
-  private static GridPrint createGrid( boolean cellClippingEnabled ) {
+  public static GridPrint createGrid( boolean cellClippingEnabled ) {
     DefaultGridLook look = new DefaultGridLook();
     look.setCellBorder( new LineBorder() );
     GridPrint grid = new GridPrint( "d, d, d, d", look );

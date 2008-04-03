@@ -32,7 +32,7 @@ public class SnippetBenchmarks {
 
   private static void benchmarkSnippet8() {
     final Printer printer = new Printer();
-    final PrintJob job = new PrintJob( "Snippet8", new Snippet8() );
+    final PrintJob job = new PrintJob( "Snippet8", Snippet8.createPrint() );
 
     final GC gc = new GC( printer );
     new Benchmark().setName( "getPageEnumeration" ).setRunCount( 10 ).execute( new Runnable() {
@@ -53,8 +53,9 @@ public class SnippetBenchmarks {
 
   static void benchmarkSnippets() {
     String[] names = { "Snippet2", "Snippet3", "Snippet4", "Snippet5", "Snippet6", "Snippet7" };
-    Print[] documents =
-        { new Snippet2(), new Snippet3(), new Snippet4(), new Snippet5(), new Snippet6(), new Snippet7() };
+    Print[] documents = {
+      Snippet2.createPrint(), Snippet3.createPrint(), Snippet4.createPrint(), Snippet5.createPrint(),
+      Snippet6.createPrint(), Snippet7.createPrint() };
     final Printer printer = new Printer();
     final int RUN_COUNT = 100;
 

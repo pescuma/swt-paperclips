@@ -10,7 +10,7 @@ package net.sf.paperclips.examples;
 import java.util.Calendar;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -25,8 +25,8 @@ import net.sf.paperclips.ui.PrintViewer;
  * 
  * @author Matthew
  */
-public class Snippet6 implements Print {
-  private Print createPrint() {
+public class Snippet6 {
+  public static Print createPrint() {
     DefaultGridLook look = new DefaultGridLook();
     look.setCellBorder( new LineBorder() );
     look.setHeaderBackground( new RGB( 200, 200, 200 ) );
@@ -76,10 +76,6 @@ public class Snippet6 implements Print {
     return page;
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
   /**
    * Executes the snippet.
    * 
@@ -98,7 +94,7 @@ public class Snippet6 implements Print {
 
     PrintViewer viewer = new PrintViewer( shell, SWT.BORDER );
     viewer.getControl().setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
-    final Print print = new Snippet6();
+    final Print print = createPrint();
     viewer.setPrint( print );
 
     button.addListener( SWT.Selection, new Listener() {

@@ -8,8 +8,6 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
@@ -23,7 +21,7 @@ import net.sf.paperclips.ui.PrintViewer;
  * 
  * @author Matthew
  */
-public class ColumnPrintExample implements Print {
+public class ColumnPrintExample {
   /**
    * Executes the ColumnPrint example.
    * 
@@ -37,7 +35,7 @@ public class ColumnPrintExample implements Print {
     shell.setSize( 600, 600 );
 
     final PrintViewer preview = new PrintViewer( shell, SWT.BORDER );
-    preview.setPrint( new ColumnPrintExample() );
+    preview.setPrint( createPrint() );
 
     shell.open();
 
@@ -45,10 +43,10 @@ public class ColumnPrintExample implements Print {
       if ( !display.readAndDispatch() )
         display.sleep();
 
-    PaperClips.print( new PrintJob( "ColumnPrintExample.java", new ColumnPrintExample() ), new PrinterData() );
+    PaperClips.print( new PrintJob( "ColumnPrintExample.java", createPrint() ), new PrinterData() );
   }
 
-  protected Print createPrint() {
+  public static Print createPrint() {
     StringBuffer buf = new StringBuffer( 11000 );
     for ( int i = 1; i <= 500; i++ ) {
       buf.append( "This is sentence #" ).append( i ).append( ".  " );
@@ -57,9 +55,5 @@ public class ColumnPrintExample implements Print {
     }
 
     return new ColumnPrint( new BorderPrint( new TextPrint( buf.toString() ), new LineBorder() ), 3, 18 );
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 }

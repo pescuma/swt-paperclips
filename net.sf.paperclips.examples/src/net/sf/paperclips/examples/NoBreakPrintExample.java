@@ -7,8 +7,6 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.examples;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 
@@ -20,8 +18,8 @@ import net.sf.paperclips.*;
  * 
  * @author Matthew
  */
-public class NoBreakPrintExample implements Print {
-  protected Print createPrint() {
+public class NoBreakPrintExample {
+  public static Print createPrint() {
     DefaultGridLook look = new DefaultGridLook( 10, 10 );
     look.setCellBorder( new LineBorder() );
     GridPrint grid = new GridPrint( "d:g", look );
@@ -43,10 +41,6 @@ public class NoBreakPrintExample implements Print {
     return new ColumnPrint( grid, 2, 10 );
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
   /**
    * Prints the NoBreakPrintExample to the default printer.
    * 
@@ -56,7 +50,6 @@ public class NoBreakPrintExample implements Print {
     // Workaround for SWT bug on GTK - force SWT to initialize so we don't crash.
     Display.getDefault();
 
-    PaperClips.print( new PrintJob( "NoBreakPrintExample.java", new NoBreakPrintExample() ),
-                      new PrinterData() );
+    PaperClips.print( new PrintJob( "NoBreakPrintExample.java", createPrint() ), new PrinterData() );
   }
 }

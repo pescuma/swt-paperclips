@@ -8,8 +8,6 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
@@ -20,8 +18,8 @@ import net.sf.paperclips.*;
 /**
  * First example in the PaperClips online tutorial.
  */
-public class TutorialExample2 implements Print {
-  private static Print createPrint() {
+public class TutorialExample2 {
+  public static Print createPrint() {
     // Create a grid with the following columns:
     // Column 1: preferred width
     // Column 2: preferred width, grows to fill excess width
@@ -48,10 +46,6 @@ public class TutorialExample2 implements Print {
     grid.add( new LinePrint( SWT.HORIZONTAL ), GridPrint.REMAINDER );
 
     return grid;
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 
   /**

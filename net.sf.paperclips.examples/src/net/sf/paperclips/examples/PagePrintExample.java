@@ -8,7 +8,7 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.*;
@@ -21,7 +21,7 @@ import net.sf.paperclips.ui.PrintPreview;
  * 
  * @author Matthew
  */
-public class PagePrintExample implements Print {
+public class PagePrintExample {
   /**
    * Executes the GridPrint example.
    * 
@@ -35,7 +35,7 @@ public class PagePrintExample implements Print {
     shell.setLayout( new GridLayout() );
     shell.setSize( 600, 800 );
 
-    final PrintJob job = new PrintJob( "PagePrintExample.java", new PagePrintExample() );
+    final PrintJob job = new PrintJob( "PagePrintExample.java", createPrint() );
 
     Composite buttonPanel = new Composite( shell, SWT.NONE );
     buttonPanel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ) );
@@ -81,7 +81,7 @@ public class PagePrintExample implements Print {
     display.dispose();
   }
 
-  protected Print createPrint() {
+  public static Print createPrint() {
     PageDecoration header = createHeader();
     Print body = createBody();
     PageDecoration footer = createFooter();
@@ -93,7 +93,7 @@ public class PagePrintExample implements Print {
     return page;
   }
 
-  private PageDecoration createHeader() {
+  public static PageDecoration createHeader() {
     PageDecoration header = new PageDecoration() {
       public Print createPrint( PageNumber pageNumber ) {
         // Only show a header on the first page
@@ -110,7 +110,7 @@ public class PagePrintExample implements Print {
     return header;
   }
 
-  private PageDecoration createFooter() {
+  public static PageDecoration createFooter() {
     PageDecoration footer = new PageDecoration() {
       public Print createPrint( PageNumber pageNumber ) {
         GridPrint grid = new GridPrint( "d:g, r:d" );
@@ -122,7 +122,7 @@ public class PagePrintExample implements Print {
     return footer;
   }
 
-  private Print createBody() {
+  public static Print createBody() {
     GridPrint grid = new GridPrint();
 
     final int ROWS = 200;
@@ -137,9 +137,5 @@ public class PagePrintExample implements Print {
         grid.add( new TextPrint( "Cell (" + c + ", " + r + ")" ) );
 
     return grid;
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 }

@@ -8,7 +8,8 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -23,22 +24,8 @@ import net.sf.paperclips.*;
  * 
  * @author Matthew
  */
-public class Snippet1 implements Print {
-  private final Table table;
-
-  /**
-   * Constructs a Snippet1.
-   * 
-   * @param table the table whose contents should be printed.
-   */
-  public Snippet1( Table table ) {
-    if ( table == null )
-      PaperClips.error( SWT.ERROR_NULL_ARGUMENT );
-
-    this.table = table;
-  }
-
-  private Print createPrint() {
+public class Snippet1 {
+  public static Print createPrint( Table table ) {
     // Create GridPrint with all columns at default size.
 
     DefaultGridLook look = new DefaultGridLook();
@@ -74,7 +61,7 @@ public class Snippet1 implements Print {
     return grid;
   }
 
-  private Print createCell( Image image, String text, int align ) {
+  public static Print createCell( Image image, String text, int align ) {
     if ( image == null )
       return new TextPrint( text, align );
 
@@ -82,10 +69,6 @@ public class Snippet1 implements Print {
     grid.add( new ImagePrint( image.getImageData(), image.getDevice().getDPI() ) );
     grid.add( new TextPrint( text, align ) );
     return grid;
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 
   /**
@@ -127,7 +110,7 @@ public class Snippet1 implements Print {
         PrintDialog dialog = new PrintDialog( shell, SWT.NONE );
         PrinterData printerData = dialog.open();
         if ( printerData != null ) {
-          Print print = new Snippet1( table );
+          Print print = createPrint( table );
           PaperClips.print( new PrintJob( "Snippet1.java", print ).setMargins( 72 ), printerData );
         }
       }

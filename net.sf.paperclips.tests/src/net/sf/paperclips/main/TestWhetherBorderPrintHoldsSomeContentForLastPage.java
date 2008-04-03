@@ -7,8 +7,6 @@
  ***********************************************************************************************************/
 package net.sf.paperclips.main;
 
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 
@@ -20,8 +18,8 @@ import net.sf.paperclips.*;
  * 
  * @author Matthew
  */
-public class TestWhetherBorderPrintHoldsSomeContentForLastPage implements Print {
-  protected Print createPrint() {
+public class TestWhetherBorderPrintHoldsSomeContentForLastPage {
+  public static Print createPrint() {
     GridPrint grid = new GridPrint( "d:g", new DefaultGridLook( 10, 10 ) );
 
     String text = "The quick brown fox jumps over the lazy dog.";
@@ -35,10 +33,6 @@ public class TestWhetherBorderPrintHoldsSomeContentForLastPage implements Print 
     return new ColumnPrint( grid, 2, 10 );
   }
 
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
-  }
-
   /**
    * Prints the BreakPrintExample to the default printer.
    * 
@@ -48,8 +42,6 @@ public class TestWhetherBorderPrintHoldsSomeContentForLastPage implements Print 
     // Workaround for SWT bug on GTK - force SWT to initialize so we don't crash.
     Display.getDefault();
 
-    PaperClips.print( new PrintJob( "BreakPrintExample.java",
-                                    new TestWhetherBorderPrintHoldsSomeContentForLastPage() ),
-                      new PrinterData() );
+    PaperClips.print( new PrintJob( "BreakPrintExample.java", createPrint() ), new PrinterData() );
   }
 }

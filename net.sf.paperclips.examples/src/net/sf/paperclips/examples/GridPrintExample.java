@@ -8,7 +8,8 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
@@ -22,7 +23,7 @@ import net.sf.paperclips.ui.PrintViewer;
  * 
  * @author Matthew
  */
-public class GridPrintExample implements Print {
+public class GridPrintExample {
   /**
    * Executes the GridPrint example.
    * 
@@ -36,7 +37,7 @@ public class GridPrintExample implements Print {
     shell.setSize( 600, 600 );
 
     final PrintViewer preview = new PrintViewer( shell, SWT.BORDER );
-    preview.setPrint( new GridPrintExample() );
+    preview.setPrint( createPrint() );
 
     shell.open();
 
@@ -44,10 +45,10 @@ public class GridPrintExample implements Print {
       if ( !display.readAndDispatch() )
         display.sleep();
 
-    PaperClips.print( new PrintJob( "GridPrintExample", new GridPrintExample() ), new PrinterData() );
+    PaperClips.print( new PrintJob( "GridPrintExample", createPrint() ), new PrinterData() );
   }
 
-  protected Print createPrint() {
+  public static Print createPrint() {
     GridPrint grid = new GridPrint( "r:72, p, d, r:d:g(3), r:d:g", new DefaultGridLook( 5, 5 ) );
 
     ImageData imageData = new ImageData( GridPrintExample.class.getResourceAsStream( "logo.png" ) );
@@ -76,9 +77,5 @@ public class GridPrintExample implements Print {
     grid.add( SWT.LEFT, child, GridPrint.REMAINDER );
 
     return grid;
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 }

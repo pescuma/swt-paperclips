@@ -8,7 +8,7 @@
 package net.sf.paperclips.examples;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.*;
@@ -21,7 +21,7 @@ import net.sf.paperclips.ui.PrintPreview;
  * 
  * @author Matthew
  */
-public class GridPrintVerticalAlignmentExample implements Print {
+public class GridPrintVerticalAlignmentExample {
   /**
    * Executes the GridPrint example.
    * 
@@ -35,8 +35,7 @@ public class GridPrintVerticalAlignmentExample implements Print {
     shell.setLayout( new GridLayout() );
     shell.setSize( 600, 800 );
 
-    final PrintJob job = new PrintJob( "GridPrintVerticalAlignmentExample.java",
-                                       new GridPrintVerticalAlignmentExample() );
+    final PrintJob job = new PrintJob( "GridPrintVerticalAlignmentExample.java", createPrint() );
 
     Composite buttonPanel = new Composite( shell, SWT.NONE );
     buttonPanel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ) );
@@ -82,7 +81,7 @@ public class GridPrintVerticalAlignmentExample implements Print {
     display.dispose();
   }
 
-  protected Print createPrint() {
+  public static Print createPrint() {
     DefaultGridLook look = new DefaultGridLook( 5, 5 );
     look.setHeaderGap( 5 );
     GridPrint grid = new GridPrint( "d:g, d, d:g, d, d:g, d, d:g", look );
@@ -122,9 +121,5 @@ public class GridPrintVerticalAlignmentExample implements Print {
     grid.add( SWT.RIGHT, SWT.FILL, verticalRule );
 
     return grid;
-  }
-
-  public PrintIterator iterator( Device device, GC gc ) {
-    return createPrint().iterator( device, gc );
   }
 }
