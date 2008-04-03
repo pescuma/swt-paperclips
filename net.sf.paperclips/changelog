@@ -1,3 +1,22 @@
+Version 1.0.3
+* Bugs fixed:
+  * Fixed integer overflow error in GridPrint which sometimes caused printing
+    of very long strings to fail.
+  * Fixed column size distribution in GridPrint when paper space is scarce.
+* New Features
+  * PrintPreview now supports lazy layout of print jobs.  This can be used to
+    speed up previews of very large print jobs. 
+* Changes:
+  * Implement equals() and hashCode() in all Print objects.
+  * Performance tuning in text and grid layouts
+* Known issues:
+  * PrintPreview issues a page feed whenever a PrintPreview control is
+    disposed or changes printers.  This is due to missing API in GTK for
+    cancelling a print job.
+* Example snippets:
+  * Snippets no longer implement Print.  This was an unnecessary detail and
+    tends to confuse newcomers.
+
 Version 1.0.2
 * Bugs fixed:
   * Clipping problems on Mac OS X.
