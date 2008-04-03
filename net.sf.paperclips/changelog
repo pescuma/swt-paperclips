@@ -9,13 +9,12 @@ Version 1.0.3
 * Changes:
   * Implement equals() and hashCode() in all Print objects.
   * Performance tuning in text and grid layouts
+  * Snippets no longer implement Print.  This was an unnecessary detail and
+    tends to confuse newcomers.
 * Known issues:
   * PrintPreview issues a page feed whenever a PrintPreview control is
     disposed or changes printers.  This is due to missing API in GTK for
     cancelling a print job.
-* Example snippets:
-  * Snippets no longer implement Print.  This was an unnecessary detail and
-    tends to confuse newcomers.
 
 Version 1.0.2
 * Bugs fixed:

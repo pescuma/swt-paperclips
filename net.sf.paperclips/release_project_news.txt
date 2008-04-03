@@ -9,10 +9,9 @@ Updates in this release:
 * Changes:
   * Implement equals() and hashCode() in all Print objects.
   * Performance tuning in text and grid layouts
-* Known issues:
-  * PrintPreview issues a page feed whenever a PrintPreview control is disposed or changes printers.  This is due to missing API in GTK for cancelling a print job.
-* Example snippets:
   * Snippet no longer implement Print.  This was an unnecessary detail and tends to confuse newcomers.
+* Known issues:
+  * Linux: PrintPreview issues a page feed whenever a PrintPreview control is disposed or changes printers.  This is due to missing API in GTK for cancelling a print job.
 
 PaperClips is a simple, light weight, extensible printing library for SWT.  PaperClips hides the complexity of laying out and rendering documents on the printer, helping you to focus on what to print instead of how to print it.
 
