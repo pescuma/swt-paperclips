@@ -82,15 +82,48 @@ public class PageNumberPrint implements Print {
     setPageNumberFormat( new DefaultPageNumberFormat() );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + align;
+    result = prime * result + ( ( fontData == null ) ? 0 : fontData.hashCode() );
+    result = prime * result + ( ( format == null ) ? 0 : format.hashCode() );
+    result = prime * result + ( ( pageNumber == null ) ? 0 : pageNumber.hashCode() );
+    result = prime * result + ( ( rgb == null ) ? 0 : rgb.hashCode() );
+    return result;
+  }
 
-    PageNumberPrint that = (PageNumberPrint) obj;
-    return this.align == that.align && Util.equal( this.fontData, that.fontData )
-        && Util.equal( this.format, that.format )
-        && Util.equal( this.pageNumber, that.pageNumber )
-        && Util.equal( this.rgb, that.rgb );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    PageNumberPrint other = (PageNumberPrint) obj;
+    if ( align != other.align )
+      return false;
+    if ( fontData == null ) {
+      if ( other.fontData != null )
+        return false;
+    } else if ( !fontData.equals( other.fontData ) )
+      return false;
+    if ( format == null ) {
+      if ( other.format != null )
+        return false;
+    } else if ( !format.equals( other.format ) )
+      return false;
+    if ( pageNumber == null ) {
+      if ( other.pageNumber != null )
+        return false;
+    } else if ( !pageNumber.equals( other.pageNumber ) )
+      return false;
+    if ( rgb == null ) {
+      if ( other.rgb != null )
+        return false;
+    } else if ( !rgb.equals( other.rgb ) )
+      return false;
+    return true;
   }
 
   /**

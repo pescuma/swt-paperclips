@@ -11,7 +11,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * Instances in this class represent an entry in a LayerPrint.
@@ -32,12 +33,30 @@ public class LayerEntry {
     this.align = that.align;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + align;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
 
-    LayerEntry that = (LayerEntry) obj;
-    return this.align == that.align && Util.equal( this.target, that.target );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    LayerEntry other = (LayerEntry) obj;
+    if ( align != other.align )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**

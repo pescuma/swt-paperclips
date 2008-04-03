@@ -10,7 +10,8 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * Instances of this class represent a single cell in a GridPrint.
@@ -30,13 +31,36 @@ public class GridCell {
     this.colspan = checkColspan( colspan );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + colspan;
+    result = prime * result + hAlignment;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    result = prime * result + vAlignment;
+    return result;
+  }
 
-    GridCell that = (GridCell) obj;
-    return this.hAlignment == that.hAlignment && this.vAlignment == that.vAlignment
-        && Util.equal( this.target, that.target ) && this.colspan == that.colspan;
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    GridCell other = (GridCell) obj;
+    if ( colspan != other.colspan )
+      return false;
+    if ( hAlignment != other.hAlignment )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    if ( vAlignment != other.vAlignment )
+      return false;
+    return true;
   }
 
   /**
@@ -80,8 +104,8 @@ public class GridCell {
   }
 
   private static int checkHorizontalAlignment( int hAlignment ) {
-    hAlignment =
-        PaperClipsUtil.firstMatch( hAlignment, new int[] { SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
+    hAlignment = PaperClipsUtil.firstMatch( hAlignment, new int[] {
+      SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
     if ( hAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
@@ -89,10 +113,8 @@ public class GridCell {
   }
 
   private static int checkVerticalAlignment( int vAlignment ) {
-    vAlignment =
-        PaperClipsUtil.firstMatch( vAlignment,
-                            new int[] { SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL },
-                            0 );
+    vAlignment = PaperClipsUtil.firstMatch( vAlignment, new int[] {
+      SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL }, 0 );
     if ( vAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
                         "Alignment argument must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or "

@@ -23,4 +23,8 @@ public final class DefaultPageNumberFormat implements PageNumberFormat {
   public boolean equals( Object obj ) {
     return Util.sameClass( this, obj );
   }
+
+  public int hashCode() {
+    return 47 * 41;
+  }
 }

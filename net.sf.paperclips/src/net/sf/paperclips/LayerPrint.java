@@ -12,7 +12,6 @@ import java.util.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.Util;
 import net.sf.paperclips.internal.PrintSizeStrategy;
 
 /**
@@ -51,12 +50,27 @@ public class LayerPrint implements Print {
     entries.add( new LayerEntry( print, align ) );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( entries == null ) ? 0 : entries.hashCode() );
+    return result;
+  }
 
-    LayerPrint that = (LayerPrint) obj;
-    return Util.equal( this.entries, that.entries );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    LayerPrint other = (LayerPrint) obj;
+    if ( entries == null ) {
+      if ( other.entries != null )
+        return false;
+    } else if ( !entries.equals( other.entries ) )
+      return false;
+    return true;
   }
 
   /**

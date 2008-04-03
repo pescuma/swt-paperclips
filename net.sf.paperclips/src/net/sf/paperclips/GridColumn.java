@@ -12,7 +12,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * Describes the properties of a column in a GridPrint.
@@ -78,11 +79,30 @@ public class GridColumn {
     this.weight = checkWeight( weight );
   }
 
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + align;
+    result = prime * result + size;
+    result = prime * result + weight;
+    return result;
+  }
+
   public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
+    if ( this == obj )
+      return true;
+    if ( obj == null )
       return false;
-    GridColumn that = (GridColumn) obj;
-    return this.size == that.size && this.align == that.align && this.weight == that.weight;
+    if ( getClass() != obj.getClass() )
+      return false;
+    GridColumn other = (GridColumn) obj;
+    if ( align != other.align )
+      return false;
+    if ( size != other.size )
+      return false;
+    if ( weight != other.weight )
+      return false;
+    return true;
   }
 
   private static int checkAlign( int align ) {
@@ -185,17 +205,13 @@ public class GridColumn {
   // Alignment patterns
   private static final Pattern LEFT_ALIGN_PATTERN   = Pattern.compile( "^l(eft)?$", Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern CENTER_ALIGN_PATTERN =
-                                                        Pattern.compile( "^c(enter)?$",
-                                                                         Pattern.CASE_INSENSITIVE );
+  private static final Pattern CENTER_ALIGN_PATTERN = Pattern.compile( "^c(enter)?$",
+                                                                       Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern RIGHT_ALIGN_PATTERN  =
-                                                        Pattern.compile( "^r(ight)?$",
-                                                                         Pattern.CASE_INSENSITIVE );
+  private static final Pattern RIGHT_ALIGN_PATTERN  = Pattern.compile( "^r(ight)?$", Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern ANY_ALIGN_PATTERN    =
-                                                        Pattern.compile( "^l(eft)?|c(enter)?|r(ight)?$",
-                                                                         Pattern.CASE_INSENSITIVE );
+  private static final Pattern ANY_ALIGN_PATTERN    = Pattern.compile( "^l(eft)?|c(enter)?|r(ight)?$",
+                                                                       Pattern.CASE_INSENSITIVE );
 
   private static boolean isAlign( String alignmentString ) {
     return ANY_ALIGN_PATTERN.matcher( alignmentString ).matches();
@@ -213,17 +229,14 @@ public class GridColumn {
   }
 
   // Size patterns.
-  private static final Pattern DEFAULT_SIZE_PATTERN   =
-                                                          Pattern.compile( "^d(ef(ault)?)?$",
-                                                                           Pattern.CASE_INSENSITIVE );
+  private static final Pattern DEFAULT_SIZE_PATTERN   = Pattern.compile( "^d(ef(ault)?)?$",
+                                                                         Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern PREFERRED_SIZE_PATTERN =
-                                                          Pattern.compile( "^p(ref(erred)?)?",
-                                                                           Pattern.CASE_INSENSITIVE );
+  private static final Pattern PREFERRED_SIZE_PATTERN = Pattern.compile( "^p(ref(erred)?)?",
+                                                                         Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern EXPLICIT_SIZE_PATTERN  =
-                                                          Pattern.compile( "^(\\d+(\\.d+)?)\\s*(pt|in(ch)?|mm|cm)?$",
-                                                                           Pattern.CASE_INSENSITIVE );
+  private static final Pattern EXPLICIT_SIZE_PATTERN  = Pattern.compile( "^(\\d+(\\.d+)?)\\s*(pt|in(ch)?|mm|cm)?$",
+                                                                         Pattern.CASE_INSENSITIVE );
 
   private static int parseSize( String sizeString ) {
     Matcher matcher;

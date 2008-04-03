@@ -9,7 +9,8 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A decorator that paints a background color behind it's target.
@@ -30,14 +31,33 @@ public class BackgroundPrint implements Print {
     this.background = background;
   }
 
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( background == null ) ? 0 : background.hashCode() );
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
+
   public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
+    if ( this == obj )
+      return true;
+    if ( obj == null )
       return false;
-
-    BackgroundPrint that = (BackgroundPrint) obj;
-    return Util.equal( this.target, that.target )
-        && Util.equal( this.background, that.background );
-
+    if ( getClass() != obj.getClass() )
+      return false;
+    BackgroundPrint other = (BackgroundPrint) obj;
+    if ( background == null ) {
+      if ( other.background != null )
+        return false;
+    } else if ( !background.equals( other.background ) )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**

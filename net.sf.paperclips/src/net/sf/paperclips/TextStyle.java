@@ -11,7 +11,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.SWTUtil;
 
 /**
  * Defines a set of styles that can be applied to text. Instances of this class are immutable.
@@ -53,15 +54,48 @@ public class TextStyle {
     return result;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + alignment;
+    result = prime * result + ( ( background == null ) ? 0 : background.hashCode() );
+    result = prime * result + ( ( fontData == null ) ? 0 : fontData.hashCode() );
+    result = prime * result + ( ( foreground == null ) ? 0 : foreground.hashCode() );
+    result = prime * result + ( strikeout ? 1231 : 1237 );
+    result = prime * result + ( underline ? 1231 : 1237 );
+    return result;
+  }
 
-    TextStyle that = (TextStyle) obj;
-    return this.alignment == that.alignment && this.underline == that.underline
-        && this.strikeout == that.strikeout && Util.equal( this.fontData, that.fontData )
-        && Util.equal( this.foreground, that.foreground )
-        && Util.equal( this.background, that.background );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    TextStyle other = (TextStyle) obj;
+    if ( alignment != other.alignment )
+      return false;
+    if ( background == null ) {
+      if ( other.background != null )
+        return false;
+    } else if ( !background.equals( other.background ) )
+      return false;
+    if ( fontData == null ) {
+      if ( other.fontData != null )
+        return false;
+    } else if ( !fontData.equals( other.fontData ) )
+      return false;
+    if ( foreground == null ) {
+      if ( other.foreground != null )
+        return false;
+    } else if ( !foreground.equals( other.foreground ) )
+      return false;
+    if ( strikeout != other.strikeout )
+      return false;
+    if ( underline != other.underline )
+      return false;
+    return true;
   }
 
   /**
@@ -196,8 +230,9 @@ public class TextStyle {
    */
   public TextStyle align( int alignment ) {
     TextStyle result = new TextStyle( this );
-    result.alignment =
-        PaperClipsUtil.firstMatch( alignment, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+    result.alignment = PaperClipsUtil.firstMatch( alignment,
+                                                  new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT },
+                                                  SWT.LEFT );
     return result;
   }
 

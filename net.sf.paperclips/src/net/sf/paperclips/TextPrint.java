@@ -13,7 +13,8 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A Print for displaying text.
@@ -97,13 +98,36 @@ public class TextPrint implements Print {
     this.wordSplitting = true;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( style == null ) ? 0 : style.hashCode() );
+    result = prime * result + ( ( text == null ) ? 0 : text.hashCode() );
+    result = prime * result + ( wordSplitting ? 1231 : 1237 );
+    return result;
+  }
 
-    TextPrint that = (TextPrint) obj;
-    return this.wordSplitting == that.wordSplitting && Util.equal( this.text, that.text )
-        && Util.equal( this.style, that.style );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    TextPrint other = (TextPrint) obj;
+    if ( style == null ) {
+      if ( other.style != null )
+        return false;
+    } else if ( !style.equals( other.style ) )
+      return false;
+    if ( text == null ) {
+      if ( other.text != null )
+        return false;
+    } else if ( !text.equals( other.text ) )
+      return false;
+    if ( wordSplitting != other.wordSplitting )
+      return false;
+    return true;
   }
 
   /**

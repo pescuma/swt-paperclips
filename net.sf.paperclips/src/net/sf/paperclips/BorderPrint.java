@@ -33,11 +33,33 @@ public class BorderPrint implements Print {
     this.border = border;
   }
 
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( border == null ) ? 0 : border.hashCode() );
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
+
   public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
+    if ( this == obj )
+      return true;
+    if ( obj == null )
       return false;
-    BorderPrint that = (BorderPrint) obj;
-    return Util.equal( this.target, that.target ) && Util.equal( this.border, that.border );
+    if ( getClass() != obj.getClass() )
+      return false;
+    BorderPrint other = (BorderPrint) obj;
+    if ( border == null ) {
+      if ( other.border != null )
+        return false;
+    } else if ( !border.equals( other.border ) )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**

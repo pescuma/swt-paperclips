@@ -9,8 +9,6 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.RGB;
 
-import net.sf.paperclips.internal.Util;
-
 /**
  * Default implementation of the CellBackgroundProvider interface.
  * @author Matthew Hall
@@ -41,13 +39,33 @@ public class DefaultCellBackgroundProvider implements CellBackgroundProvider {
     this.background = null;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( background == null ) ? 0 : background.hashCode() );
+    result = prime * result + ( ( chain == null ) ? 0 : chain.hashCode() );
+    return result;
+  }
 
-    DefaultCellBackgroundProvider that = (DefaultCellBackgroundProvider) obj;
-    return Util.equal( this.chain, that.chain )
-        && Util.equal( this.background, that.background );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    DefaultCellBackgroundProvider other = (DefaultCellBackgroundProvider) obj;
+    if ( background == null ) {
+      if ( other.background != null )
+        return false;
+    } else if ( !background.equals( other.background ) )
+      return false;
+    if ( chain == null ) {
+      if ( other.chain != null )
+        return false;
+    } else if ( !chain.equals( other.chain ) )
+      return false;
+    return true;
   }
 
   /**

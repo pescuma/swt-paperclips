@@ -61,13 +61,36 @@ public class ColumnPrint implements Print {
     this.compressed = compressed;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + columns;
+    result = prime * result + ( compressed ? 1231 : 1237 );
+    result = prime * result + spacing;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
 
-    ColumnPrint that = (ColumnPrint) obj;
-    return Util.equal( this.target, that.target ) && this.columns == that.columns
-        && this.spacing == that.spacing && this.compressed == that.compressed;
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    ColumnPrint other = (ColumnPrint) obj;
+    if ( columns != other.columns )
+      return false;
+    if ( compressed != other.compressed )
+      return false;
+    if ( spacing != other.spacing )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**

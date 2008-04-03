@@ -33,12 +33,27 @@ public class NoBreakPrint implements Print {
     this.target = target;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
 
-    NoBreakPrint that = (NoBreakPrint) obj;
-    return Util.equal( this.target, that.target );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    NoBreakPrint other = (NoBreakPrint) obj;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**

@@ -121,14 +121,45 @@ public class PagePrint implements Print {
     setFooter( footer );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( body == null ) ? 0 : body.hashCode() );
+    result = prime * result + ( ( footer == null ) ? 0 : footer.hashCode() );
+    result = prime * result + footerGap;
+    result = prime * result + ( ( header == null ) ? 0 : header.hashCode() );
+    result = prime * result + headerGap;
+    return result;
+  }
 
-    PagePrint that = (PagePrint) obj;
-    return Util.equal( this.header, that.header ) && this.headerGap == that.headerGap
-        && Util.equal( this.body, that.body ) && this.footerGap == that.footerGap
-        && Util.equal( this.footer, that.footer );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    PagePrint other = (PagePrint) obj;
+    if ( body == null ) {
+      if ( other.body != null )
+        return false;
+    } else if ( !body.equals( other.body ) )
+      return false;
+    if ( footer == null ) {
+      if ( other.footer != null )
+        return false;
+    } else if ( !footer.equals( other.footer ) )
+      return false;
+    if ( footerGap != other.footerGap )
+      return false;
+    if ( header == null ) {
+      if ( other.header != null )
+        return false;
+    } else if ( !header.equals( other.header ) )
+      return false;
+    if ( headerGap != other.headerGap )
+      return false;
+    return true;
   }
 
   /**

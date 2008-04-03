@@ -39,13 +39,33 @@ public class AlignPrint implements Print {
     this.vAlign = checkVAlign( vAlign );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + hAlign;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    result = prime * result + vAlign;
+    return result;
+  }
 
-    AlignPrint that = (AlignPrint) obj;
-    return Util.equal( this.target, that.target ) && this.hAlign == that.hAlign
-        && this.vAlign == that.vAlign;
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    AlignPrint other = (AlignPrint) obj;
+    if ( hAlign != other.hAlign )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    if ( vAlign != other.vAlign )
+      return false;
+    return true;
   }
 
   /**

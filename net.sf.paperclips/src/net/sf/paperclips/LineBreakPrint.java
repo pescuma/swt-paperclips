@@ -9,7 +9,8 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A class for adding line breaks corresponding to a particular font size. Currently this class is used
@@ -28,12 +29,27 @@ public class LineBreakPrint implements Print {
     this.font = font;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( font == null ) ? 0 : font.hashCode() );
+    return result;
+  }
 
-    LineBreakPrint that = (LineBreakPrint) obj;
-    return Util.equal( this.font, that.font );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    LineBreakPrint other = (LineBreakPrint) obj;
+    if ( font == null ) {
+      if ( other.font != null )
+        return false;
+    } else if ( !font.equals( other.font ) )
+      return false;
+    return true;
   }
 
   public PrintIterator iterator( Device device, GC gc ) {

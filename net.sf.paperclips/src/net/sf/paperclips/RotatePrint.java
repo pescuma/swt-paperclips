@@ -7,12 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import net.sf.paperclips.internal.Util;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.*;
+
+import net.sf.paperclips.internal.Util;
 
 /**
  * A decorator print that rotates it's target by increments of 90 degrees.
@@ -50,12 +48,30 @@ public final class RotatePrint implements Print {
     this.angle = checkAngle( angle );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + angle;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
 
-    RotatePrint that = (RotatePrint) obj;
-    return this.angle == that.angle && Util.equal( this.target, that.target );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    RotatePrint other = (RotatePrint) obj;
+    if ( angle != other.angle )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**
@@ -81,7 +97,7 @@ public final class RotatePrint implements Print {
 
     // Bring angle within the range [0, 360)
     if ( angle < 0 )
-    	angle = 360 - (-angle % 360);
+      angle = 360 - ( -angle % 360 );
     if ( angle >= 360 )
       angle = angle % 360;
 

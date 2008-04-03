@@ -11,7 +11,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A PageDecoration which displays the page number. This convenience class helps avoid the need for writing a
@@ -38,13 +39,42 @@ public class PageNumberPageDecoration implements PageDecoration {
     setAlign( align );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + align;
+    result = prime * result + ( ( fontData == null ) ? 0 : fontData.hashCode() );
+    result = prime * result + ( ( format == null ) ? 0 : format.hashCode() );
+    result = prime * result + ( ( rgb == null ) ? 0 : rgb.hashCode() );
+    return result;
+  }
 
-    PageNumberPageDecoration that = (PageNumberPageDecoration) obj;
-    return this.align == that.align && Util.equal( this.fontData, that.fontData )
-        && Util.equal( this.rgb, that.rgb ) && Util.equal( this.format, that.format );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    PageNumberPageDecoration other = (PageNumberPageDecoration) obj;
+    if ( align != other.align )
+      return false;
+    if ( fontData == null ) {
+      if ( other.fontData != null )
+        return false;
+    } else if ( !fontData.equals( other.fontData ) )
+      return false;
+    if ( format == null ) {
+      if ( other.format != null )
+        return false;
+    } else if ( !format.equals( other.format ) )
+      return false;
+    if ( rgb == null ) {
+      if ( other.rgb != null )
+        return false;
+    } else if ( !rgb.equals( other.rgb ) )
+      return false;
+    return true;
   }
 
   /**

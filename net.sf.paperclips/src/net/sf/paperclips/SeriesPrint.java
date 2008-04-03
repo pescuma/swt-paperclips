@@ -12,7 +12,8 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PrintSizeStrategy;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A Print which displays its child prints in series. Each element in the series is displayed one at a time
@@ -25,12 +26,27 @@ import net.sf.paperclips.internal.*;
 public class SeriesPrint implements Print {
   final List items = new ArrayList();
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( items == null ) ? 0 : items.hashCode() );
+    return result;
+  }
 
-    SeriesPrint that = (SeriesPrint) obj;
-    return Util.equal( this.items, that.items );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    SeriesPrint other = (SeriesPrint) obj;
+    if ( items == null ) {
+      if ( other.items != null )
+        return false;
+    } else if ( !items.equals( other.items ) )
+      return false;
+    return true;
   }
 
   /**

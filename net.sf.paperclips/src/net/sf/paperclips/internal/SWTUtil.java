@@ -1,9 +1,6 @@
 package net.sf.paperclips.internal;
 
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
 
 /**
  * Utility methods for dealing with SWT objects
@@ -71,6 +68,36 @@ public class SWTUtil {
   }
 
   /**
+   * Returns a hash code for the PaletteData.
+   * @param data the PaletteData
+   * @return a hash code for the PaletteData.
+   */
+  public static int hashCode( PaletteData data ) {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( data.isDirect ? 1231 : 1237 );
+    result = prime * result + data.blueMask;
+    result = prime * result + data.blueShift;
+    result = prime * result + data.greenMask;
+    result = prime * result + data.greenShift;
+    result = prime * result + data.redMask;
+    result = prime * result + data.redShift;
+    result = prime * result + hashCode( data.colors );
+    return result;
+  }
+
+  private static int hashCode( Object[] array ) {
+    int prime = 31;
+    if ( array == null )
+      return 0;
+    int result = 1;
+    for ( int index = 0; index < array.length; index++ ) {
+      result = prime * result + ( array[index] == null ? 0 : array[index].hashCode() );
+    }
+    return result;
+  }
+
+  /**
    * Returns whether the ImageData arguments are equivalent.
    * @param left the left ImageData
    * @param right the right ImageData
@@ -108,5 +135,20 @@ public class SWTUtil {
     }
 
     return true;
+  }
+
+  /**
+   * Returns a hash code for the ImageData
+   * @param data the ImageData
+   * @return a hash code for the ImageData
+   */
+  public static int hashCode( ImageData data ) {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + data.width;
+    result = prime * result + data.height;
+    result = prime * result + hashCode( data.palette );
+    // Neglect pixel data
+    return result;
   }
 }

@@ -30,6 +30,10 @@ public class BreakPrint implements Print {
     return Util.sameClass( this, obj );
   }
 
+  public int hashCode() {
+    return 39 * 29;
+  }
+
   public PrintIterator iterator( Device device, GC gc ) {
     return new BreakIterator();
   }

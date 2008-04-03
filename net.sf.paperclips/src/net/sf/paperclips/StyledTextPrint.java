@@ -12,7 +12,8 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PrintSizeStrategy;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A class for printing styled text. Text of varying size and style are aligned along the baseline.
@@ -27,13 +28,33 @@ public class StyledTextPrint implements Print {
    */
   public StyledTextPrint() {}
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( elements == null ) ? 0 : elements.hashCode() );
+    result = prime * result + ( ( style == null ) ? 0 : style.hashCode() );
+    return result;
+  }
 
-    StyledTextPrint that = (StyledTextPrint) obj;
-    return Util.equal( this.style, that.style )
-        && Util.equal( this.elements, that.elements );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    StyledTextPrint other = (StyledTextPrint) obj;
+    if ( elements == null ) {
+      if ( other.elements != null )
+        return false;
+    } else if ( !elements.equals( other.elements ) )
+      return false;
+    if ( style == null ) {
+      if ( other.style != null )
+        return false;
+    } else if ( !style.equals( other.style ) )
+      return false;
+    return true;
   }
 
   /**

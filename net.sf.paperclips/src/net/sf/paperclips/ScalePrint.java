@@ -49,12 +49,33 @@ public class ScalePrint implements Print {
     this.scale = scale;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( scale == null ) ? 0 : scale.hashCode() );
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
 
-    ScalePrint that = (ScalePrint) obj;
-    return Util.equal( this.scale, that.scale ) && Util.equal( this.target, that.target );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    ScalePrint other = (ScalePrint) obj;
+    if ( scale == null ) {
+      if ( other.scale != null )
+        return false;
+    } else if ( !scale.equals( other.scale ) )
+      return false;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**
@@ -167,9 +188,8 @@ final class ScalePiece implements PrintPiece {
     this.target = target;
     this.scale = scale;
     Point targetSize = target.getSize();
-    this.size =
-        new Point( Math.min( (int) Math.ceil( targetSize.x * scale ), maxWidth ),
-                   Math.min( (int) Math.ceil( targetSize.y * scale ), maxHeight ) );
+    this.size = new Point( Math.min( (int) Math.ceil( targetSize.x * scale ), maxWidth ),
+                           Math.min( (int) Math.ceil( targetSize.y * scale ), maxHeight ) );
   }
 
   public Point getSize() {

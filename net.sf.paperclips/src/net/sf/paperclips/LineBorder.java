@@ -9,7 +9,8 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A border that draws a rectangle around a print.
@@ -35,13 +36,33 @@ public class LineBorder implements Border {
     setRGB( rgb );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + gapSize;
+    result = prime * result + lineWidth;
+    result = prime * result + ( ( rgb == null ) ? 0 : rgb.hashCode() );
+    return result;
+  }
 
-    LineBorder that = (LineBorder) obj;
-    return this.lineWidth == that.lineWidth && this.gapSize == that.gapSize
-        && Util.equal( this.rgb, that.rgb );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    LineBorder other = (LineBorder) obj;
+    if ( gapSize != other.gapSize )
+      return false;
+    if ( lineWidth != other.lineWidth )
+      return false;
+    if ( rgb == null ) {
+      if ( other.rgb != null )
+        return false;
+    } else if ( !rgb.equals( other.rgb ) )
+      return false;
+    return true;
   }
 
   /**
@@ -118,11 +139,10 @@ class LineBorderPainter extends AbstractBorderPainter {
     int borderWidthPoints = border.getGapSize();
 
     Point dpi = device.getDPI();
-    lineWidth =
-        new Point( Math.round( lineWidthPoints * dpi.x / 72f ), Math.round( lineWidthPoints * dpi.y / 72f ) );
-    borderWidth =
-        new Point( Math.round( borderWidthPoints * dpi.x / 72f ),
-                   Math.round( borderWidthPoints * dpi.y / 72f ) );
+    lineWidth = new Point( Math.round( lineWidthPoints * dpi.x / 72f ), Math.round( lineWidthPoints * dpi.y
+        / 72f ) );
+    borderWidth = new Point( Math.round( borderWidthPoints * dpi.x / 72f ), Math.round( borderWidthPoints
+        * dpi.y / 72f ) );
   }
 
   public int getLeft() {

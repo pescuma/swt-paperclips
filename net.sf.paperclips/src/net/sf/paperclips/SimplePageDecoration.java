@@ -29,12 +29,27 @@ public class SimplePageDecoration implements PageDecoration {
     this.print = print;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( print == null ) ? 0 : print.hashCode() );
+    return result;
+  }
 
-    SimplePageDecoration that = (SimplePageDecoration) obj;
-    return Util.equal( this.print, that.print );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    SimplePageDecoration other = (SimplePageDecoration) obj;
+    if ( print == null ) {
+      if ( other.print != null )
+        return false;
+    } else if ( !print.equals( other.print ) )
+      return false;
+    return true;
   }
 
   public Print createPrint( PageNumber pageNumber ) {

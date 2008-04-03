@@ -10,7 +10,8 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A Print for drawing horizontal and vertical lines.
@@ -51,13 +52,35 @@ public class LinePrint implements Print {
     this.thickness = checkThickness( thickness );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + orientation;
+    result = prime * result + ( ( rgb == null ) ? 0 : rgb.hashCode() );
+    long temp;
+    temp = Double.doubleToLongBits( thickness );
+    result = prime * result + (int) ( temp ^ ( temp >>> 32 ) );
+    return result;
+  }
 
-    LinePrint that = (LinePrint) obj;
-    return this.orientation == that.orientation && Util.equal( this.thickness, that.thickness )
-        && Util.equal( this.rgb, that.rgb );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    LinePrint other = (LinePrint) obj;
+    if ( orientation != other.orientation )
+      return false;
+    if ( rgb == null ) {
+      if ( other.rgb != null )
+        return false;
+    } else if ( !rgb.equals( other.rgb ) )
+      return false;
+    if ( Double.doubleToLongBits( thickness ) != Double.doubleToLongBits( other.thickness ) )
+      return false;
+    return true;
   }
 
   /**
@@ -135,9 +158,8 @@ class LineIterator extends AbstractIterator {
     Point dpi = device.getDPI();
 
     // (convert from points to pixels on device)
-    this.thickness =
-        new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
-                   Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
+    this.thickness = new Point( Math.max( 1, (int) Math.round( print.thickness * dpi.x / 72 ) ),
+                                Math.max( 1, (int) Math.round( print.thickness * dpi.y / 72 ) ) );
   }
 
   LineIterator( LineIterator that ) {

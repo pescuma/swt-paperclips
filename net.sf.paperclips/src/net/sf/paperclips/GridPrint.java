@@ -12,7 +12,8 @@ import java.util.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.Util;
 
 /**
  * A Print which arranges child prints into a grid. A grid is initialized with a series of GridColumns, and
@@ -229,15 +230,94 @@ public final class GridPrint implements Print {
     defaultLook.setCellSpacing( horizontalSpacing, verticalSpacing );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( body == null ) ? 0 : body.hashCode() );
+    result = prime * result + bodyCol;
+    result = prime * result + ( cellClippingEnabled ? 1231 : 1237 );
+    result = prime * result + GridPrint.hashCode( columnGroups );
+    result = prime * result + ( ( columns == null ) ? 0 : columns.hashCode() );
+    result = prime * result + ( ( defaultLook == null ) ? 0 : defaultLook.hashCode() );
+    result = prime * result + ( ( footer == null ) ? 0 : footer.hashCode() );
+    result = prime * result + footerCol;
+    result = prime * result + ( ( header == null ) ? 0 : header.hashCode() );
+    result = prime * result + headerCol;
+    result = prime * result + ( ( look == null ) ? 0 : look.hashCode() );
+    return result;
+  }
 
-    GridPrint that = (GridPrint) obj;
-    return Util.equal( this.look, that.look ) && Util.equal( this.columns, that.columns )
-        && Util.equal( this.columnGroups, that.columnGroups )
-        && this.cellClippingEnabled == that.cellClippingEnabled && Util.equal( this.body, that.body )
-        && Util.equal( this.header, that.header ) && Util.equal( this.footer, that.footer );
+  private static int hashCode( int[][] array ) {
+    int prime = 31;
+    if ( array == null )
+      return 0;
+    int result = 1;
+    for ( int index = 0; index < array.length; index++ ) {
+      result = prime * result + ( array[index] == null ? 0 : hashCode( array[index] ) );
+    }
+    return result;
+  }
+
+  private static int hashCode( int[] array ) {
+    int prime = 31;
+    if ( array == null )
+      return 0;
+    int result = 1;
+    for ( int index = 0; index < array.length; index++ ) {
+      result = prime * result + array[index];
+    }
+    return result;
+  }
+
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    GridPrint other = (GridPrint) obj;
+    if ( body == null ) {
+      if ( other.body != null )
+        return false;
+    } else if ( !body.equals( other.body ) )
+      return false;
+    if ( bodyCol != other.bodyCol )
+      return false;
+    if ( cellClippingEnabled != other.cellClippingEnabled )
+      return false;
+    if ( !Util.equal( columnGroups, other.columnGroups ) )
+      return false;
+    if ( columns == null ) {
+      if ( other.columns != null )
+        return false;
+    } else if ( !columns.equals( other.columns ) )
+      return false;
+    if ( defaultLook == null ) {
+      if ( other.defaultLook != null )
+        return false;
+    } else if ( !defaultLook.equals( other.defaultLook ) )
+      return false;
+    if ( footer == null ) {
+      if ( other.footer != null )
+        return false;
+    } else if ( !footer.equals( other.footer ) )
+      return false;
+    if ( footerCol != other.footerCol )
+      return false;
+    if ( header == null ) {
+      if ( other.header != null )
+        return false;
+    } else if ( !header.equals( other.header ) )
+      return false;
+    if ( headerCol != other.headerCol )
+      return false;
+    if ( look == null ) {
+      if ( other.look != null )
+        return false;
+    } else if ( !look.equals( other.look ) )
+      return false;
+    return true;
   }
 
   /**

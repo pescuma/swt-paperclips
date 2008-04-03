@@ -39,12 +39,27 @@ public final class BigPrint implements Print {
     this.target = target;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( target == null ) ? 0 : target.hashCode() );
+    return result;
+  }
 
-    BigPrint that = (BigPrint) obj;
-    return Util.equal( this.target, that.target );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    BigPrint other = (BigPrint) obj;
+    if ( target == null ) {
+      if ( other.target != null )
+        return false;
+    } else if ( !target.equals( other.target ) )
+      return false;
+    return true;
   }
 
   /**
@@ -110,9 +125,8 @@ class BigIterator implements PrintIterator {
 
     // Adding width-1 rounds up page count w/out floating point op
     // Same goes for adding height-1
-    Point minPages =
-        new Point( Math.max( ( min.x + width - 1 ) / width, 1 ),
-                   Math.max( ( min.y + height - 1 ) / height, 1 ) );
+    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), Math.max( ( min.y + height - 1 )
+        / height, 1 ) );
 
     return new Point( Math.max( prefPages.x, minPages.x ), Math.max( prefPages.y, minPages.y ) );
   }

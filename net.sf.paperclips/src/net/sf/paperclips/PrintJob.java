@@ -32,14 +32,42 @@ public class PrintJob {
     this.document = document;
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( document == null ) ? 0 : document.hashCode() );
+    result = prime * result + ( ( margins == null ) ? 0 : margins.hashCode() );
+    result = prime * result + ( ( name == null ) ? 0 : name.hashCode() );
+    result = prime * result + orientation;
+    return result;
+  }
 
-    PrintJob that = (PrintJob) obj;
-    return this.orientation == that.orientation && Util.equal( this.name, that.name )
-        && Util.equal( this.margins, that.margins )
-        && Util.equal( this.document, that.document );
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    PrintJob other = (PrintJob) obj;
+    if ( document == null ) {
+      if ( other.document != null )
+        return false;
+    } else if ( !document.equals( other.document ) )
+      return false;
+    if ( margins == null ) {
+      if ( other.margins != null )
+        return false;
+    } else if ( !margins.equals( other.margins ) )
+      return false;
+    if ( name == null ) {
+      if ( other.name != null )
+        return false;
+    } else if ( !name.equals( other.name ) )
+      return false;
+    if ( orientation != other.orientation )
+      return false;
+    return true;
   }
 
   /**

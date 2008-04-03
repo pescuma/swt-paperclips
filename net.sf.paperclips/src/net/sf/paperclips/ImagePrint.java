@@ -7,14 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import org.eclipse.swt.graphics.*;
+
 import net.sf.paperclips.internal.SWTUtil;
 import net.sf.paperclips.internal.Util;
-
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
 
 /**
  * A Print for displaying images.
@@ -53,12 +49,25 @@ public class ImagePrint implements Print {
   }
 
   public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
+    if ( obj == this )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
       return false;
 
     ImagePrint that = (ImagePrint) obj;
     return Util.equal( this.dpi, that.dpi ) && Util.equal( this.size, that.size )
         && SWTUtil.equal( this.imageData, that.imageData );
+  }
+
+  public int hashCode() {
+    int prime = 31;
+    int result = 1;
+    result = prime * result + dpi.hashCode();
+    result = prime * result + size.hashCode();
+    result = prime * result + SWTUtil.hashCode( imageData );
+    return result;
   }
 
   /**
@@ -68,8 +77,8 @@ public class ImagePrint implements Print {
   public void setSize( Point size ) {
     // The DPI is rounded up, so that the specified width and height will not be exceeded.
     Util.notNull( size );
-    dpi = new Point( (int) Math.ceil( imageData.width * 72d / size.x ),
-                     (int) Math.ceil( imageData.height * 72d / size.y ) );
+    dpi = new Point( (int) Math.ceil( imageData.width * 72d / size.x ), (int) Math.ceil( imageData.height
+        * 72d / size.y ) );
     this.size = size;
   }
 
@@ -97,8 +106,8 @@ public class ImagePrint implements Print {
   public void setDPI( Point dpi ) {
     Util.notNull( dpi );
     this.dpi = dpi;
-    size = new Point( (int) Math.ceil( imageData.width * 72d / dpi.x ),
-                      (int) Math.ceil( imageData.height * 72d / dpi.y ) );
+    size = new Point( (int) Math.ceil( imageData.width * 72d / dpi.x ), (int) Math.ceil( imageData.height
+        * 72d / dpi.y ) );
   }
 
   /**

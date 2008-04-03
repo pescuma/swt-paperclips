@@ -10,8 +10,6 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.Util;
-
 /**
  * A Print which displays nothing but takes up space. Useful for putting blank cells in a GridPrint.
  * @author Matthew
@@ -45,11 +43,27 @@ public class EmptyPrint implements Print {
     this( size.x, size.y );
   }
 
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + height;
+    result = prime * result + width;
+    return result;
+  }
+
   public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
+    if ( this == obj )
+      return true;
+    if ( obj == null )
       return false;
-    EmptyPrint that = (EmptyPrint) obj;
-    return this.width == that.width && this.height == that.height;
+    if ( getClass() != obj.getClass() )
+      return false;
+    EmptyPrint other = (EmptyPrint) obj;
+    if ( height != other.height )
+      return false;
+    if ( width != other.width )
+      return false;
+    return true;
   }
 
   /**
@@ -78,8 +92,7 @@ class EmptyIterator implements PrintIterator {
 
   EmptyIterator( Device device, EmptyPrint target ) {
     Point dpi = device.getDPI();
-    this.size =
-        new Point( Math.round( target.width * dpi.x / 72f ), Math.round( target.height * dpi.y / 72f ) );
+    this.size = new Point( Math.round( target.width * dpi.x / 72f ), Math.round( target.height * dpi.y / 72f ) );
   }
 
   EmptyIterator( EmptyIterator that ) {

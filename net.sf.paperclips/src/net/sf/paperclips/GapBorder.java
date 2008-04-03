@@ -10,8 +10,6 @@ package net.sf.paperclips;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.Util;
-
 /**
  * A border which leaves a gap around the target Print.
  * @author Matthew Hall
@@ -50,13 +48,39 @@ public class GapBorder implements Border {
     setGap( gap );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + bottom;
+    result = prime * result + left;
+    result = prime * result + openBottom;
+    result = prime * result + openTop;
+    result = prime * result + right;
+    result = prime * result + top;
+    return result;
+  }
 
-    GapBorder that = (GapBorder) obj;
-    return this.top == that.top && this.left == that.left && this.right == that.right
-        && this.bottom == that.bottom && this.openTop == that.openTop && this.openBottom == that.openBottom;
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    GapBorder other = (GapBorder) obj;
+    if ( bottom != other.bottom )
+      return false;
+    if ( left != other.left )
+      return false;
+    if ( openBottom != other.openBottom )
+      return false;
+    if ( openTop != other.openTop )
+      return false;
+    if ( right != other.right )
+      return false;
+    if ( top != other.top )
+      return false;
+    return true;
   }
 
   /**

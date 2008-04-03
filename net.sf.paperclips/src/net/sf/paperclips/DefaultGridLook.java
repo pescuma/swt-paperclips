@@ -9,8 +9,6 @@ package net.sf.paperclips;
 
 import org.eclipse.swt.graphics.*;
 
-import net.sf.paperclips.internal.Util;
-
 /**
  * A GridLook which draws a border around grid cells, with configurable background colors for body, header,
  * and footer cells.
@@ -43,10 +41,8 @@ public class DefaultGridLook implements GridLook {
    */
   public DefaultGridLook() {
     this.bodyBackgroundProvider = defaultBodyBackgroundProvider = new DefaultCellBackgroundProvider();
-    this.headerBackgroundProvider =
-        defaultHeaderBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
-    this.footerBackgroundProvider =
-        defaultFooterBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
+    this.headerBackgroundProvider = defaultHeaderBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
+    this.footerBackgroundProvider = defaultFooterBackgroundProvider = new DefaultCellBackgroundProvider( bodyBackgroundProvider );
   }
 
   /**
@@ -59,19 +55,65 @@ public class DefaultGridLook implements GridLook {
     setCellSpacing( horizontalSpacing, verticalSpacing );
   }
 
-  public boolean equals( Object obj ) {
-    if ( !Util.sameClass( this, obj ) )
-      return false;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( bodyBackgroundProvider == null ) ? 0 : bodyBackgroundProvider.hashCode() );
+    result = prime * result + ( ( cellBorder == null ) ? 0 : cellBorder.hashCode() );
+    result = prime * result + ( ( cellPadding == null ) ? 0 : cellPadding.hashCode() );
+    result = prime * result + ( ( cellSpacing == null ) ? 0 : cellSpacing.hashCode() );
+    result = prime * result
+        + ( ( footerBackgroundProvider == null ) ? 0 : footerBackgroundProvider.hashCode() );
+    result = prime * result + footerGap;
+    result = prime * result
+        + ( ( headerBackgroundProvider == null ) ? 0 : headerBackgroundProvider.hashCode() );
+    result = prime * result + headerGap;
+    return result;
+  }
 
-    DefaultGridLook that = (DefaultGridLook) obj;
-    return Util.equal( this.bodyBackgroundProvider, that.bodyBackgroundProvider )
-        && Util.equal( this.cellBorder, that.cellBorder )
-        && Util.equal( this.cellPadding, that.cellPadding )
-        && Util.equal( this.cellSpacing, that.cellSpacing )
-        && Util.equal( this.footerBackgroundProvider, that.footerBackgroundProvider )
-        && this.footerGap == that.footerGap
-        && Util.equal( this.headerBackgroundProvider, that.headerBackgroundProvider )
-        && this.headerGap == that.headerGap;
+  public boolean equals( Object obj ) {
+    if ( this == obj )
+      return true;
+    if ( obj == null )
+      return false;
+    if ( getClass() != obj.getClass() )
+      return false;
+    DefaultGridLook other = (DefaultGridLook) obj;
+    if ( bodyBackgroundProvider == null ) {
+      if ( other.bodyBackgroundProvider != null )
+        return false;
+    } else if ( !bodyBackgroundProvider.equals( other.bodyBackgroundProvider ) )
+      return false;
+    if ( cellBorder == null ) {
+      if ( other.cellBorder != null )
+        return false;
+    } else if ( !cellBorder.equals( other.cellBorder ) )
+      return false;
+    if ( cellPadding == null ) {
+      if ( other.cellPadding != null )
+        return false;
+    } else if ( !cellPadding.equals( other.cellPadding ) )
+      return false;
+    if ( cellSpacing == null ) {
+      if ( other.cellSpacing != null )
+        return false;
+    } else if ( !cellSpacing.equals( other.cellSpacing ) )
+      return false;
+    if ( footerBackgroundProvider == null ) {
+      if ( other.footerBackgroundProvider != null )
+        return false;
+    } else if ( !footerBackgroundProvider.equals( other.footerBackgroundProvider ) )
+      return false;
+    if ( footerGap != other.footerGap )
+      return false;
+    if ( headerBackgroundProvider == null ) {
+      if ( other.headerBackgroundProvider != null )
+        return false;
+    } else if ( !headerBackgroundProvider.equals( other.headerBackgroundProvider ) )
+      return false;
+    if ( headerGap != other.headerGap )
+      return false;
+    return true;
   }
 
   /**
@@ -197,8 +239,9 @@ public class DefaultGridLook implements GridLook {
    * @param headerBackgroundProvider the new background color provider.
    */
   public void setHeaderBackgroundProvider( CellBackgroundProvider headerBackgroundProvider ) {
-    this.headerBackgroundProvider =
-        headerBackgroundProvider == null ? defaultHeaderBackgroundProvider : headerBackgroundProvider;
+    this.headerBackgroundProvider = headerBackgroundProvider == null
+        ? defaultHeaderBackgroundProvider
+        : headerBackgroundProvider;
   }
 
   /**
@@ -251,8 +294,9 @@ public class DefaultGridLook implements GridLook {
    * @param bodyBackgroundProvider the new background color provider.
    */
   public void setBodyBackgroundProvider( CellBackgroundProvider bodyBackgroundProvider ) {
-    this.bodyBackgroundProvider =
-        bodyBackgroundProvider == null ? defaultBodyBackgroundProvider : bodyBackgroundProvider;
+    this.bodyBackgroundProvider = bodyBackgroundProvider == null
+        ? defaultBodyBackgroundProvider
+        : bodyBackgroundProvider;
   }
 
   /**
@@ -305,8 +349,9 @@ public class DefaultGridLook implements GridLook {
    * @param footerBackgroundProvider the new background color provider.
    */
   public void setFooterBackgroundProvider( CellBackgroundProvider footerBackgroundProvider ) {
-    this.footerBackgroundProvider =
-        footerBackgroundProvider == null ? defaultFooterBackgroundProvider : footerBackgroundProvider;
+    this.footerBackgroundProvider = footerBackgroundProvider == null
+        ? defaultFooterBackgroundProvider
+        : footerBackgroundProvider;
   }
 
   public GridLookPainter getPainter( Device device, GC gc ) {
