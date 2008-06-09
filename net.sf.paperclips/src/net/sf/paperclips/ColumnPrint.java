@@ -7,12 +7,16 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import java.util.*;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A wrapper Print which splits its child print into multiple columns.
@@ -51,9 +55,9 @@ public class ColumnPrint implements Print {
   public ColumnPrint( Print target, int columns, int spacing, boolean compressed ) {
     Util.notNull( target );
     if ( spacing < 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "spacing must be >= 0" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "spacing must be >= 0" ); //$NON-NLS-1$
     if ( columns < 2 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "columns must be >= 2" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "columns must be >= 2" ); //$NON-NLS-1$
 
     this.target = target;
     this.spacing = spacing;

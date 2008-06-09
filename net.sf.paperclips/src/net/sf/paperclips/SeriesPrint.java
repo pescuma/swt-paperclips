@@ -10,10 +10,12 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.PrintSizeStrategy;
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A Print which displays its child prints in series. Each element in the series is displayed one at a time
@@ -135,7 +137,7 @@ class SeriesIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      PaperClips.error( "No more content" );
+      PaperClips.error( "No more content" ); //$NON-NLS-1$
 
     PrintIterator iter = iters[index];
     PrintPiece printPiece = PaperClips.next( iter, width, height );

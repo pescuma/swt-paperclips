@@ -8,7 +8,9 @@
 
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 class BorderIterator implements PrintIterator {
   private final BorderPainter border;
@@ -48,7 +50,7 @@ class BorderIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      PaperClips.error( "No more content" );
+      PaperClips.error( "No more content" ); //$NON-NLS-1$
 
     PrintPiece piece = next( width, height, false /* closed bottom border */);
 

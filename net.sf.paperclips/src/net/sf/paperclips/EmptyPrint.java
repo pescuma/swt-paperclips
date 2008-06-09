@@ -8,7 +8,9 @@
 package net.sf.paperclips;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A Print which displays nothing but takes up space. Useful for putting blank cells in a GridPrint.
@@ -76,7 +78,7 @@ public class EmptyPrint implements Print {
 
   private int checkDimension( int dim ) {
     if ( dim < 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "EmptyPrint dimensions must be >= 0" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "EmptyPrint dimensions must be >= 0" ); //$NON-NLS-1$
     return dim;
   }
 
@@ -92,7 +94,8 @@ class EmptyIterator implements PrintIterator {
 
   EmptyIterator( Device device, EmptyPrint target ) {
     Point dpi = device.getDPI();
-    this.size = new Point( Math.round( target.width * dpi.x / 72f ), Math.round( target.height * dpi.y / 72f ) );
+    this.size = new Point( Math.round( target.width * dpi.x / 72f ), Math.round( target.height
+        * dpi.y / 72f ) );
   }
 
   EmptyIterator( EmptyIterator that ) {

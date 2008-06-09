@@ -10,10 +10,14 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.PrintSizeStrategy;
+import net.sf.paperclips.internal.Util;
 
-import net.sf.paperclips.internal.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A decorator Print which displays page headers and footers around a document body, with page numbering
@@ -113,7 +117,11 @@ public class PagePrint implements Print {
    * @param footerGap the gap between the body and footer, in points.
    * @param footer a PageDecoration for creating the footer. May be null.
    */
-  public PagePrint( PageDecoration header, int headerGap, Print body, int footerGap, PageDecoration footer ) {
+  public PagePrint( PageDecoration header,
+                    int headerGap,
+                    Print body,
+                    int footerGap,
+                    PageDecoration footer ) {
     setHeader( header );
     setHeaderGap( headerGap );
     setBody( body );
@@ -245,7 +253,7 @@ public class PagePrint implements Print {
 
   private static int checkGap( int gap ) {
     if ( gap < 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Gap must be >= 0 (value is " + gap + ")" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Gap must be >= 0 (value is " + gap + ")" ); //$NON-NLS-1$ //$NON-NLS-2$
     return gap;
   }
 

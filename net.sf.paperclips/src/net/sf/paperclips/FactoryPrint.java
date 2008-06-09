@@ -10,7 +10,11 @@ package net.sf.paperclips;
 import java.io.InputStream;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * An ill-conceived class I wish I could take back.
@@ -54,10 +58,10 @@ public abstract class FactoryPrint implements Print {
    * Object.
    * @param obj the object to convert.
    * @return This implementation returns the result of obj.toString(), or an empty string if the argument is
-   *         null. Override this method to change this behavior.
+   *  null. Override this method to change this behavior.
    */
   protected String convertToString( Object obj ) {
-    return ( obj == null ) ? "" : obj.toString();
+    return ( obj == null ) ? "" : obj.toString(); //$NON-NLS-1$
   }
 
   /**

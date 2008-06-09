@@ -7,13 +7,17 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import java.util.*;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import net.sf.paperclips.internal.PaperClipsUtil;
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * A Print which arranges child prints into a grid. A grid is initialized with a series of GridColumns, and
@@ -24,7 +28,7 @@ import net.sf.paperclips.internal.Util;
  * of tables. GridPrint deviates from the recommendation on one important point: if there is less width
  * available on the print device than the calculated "minimum" size of the grid, the columns will be scaled
  * down to <em>less</em> than their calculated minimum widths. Only when one of the columns goes below its
- * "absolute minimum" will the grid fail to print ( {@link PrintIterator#next(int, int) } returns null).
+ * "absolute minimum" will the grid fail to print ( {@link PrintIterator#next(int, int)} returns null).
  * <p>
  * GridPrint offers three basic methods of specifying column size.
  * <ol>
@@ -156,7 +160,7 @@ public final class GridPrint implements Print {
    * @param spacing the spacing (in points) between grid cells.
    * @see #BORDER_OVERLAP
    * @deprecated use GridPrint(String) instead, then set a DefaultGridLook on the grid with the desired cell
-   *             spacing.
+   *  spacing.
    */
   public GridPrint( String columns, int spacing ) {
     this( parseColumns( columns ), spacing, spacing );
@@ -171,7 +175,7 @@ public final class GridPrint implements Print {
    * @see GridColumn#parse(String)
    * @see #BORDER_OVERLAP
    * @deprecated use GridPrint(String) instead, then set a DefaultGridLook on the grid with the desired cell
-   *             spacing.
+   *  spacing.
    */
   public GridPrint( String columns, int horizontalSpacing, int verticalSpacing ) {
     this( parseColumns( columns ), horizontalSpacing, verticalSpacing );
@@ -209,7 +213,7 @@ public final class GridPrint implements Print {
    * @param spacing the spacing (in points) between grid cells.
    * @see #BORDER_OVERLAP
    * @deprecated use GridPrint(GridColumn[]) instead, then set a DefaultGridLook on the grid with the desired
-   *             cell spacing.
+   *  cell spacing.
    */
   public GridPrint( GridColumn[] columns, int spacing ) {
     this( columns, spacing, spacing );
@@ -223,7 +227,7 @@ public final class GridPrint implements Print {
    * @param verticalSpacing the vertical spacing (in points) between grid cells.
    * @see #BORDER_OVERLAP
    * @deprecated use GridPrint(GridColumn[]) instead, then set a DefaultGridLook on the grid with the desired
-   *             cell spacing.
+   *  cell spacing.
    */
   public GridPrint( GridColumn[] columns, int horizontalSpacing, int verticalSpacing ) {
     this( columns );
@@ -428,7 +432,8 @@ public final class GridPrint implements Print {
 
   private void checkColumnInsert( int index ) {
     if ( index < 0 || index > this.columns.size() )
-      PaperClips.error( SWT.ERROR_INVALID_RANGE, "index = " + index + ", size = " + this.columns.size() );
+      PaperClips.error( SWT.ERROR_INVALID_RANGE,
+                        "index = " + index + ", size = " + this.columns.size() ); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   private void adjustForColumnInsert( int index, int count ) {
@@ -461,7 +466,8 @@ public final class GridPrint implements Print {
         ( col > index ) ||
         // right side touches insert point but is not the final cell.
             ( col == index && ( rowI + 1 < rows.size() || cellI + 1 < row.size() ) ) ) {
-          row.set( cellI, new GridCell( cell.hAlignment, cell.vAlignment, cell.target, cell.colspan + count ) );
+          row.set( cellI, new GridCell( cell.hAlignment, cell.vAlignment, cell.target, cell.colspan
+              + count ) );
           break;
         }
       }
@@ -485,7 +491,7 @@ public final class GridPrint implements Print {
    */
   private static GridColumn[] parseColumns( String columns ) {
     Util.notNull( columns );
-    String[] cols = columns.split( "\\s*,\\s*" );
+    String[] cols = columns.split( "\\s*,\\s*" ); //$NON-NLS-1$
 
     GridColumn[] result = new GridColumn[cols.length];
     for ( int i = 0; i < cols.length; i++ )
@@ -515,8 +521,8 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid header, using the given alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @param cell the print to add.
    */
   public void addHeader( int hAlignment, Print cell ) {
@@ -526,12 +532,12 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid header, using the given alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
-   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }. A value of
-   *        FILL indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to
-   *        the tallest non-FILL cell in the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT},
+   *  {@link SWT#TOP}, {@link SWT#CENTER}, {@link SWT#BOTTOM}, or {@link SWT#FILL}. A value of FILL indicates
+   *  that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest non-FILL
+   *  cell in the row.
    * @param cell the print to add.
    */
   public void addHeader( int hAlignment, int vAlignment, Print cell ) {
@@ -542,8 +548,8 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid header, with the given colspan and the default alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void addHeader( Print cell, int colspan ) {
     headerCol = add( header, headerCol, SWT.DEFAULT, SWT.DEFAULT, cell, colspan );
@@ -553,10 +559,10 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid header, using the given colspan and alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    */
   public void addHeader( int hAlignment, Print cell, int colspan ) {
     headerCol = add( header, headerCol, hAlignment, SWT.DEFAULT, cell, colspan );
@@ -565,15 +571,15 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid header, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
-   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }. A value of
-   *        FILL indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to
-   *        the tallest non-FILL cell in the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT},
+   *  {@link SWT#TOP}, {@link SWT#CENTER}, {@link SWT#BOTTOM}, or {@link SWT#FILL}. A value of FILL indicates
+   *  that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest non-FILL
+   *  cell in the row.
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void addHeader( int hAlignment, int vAlignment, Print cell, int colspan ) {
     headerCol = add( header, headerCol, hAlignment, vAlignment, cell, colspan );
@@ -583,13 +589,12 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid header, using the given colspan and alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @deprecated Use {@link #addHeader(int, Print, int)} instead. GridPrint's addHeader method signatures
-   *             have been rearranged to coincide with the GridColumn column spec format:
-   *             [alignment]:content:[colspan]
+   *  have been rearranged to coincide with the GridColumn column spec format: [alignment]:content:[colspan]
    */
   public void addHeader( Print cell, int colspan, int hAlignment ) {
     headerCol = add( header, headerCol, hAlignment, SWT.DEFAULT, cell, colspan );
@@ -651,7 +656,7 @@ public final class GridPrint implements Print {
    * 
    * @param headerBackground the new background color (defaults to the body background if null).
    * @deprecated this functionality has been moved to DefaultGridLook. Set a DefaultGridLook on the grid,
-   *             then call setHeaderBackground on the grid look.
+   *  then call setHeaderBackground on the grid look.
    */
   public void setHeaderBackground( RGB headerBackground ) {
     defaultLook.setHeaderBackground( headerBackground );
@@ -669,8 +674,8 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid body, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @param cell the print to add.
    */
   public void add( int hAlignment, Print cell ) {
@@ -680,12 +685,12 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid body, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
-   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }. A value of
-   *        FILL indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to
-   *        the tallest non-FILL cell in the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT},
+   *  {@link SWT#TOP}, {@link SWT#CENTER}, {@link SWT#BOTTOM}, or {@link SWT#FILL}. A value of FILL indicates
+   *  that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest non-FILL
+   *  cell in the row.
    * @param cell the print to add.
    */
   public void add( int hAlignment, int vAlignment, Print cell ) {
@@ -696,8 +701,8 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid body, with the given colspan and the default alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void add( Print cell, int colspan ) {
     bodyCol = add( body, bodyCol, SWT.DEFAULT, SWT.DEFAULT, cell, colspan );
@@ -706,11 +711,11 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid body, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void add( int hAlignment, Print cell, int colspan ) {
     bodyCol = add( body, bodyCol, hAlignment, SWT.DEFAULT, cell, colspan );
@@ -719,15 +724,15 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid body, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
-   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }. A value of
-   *        FILL indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to
-   *        the tallest non-FILL cell in the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT},
+   *  {@link SWT#TOP}, {@link SWT#CENTER}, {@link SWT#BOTTOM}, or {@link SWT#FILL}. A value of FILL indicates
+   *  that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest non-FILL
+   *  cell in the row.
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void add( int hAlignment, int vAlignment, Print cell, int colspan ) {
     bodyCol = add( body, bodyCol, hAlignment, vAlignment, cell, colspan );
@@ -737,12 +742,12 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid body, using the given colspan and alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @deprecated Use {@link #add(int, Print, int)} instead. GridPrint's add method signatures have been
-   *             rearranged to coincide with the GridColumn column spec format: [alignment]:content:[colspan]
+   *  rearranged to coincide with the GridColumn column spec format: [alignment]:content:[colspan]
    */
   public void add( Print cell, int colspan, int hAlignment ) {
     bodyCol = add( body, bodyCol, hAlignment, SWT.DEFAULT, cell, colspan );
@@ -763,7 +768,7 @@ public final class GridPrint implements Print {
    * 
    * @param bodyBackground the new background color (no background is drawn if null).
    * @deprecated this functionality has been moved to DefaultGridLook. Set a DefaultGridLook on the grid,
-   *             then call setBodyBackground on the grid look.
+   *  then call setBodyBackground on the grid look.
    */
   public void setBodyBackground( RGB bodyBackground ) {
     defaultLook.setBodyBackground( bodyBackground );
@@ -799,8 +804,8 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid footer, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @param cell the print to add.
    */
   public void addFooter( int hAlignment, Print cell ) {
@@ -810,12 +815,12 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid footer, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
-   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }. A value of
-   *        FILL indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to
-   *        the tallest non-FILL cell in the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT},
+   *  {@link SWT#TOP}, {@link SWT#CENTER}, {@link SWT#BOTTOM}, or {@link SWT#FILL}. A value of FILL indicates
+   *  that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest non-FILL
+   *  cell in the row.
    * @param cell the print to add.
    */
   public void addFooter( int hAlignment, int vAlignment, Print cell ) {
@@ -826,8 +831,8 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid footer, with the given colspan and the default alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void addFooter( Print cell, int colspan ) {
     footerCol = add( footer, footerCol, SWT.DEFAULT, SWT.DEFAULT, cell, colspan );
@@ -836,11 +841,11 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid footer, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void addFooter( int hAlignment, Print cell, int colspan ) {
     footerCol = add( footer, footerCol, hAlignment, SWT.DEFAULT, cell, colspan );
@@ -849,15 +854,15 @@ public final class GridPrint implements Print {
   /**
    * Adds the Print to the grid footer, using the given colspan and alignment.
    * 
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
-   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT },
-   *        {@link SWT#TOP }, {@link SWT#CENTER }, {@link SWT#BOTTOM }, or {@link SWT#FILL }. A value of
-   *        FILL indicates that the cell is vertically greedy, so GridPrint will limit the cell's height to
-   *        the tallest non-FILL cell in the row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
+   * @param vAlignment the vertical alignment of the print within the grid cell. One of {@link SWT#DEFAULT},
+   *  {@link SWT#TOP}, {@link SWT#CENTER}, {@link SWT#BOTTOM}, or {@link SWT#FILL}. A value of FILL indicates
+   *  that the cell is vertically greedy, so GridPrint will limit the cell's height to the tallest non-FILL
+   *  cell in the row.
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
    */
   public void addFooter( int hAlignment, int vAlignment, Print cell, int colspan ) {
     footerCol = add( footer, footerCol, hAlignment, vAlignment, cell, colspan );
@@ -867,13 +872,12 @@ public final class GridPrint implements Print {
    * Adds the Print to the grid footer, using the given colspan and alignment.
    * 
    * @param cell the print to add.
-   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER } to span the rest of the
-   *        row.
-   * @param hAlignment the horizontal alignment of the print within the grid cell. One of
-   *        {@link SWT#DEFAULT }, {@link SWT#LEFT }, {@link SWT#CENTER } or {@link SWT#RIGHT }.
+   * @param colspan the number of columns to span, or {@link GridPrint#REMAINDER} to span the rest of the
+   *  row.
+   * @param hAlignment the horizontal alignment of the print within the grid cell. One of {@link SWT#DEFAULT}
+   *  , {@link SWT#LEFT}, {@link SWT#CENTER} or {@link SWT#RIGHT}.
    * @deprecated Use {@link #addFooter(int, Print, int)} instead. GridPrint's addFooter method signatures
-   *             have been rearranged to coincide with the GridColumn column spec format:
-   *             [alignment]:content:[colspan]
+   *  have been rearranged to coincide with the GridColumn column spec format: [alignment]:content:[colspan]
    */
   public void addFooter( Print cell, int colspan, int hAlignment ) {
     footerCol = add( footer, footerCol, hAlignment, SWT.DEFAULT, cell, colspan );
@@ -894,7 +898,7 @@ public final class GridPrint implements Print {
    * 
    * @param footerBackground the new background color (defaults to body background if null).
    * @deprecated this functionality has been moved to DefaultGridLook. Set a DefaultGridLook on the grid,
-   *             then call setFooterBackground on the grid look.
+   *  then call setFooterBackground on the grid look.
    */
   public void setFooterBackground( RGB footerBackground ) {
     defaultLook.setBodyBackground( footerBackground );
@@ -925,8 +929,8 @@ public final class GridPrint implements Print {
       if ( row.size() == 0 )
         rows.remove( row );
 
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Colspan " + colspan + " too wide at column "
-          + startColumn + " (" + columns.size() + " columns total)" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Colspan " + colspan + " too wide at column " //$NON-NLS-1$ //$NON-NLS-2$
+          + startColumn + " (" + columns.size() + " columns total)" ); //$NON-NLS-1$//$NON-NLS-2$
     }
 
     return startColumn;
@@ -947,8 +951,8 @@ public final class GridPrint implements Print {
 
   private void checkColumnSpan( int startColumn, int colspan ) {
     if ( startColumn + colspan > columns.size() )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Colspan " + colspan + " too wide at column "
-          + startColumn + " (" + columns.size() + " columns total)" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Colspan " + colspan + " too wide at column " //$NON-NLS-1$ //$NON-NLS-2$
+          + startColumn + " (" + columns.size() + " columns total)" ); //$NON-NLS-1$//$NON-NLS-2$
   }
 
   private List getOpenRow( List rows, int startColumn ) {
@@ -1009,8 +1013,8 @@ public final class GridPrint implements Print {
 
   private void checkColumnIndex( int columnIndex ) {
     if ( columnIndex < 0 || columnIndex >= columns.size() )
-      PaperClips.error( SWT.ERROR_INVALID_RANGE, "Column index in column group must be " + "0 <= "
-          + columnIndex + " < " + columns.size() );
+      PaperClips.error( SWT.ERROR_INVALID_RANGE, "Column index in column group must be " + "0 <= " //$NON-NLS-1$ //$NON-NLS-2$
+          + columnIndex + " < " + columns.size() ); //$NON-NLS-1$
   }
 
   /**
@@ -1028,7 +1032,7 @@ public final class GridPrint implements Print {
    * 
    * @param border the new body cell border.
    * @deprecated this functionality has been moved to DefaultGridLook. Set a DefaultGridLook on the grid,
-   *             then call setCellBorder on the grid look.
+   *  then call setCellBorder on the grid look.
    */
   public void setCellBorder( Border border ) {
     defaultLook.setCellBorder( border );
@@ -1048,9 +1052,9 @@ public final class GridPrint implements Print {
    * Sets the horizontal spacing between grid cells.
    * 
    * @param horizontalSpacing the new horizontal spacing. A value of {@link #BORDER_OVERLAP} indicates that
-   *        the borders should be overlapped instead of spaced.
+   *  the borders should be overlapped instead of spaced.
    * @deprecated this functionality has been moved to DefaultGridLook. Set a DefaultGridLook on the grid,
-   *             then call setCellSpacing(Point) on the grid look.
+   *  then call setCellSpacing(Point) on the grid look.
    */
   public void setHorizontalSpacing( int horizontalSpacing ) {
     defaultLook.setCellSpacing( horizontalSpacing, defaultLook.getCellSpacing().y );
@@ -1070,9 +1074,9 @@ public final class GridPrint implements Print {
    * Sets the vertical spacing between grid cells.
    * 
    * @param verticalSpacing the new vertical spacing. A value of {@link #BORDER_OVERLAP} indicates that the
-   *        borders should be overlapped instead of spaced.
+   *  borders should be overlapped instead of spaced.
    * @deprecated this functionality has been moved to DefaultGridLook. Set a DefaultGridLook on the grid,
-   *             then call setCellSpacing(Point) on the grid look.
+   *  then call setCellSpacing(Point) on the grid look.
    */
   public void setVerticalSpacing( int verticalSpacing ) {
     defaultLook.setCellSpacing( defaultLook.getCellSpacing().x, verticalSpacing );

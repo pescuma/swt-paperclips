@@ -1,11 +1,13 @@
 /************************************************************************************************************
- * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
+ * Copyright (c) 2006-2008 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
  * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
  * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
 package net.sf.paperclips;
+
+import java.text.MessageFormat;
 
 import net.sf.paperclips.internal.Util;
 
@@ -16,8 +18,11 @@ import net.sf.paperclips.internal.Util;
  * @author Matthew Hall
  */
 public final class DefaultPageNumberFormat implements PageNumberFormat {
+  private static MessageFormat messageFormat = new MessageFormat( Messages.getString( Messages.PAGE_X_OF_Y ) );
+
   public String format( PageNumber pageNumber ) {
-    return "Page " + ( pageNumber.getPageNumber() + 1 ) + " of " + pageNumber.getPageCount();
+    return messageFormat.format( new Object[] {
+        new Integer( pageNumber.getPageNumber() ), new Integer( pageNumber.getPageCount() ) } );
   }
 
   public boolean equals( Object obj ) {

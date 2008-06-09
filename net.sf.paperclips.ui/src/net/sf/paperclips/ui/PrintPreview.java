@@ -10,24 +10,13 @@ package net.sf.paperclips.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.paperclips.PageEnumeration;
-import net.sf.paperclips.PaperClips;
-import net.sf.paperclips.PrintJob;
-import net.sf.paperclips.PrintPiece;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.*;
+
+import net.sf.paperclips.*;
 
 /**
  * A WYSIWYG (what you see is what you get) print preview panel. This control displays a preview of what a
@@ -166,8 +155,8 @@ public class PrintPreview extends Canvas {
 
   /**
    * Returns the known number of pages in the print job. If {@link #setLazyPageLayout(boolean)} is set to
-   * true, this method returns the number of pages laid out so far. This method returns 0 when
-   * {@link #getPrintJob()} is null or {@link #getPrinterData()} is null.
+   * true, this method returns the number of pages laid out so far. This method returns 0 when {@link
+   * #getPrintJob()} is null or {@link #getPrinterData()} is null.
    * 
    * @return the known number of pages in the print job.
    */
@@ -250,7 +239,7 @@ public class PrintPreview extends Canvas {
    * Sets the view scale.
    * 
    * @param scale the view scale. A scale of 1.0 causes the document to appear at full size on the computer
-   *        screen.
+   *  screen.
    */
   public void setScale( float scale ) {
     checkWidget();
@@ -263,7 +252,7 @@ public class PrintPreview extends Canvas {
 
   private static float checkScale( float scale ) {
     if ( !( scale > 0 ) )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale must be > 0" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale must be > 0" ); //$NON-NLS-1$
     return scale;
   }
 
@@ -431,7 +420,7 @@ public class PrintPreview extends Canvas {
   private Printer getPrinter() {
     if ( printer == null && printerData != null ) {
       printer = new Printer( printerData );
-      PaperClips.startDummyJob( printer, "" );
+      PaperClips.startDummyJob( printer, "" ); //$NON-NLS-1$
       disposePages(); // just in case
       pageDisplaySize = null;
       pageDisplayLocations = null;
@@ -521,7 +510,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @return a Rectangle whose x, y, width, and height fields respectively indicate the margin at the left,
-   *         top, right, and bottom edges of the control.
+   *  top, right, and bottom edges of the control.
    */
   public Rectangle getMargins() {
     checkWidget();
@@ -534,7 +523,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @param margins a Rectangle whose x, y, width, and height fields respectively indicate the margin at the
-   *        left, top, right, and bottom edges of the control.
+   *  left, top, right, and bottom edges of the control.
    */
   public void setMargins( Rectangle margins ) {
     checkWidget();
@@ -552,7 +541,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @return a Point whose x and y fields respectively indicate the horizontal and vertical spacing between
-   *         pages on the control.
+   *  pages on the control.
    */
   public Point getPageSpacing() {
     return new Point( pageSpacing.x, pageSpacing.y );
@@ -564,7 +553,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @param pageSpacing a Point whose x and y fields respectively indicate the horizontal and vertical
-   *        spacing between pages on the control.
+   *  spacing between pages on the control.
    */
   public void setPageSpacing( Point pageSpacing ) {
     checkWidget();

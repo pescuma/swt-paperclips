@@ -111,22 +111,23 @@ public class PaperClips {
    * @param width the available width.
    * @param height the available height.
    * @return the next portion of the Print, or null if the width and height are not enough to display any of
-   *         the iterator's contents.
+   *  the iterator's contents.
    */
   public static PrintPiece next( PrintIterator iterator, int width, int height ) {
     Util.notNull( iterator );
     if ( width < 0 || height < 0 )
-      error( SWT.ERROR_INVALID_ARGUMENT, "PrintPiece size " + width + "x" + height + " not possible" );
+      error( SWT.ERROR_INVALID_ARGUMENT,
+             "PrintPiece size " + width + "x" + height + " not possible" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     if ( !iterator.hasNext() )
-      error( "Iterator " + iterator + " has no more content." );
+      error( "Iterator " + iterator + " has no more content." ); //$NON-NLS-1$ //$NON-NLS-2$
 
     PrintPiece result = iterator.next( width, height );
 
     if ( result != null ) {
       Point size = result.getSize();
       if ( size.x > width || size.y > height )
-        error( "Iterator " + iterator + " produced a " + size.x + "x" + size.y + " piece for a " + width
-            + "x" + height + " area." );
+        error( "Iterator " + iterator + " produced a " + size.x + "x" + size.y + " piece for a " + width //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            + "x" + height + " area." ); //$NON-NLS-1$//$NON-NLS-2$
     } else if ( debug ) {
       return new NullPrintPiece();
     }
@@ -134,8 +135,8 @@ public class PaperClips {
   }
 
   /**
-   * Prints the print job to the given printer. This method constructs a Printer, forwards to
-   * {@link #print(PrintJob, Printer) }, and disposes the printer before returning.
+   * Prints the print job to the given printer. This method constructs a Printer, forwards to {@link
+   * #print(PrintJob, Printer)}, and disposes the printer before returning.
    * 
    * @param printJob the print job.
    * @param printerData the PrinterData of the selected printer.
@@ -180,7 +181,7 @@ public class PaperClips {
 
   private static void startJob( Printer printer, String jobName ) {
     if ( !printer.startJob( jobName ) )
-      error( "Unable to start print job" );
+      error( "Unable to start print job" ); //$NON-NLS-1$
   }
 
   private static void cancelJob( Printer printer ) {
@@ -252,7 +253,7 @@ public class PaperClips {
               pages[pageIndex].dispose();
               printer.endPage();
             } else {
-              error( "Unable to start page " + pageIndex );
+              error( "Unable to start page " + pageIndex ); //$NON-NLS-1$
             }
           }
         }
@@ -274,13 +275,13 @@ public class PaperClips {
    * the paint(GC, int, int) method on each page, the printer's trim should be provided as the x and y
    * arguments. In other words, the trim is taken as a minimum margin while applying calculating margins, but
    * the position where the page's content is drawn is determined solely by the margin, and is not offset by
-   * the trim. This behavior is helpful for screen display, and is already compensated for in the
-   * {@link #print(PrintJob, Printer) } method.
+   * the trim. This behavior is helpful for screen display, and is already compensated for in the {@link
+   * #print(PrintJob, Printer)} method.
    * 
    * @param printer the printing device.
    * @param printJob the print job.
    * @return an array of all pages of the print job. Each element of the returned array represents one page
-   *         in the printed document.
+   *  in the printed document.
    */
   public static PrintPiece[] getPages( PrintJob printJob, Printer printer ) {
     startDummyJob( printer, printJob.getName() );
@@ -337,11 +338,11 @@ public class PaperClips {
   }
 
   private static boolean isCarbon() {
-    return SWT.getPlatform().equals( "carbon" );
+    return SWT.getPlatform().equals( "carbon" ); //$NON-NLS-1$
   }
 
   private static boolean isGTK() {
-    return SWT.getPlatform().equals( "gtk" );
+    return SWT.getPlatform().equals( "gtk" ); //$NON-NLS-1$
   }
 
   private static PrintPiece[] getPages( PrintJob printJob, Printer printer, GC gc ) {
@@ -352,7 +353,7 @@ public class PaperClips {
       if ( page == null ) {
         int pageNumber = pages.size() + 1;
         PaperClipsUtil.dispose( pages );
-        error( "Unable to layout page " + pageNumber );
+        error( "Unable to layout page " + pageNumber ); //$NON-NLS-1$
       }
       pages.add( page );
     }

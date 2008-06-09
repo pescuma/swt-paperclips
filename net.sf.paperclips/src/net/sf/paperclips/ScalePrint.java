@@ -7,10 +7,13 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Transform;
 
 /**
  * A decorator print that scales it's target larger or smaller.
@@ -37,13 +40,13 @@ public class ScalePrint implements Print {
    * Constructs a ScalePrint which scales it's target by the given factor.
    * @param target
    * @param scale the scale factor (must be >0). A value of 2.0 draws at double the size, and a value of 0.5
-   *        draws at half the size. A null value automatically scales down so the target is rendered at it's
-   *        preferred size.
+   *  draws at half the size. A null value automatically scales down so the target is rendered at it's
+   *  preferred size.
    */
   public ScalePrint( Print target, Double scale ) {
     Util.notNull( target );
     if ( scale != null && !( scale.doubleValue() > 0 ) )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale " + scale + " must be > 0" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Scale " + scale + " must be > 0" ); //$NON-NLS-1$ //$NON-NLS-2$
 
     this.target = target;
     this.scale = scale;
@@ -152,7 +155,8 @@ class ScaleIterator implements PrintIterator {
     double scale;
     Point pref = target.preferredSize();
     if ( this.scale == null )
-      scale = Math.min( Math.min( (double) width / (double) pref.x, (double) height / (double) pref.y ), 1.0 );
+      scale = Math.min( Math.min( (double) width / (double) pref.x, (double) height
+          / (double) pref.y ), 1.0 );
     else
       scale = this.scale.doubleValue();
 

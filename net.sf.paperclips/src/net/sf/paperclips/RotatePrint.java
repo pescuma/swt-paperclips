@@ -7,10 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A decorator print that rotates it's target by increments of 90 degrees.
@@ -39,8 +41,8 @@ public final class RotatePrint implements Print {
    * Constructs a RotatePrint.
    * @param target the print to rotate.
    * @param angle the angle by which the target will be rotated, expressed in degrees counter-clockwise.
-   *        Positive values rotate counter-clockwise, and negative values rotate clockwise. Must be a
-   *        multiple of 90.
+   *  Positive values rotate counter-clockwise, and negative values rotate clockwise. Must be a multiple of
+   *  90.
    */
   public RotatePrint( Print target, int angle ) {
     Util.notNull( target );
@@ -93,7 +95,7 @@ public final class RotatePrint implements Print {
   private static int checkAngle( int angle ) {
     // Make sure angle is a multiple of 90.
     if ( Math.abs( angle ) % 90 != 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be a multiple of 90 degrees" );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be a multiple of 90 degrees" ); //$NON-NLS-1$
 
     // Bring angle within the range [0, 360)
     if ( angle < 0 )
@@ -153,7 +155,7 @@ final class RotateIterator implements PrintIterator {
       case 270:
         break;
       default:
-        PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be 90, 180, or 270" );
+        PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Angle must be 90, 180, or 270" ); //$NON-NLS-1$
     }
     return angle;
   }

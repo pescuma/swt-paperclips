@@ -7,9 +7,11 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A print which inserts a page break (or a column break, if inside a ColumnPrint).
@@ -64,7 +66,7 @@ class BreakIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext )
-      PaperClips.error( "No more content" );
+      PaperClips.error( "No more content" ); //$NON-NLS-1$
 
     hasNext = false;
     return new EmptyPiece( new Point( width, height ) );

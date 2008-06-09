@@ -7,11 +7,13 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.PaperClipsUtil;
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * Instances of this class represent a single cell in a GridPrint.
@@ -105,27 +107,26 @@ public class GridCell {
 
   private static int checkHorizontalAlignment( int hAlignment ) {
     hAlignment = PaperClipsUtil.firstMatch( hAlignment, new int[] {
-      SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
+        SWT.DEFAULT, SWT.LEFT, SWT.CENTER, SWT.RIGHT }, 0 );
     if ( hAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
-                        "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" );
+                        "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" ); //$NON-NLS-1$
     return hAlignment;
   }
 
   private static int checkVerticalAlignment( int vAlignment ) {
     vAlignment = PaperClipsUtil.firstMatch( vAlignment, new int[] {
-      SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL }, 0 );
+        SWT.DEFAULT, SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.FILL }, 0 );
     if ( vAlignment == 0 )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
-                        "Alignment argument must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or "
-                            + "SWT.FILL" );
+                        "Alignment argument must be one of SWT.TOP, SWT.CENTER, SWT.BOTTOM, SWT.DEFAULT, or SWT.FILL" ); //$NON-NLS-1$
     return vAlignment;
   }
 
   private int checkColspan( int colspan ) {
     if ( colspan <= 0 && colspan != GridPrint.REMAINDER )
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
-                        "colspan must be a positive number or GridPrint.REMAINDER" );
+                        "colspan must be a positive number or GridPrint.REMAINDER" ); //$NON-NLS-1$
     return colspan;
   }
 

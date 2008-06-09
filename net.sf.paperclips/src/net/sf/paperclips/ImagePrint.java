@@ -7,10 +7,14 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.SWTUtil;
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A Print for displaying images.
@@ -77,8 +81,8 @@ public class ImagePrint implements Print {
   public void setSize( Point size ) {
     // The DPI is rounded up, so that the specified width and height will not be exceeded.
     Util.notNull( size );
-    dpi = new Point( (int) Math.ceil( imageData.width * 72d / size.x ), (int) Math.ceil( imageData.height
-        * 72d / size.y ) );
+    dpi = new Point( (int) Math.ceil( imageData.width * 72d / size.x ),
+                     (int) Math.ceil( imageData.height * 72d / size.y ) );
     this.size = size;
   }
 
@@ -106,8 +110,8 @@ public class ImagePrint implements Print {
   public void setDPI( Point dpi ) {
     Util.notNull( dpi );
     this.dpi = dpi;
-    size = new Point( (int) Math.ceil( imageData.width * 72d / dpi.x ), (int) Math.ceil( imageData.height
-        * 72d / dpi.y ) );
+    size = new Point( (int) Math.ceil( imageData.width * 72d / dpi.x ),
+                      (int) Math.ceil( imageData.height * 72d / dpi.y ) );
   }
 
   /**
@@ -162,7 +166,7 @@ class ImageIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      PaperClips.error( "No more content." );
+      PaperClips.error( "No more content." ); //$NON-NLS-1$
 
     if ( width < size.x || height < size.y )
       return null;

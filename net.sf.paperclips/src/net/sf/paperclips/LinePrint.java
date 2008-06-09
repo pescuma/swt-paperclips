@@ -7,11 +7,15 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.ResourcePool;
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * A Print for drawing horizontal and vertical lines.
@@ -175,12 +179,13 @@ class LineIterator extends AbstractIterator {
   }
 
   Point getSize( int width, int height ) {
-    return orientation == SWT.VERTICAL ? new Point( thickness.x, height ) : new Point( width, thickness.y );
+    return orientation == SWT.VERTICAL ? new Point( thickness.x, height ) : new Point( width,
+                                                                                       thickness.y );
   }
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      PaperClips.error( "No more content" );
+      PaperClips.error( "No more content" ); //$NON-NLS-1$
 
     // Make sure the line fits :)
     Point size = getSize( width, height );

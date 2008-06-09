@@ -7,18 +7,21 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Region;
 
 /**
  * A wrapper for prints whose minimum size is too large to fit on one page. The target's content is divided
  * across multiple pages like a spreadsheet. Pages are printed in order left-to-right, then top-to-bottom.
  * <p>
  * <em>Note that this print lays out content under the assumption that every page will have the same
- * pixel width and height.</em>
- * If a BigPrint is wrapped in a print that violates this expectation, it is likely that the output will skip
- * and/or repeat certain portions of the target's content. Some examples of this behavior:
+ * pixel width and height.</em> If a BigPrint is wrapped in a print that violates this expectation, it
+ * is likely that the output will skip and/or repeat certain portions of the target's content. Some examples
+ * of this behavior:
  * <ul>
  * <li>BorderPrint changes the available page height of the target, depending on whether the top and bottom
  * borders are open or closed.
@@ -125,7 +128,8 @@ class BigIterator implements PrintIterator {
 
     // Adding width-1 rounds up page count w/out floating point op
     // Same goes for adding height-1
-    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), Math.max( ( min.y + height - 1 )
+    Point minPages = new Point( Math.max( ( min.x + width - 1 ) / width, 1 ), Math.max( ( min.y
+        + height - 1 )
         / height, 1 ) );
 
     return new Point( Math.max( prefPages.x, minPages.x ), Math.max( prefPages.y, minPages.y ) );
@@ -133,7 +137,7 @@ class BigIterator implements PrintIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      PaperClips.error( "No more content" );
+      PaperClips.error( "No more content" ); //$NON-NLS-1$
 
     if ( currentPiece == null ) {
       Point pages = estimatePagesRequired( width, height );

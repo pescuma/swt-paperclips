@@ -10,11 +10,17 @@ package net.sf.paperclips;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.ResourcePool;
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * A Print for displaying text.
@@ -27,7 +33,7 @@ import net.sf.paperclips.internal.Util;
  */
 public class TextPrint implements Print {
   /** The default text for a TextPrint. Value is "". */
-  public static final String     DEFAULT_TEXT      = "";
+  public static final String     DEFAULT_TEXT      = "";             //$NON-NLS-1$
 
   /** The default font data for a TextPrint. Value is device-dependent. */
   public static final FontData   DEFAULT_FONT_DATA = new FontData();
@@ -68,8 +74,8 @@ public class TextPrint implements Print {
   /**
    * Constructs a TextPrint with the give text and alignment.
    * @param text the text to print.
-   * @param align the horizontal text alignment. Must be one of {@link SWT#LEFT }, {@link SWT#CENTER } or
-   *        {@link SWT#RIGHT }.
+   * @param align the horizontal text alignment. Must be one of {@link SWT#LEFT}, {@link SWT#CENTER} or
+   *  {@link SWT#RIGHT}.
    */
   public TextPrint( String text, int align ) {
     this( text, DEFAULT_STYLE.align( align ) );
@@ -79,8 +85,8 @@ public class TextPrint implements Print {
    * Constructs a TextPrint with the given text, font data, and alignment.
    * @param text the text to print.
    * @param fontData the font that will be used to print the text.
-   * @param align the horizontal text alignment. Must be one of {@link SWT#LEFT }, {@link SWT#CENTER } or
-   *        {@link SWT#RIGHT }.
+   * @param align the horizontal text alignment. Must be one of {@link SWT#LEFT}, {@link SWT#CENTER} or
+   *  {@link SWT#RIGHT}.
    */
   public TextPrint( String text, FontData fontData, int align ) {
     this( text, DEFAULT_STYLE.font( fontData ).align( align ) );
@@ -193,7 +199,7 @@ public class TextPrint implements Print {
   /**
    * Sets the horizontal text alignment.
    * @param alignment the horizontal text alignment. Must be one of {@link SWT#LEFT}, {@link SWT#CENTER} or
-   *        {@link SWT#RIGHT}.
+   *  {@link SWT#RIGHT}.
    * @deprecated Use {@link #setAlignment(int)} instead.
    */
   public void setAlign( int alignment ) {
@@ -212,7 +218,7 @@ public class TextPrint implements Print {
   /**
    * Sets the horizontal text alignment.
    * @param alignment the horizontal text alignment. Must be one of {@link SWT#LEFT}, {@link SWT#CENTER} or
-   *        {@link SWT#RIGHT}.
+   *  {@link SWT#RIGHT}.
    */
   public void setAlignment( int alignment ) {
     setStyle( style.align( alignment ) );
@@ -335,10 +341,10 @@ class TextIterator extends AbstractIterator {
   TextIterator( TextPrint print, Device device, GC gc ) {
     super( device, gc );
     this.text = print.text;
-    this.lines = print.text.split( "(\r)?\n" );
+    this.lines = print.text.split( "(\r)?\n" ); //$NON-NLS-1$
     this.style = print.style;
     this.wordSplitting = print.wordSplitting;
-    this.minimumSize = maxExtent( text.split( "\\s" ) );
+    this.minimumSize = maxExtent( text.split( "\\s" ) ); //$NON-NLS-1$
     this.preferredSize = maxExtent( lines );
 
     this.row = 0;
@@ -365,7 +371,7 @@ class TextIterator extends AbstractIterator {
 
   public PrintPiece next( int width, int height ) {
     if ( !hasNext() )
-      PaperClips.error( "No more content." );
+      PaperClips.error( "No more content." ); //$NON-NLS-1$
 
     Font oldFont = initGC();
     PrintPiece result = internalNext( width, height );

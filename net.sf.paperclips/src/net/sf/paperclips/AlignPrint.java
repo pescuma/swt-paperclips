@@ -7,10 +7,12 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A wrapper print that aligns its target vertically and/or horizontally. An AlignPrint is vertically greedy
@@ -89,7 +91,8 @@ public class AlignPrint implements Print {
       return hAlign;
     if ( hAlign == SWT.DEFAULT )
       return DEFAULT_HORIZONTAL_ALIGN;
-    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "hAlign must be one of SWT.LEFT, SWT.CENTER or SWT.RIGHT" );
+    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                      "hAlign must be one of SWT.LEFT, SWT.CENTER or SWT.RIGHT" ); //$NON-NLS-1$
     return hAlign;
   }
 
@@ -98,7 +101,8 @@ public class AlignPrint implements Print {
       return vAlign;
     if ( vAlign == SWT.DEFAULT )
       return DEFAULT_VERTICAL_ALIGN;
-    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "vAlign must be one of SWT.TOP, SWT.CENTER or SWT.BOTTOM" );
+    PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
+                      "vAlign must be one of SWT.TOP, SWT.CENTER or SWT.BOTTOM" ); //$NON-NLS-1$
     return vAlign;
   }
 

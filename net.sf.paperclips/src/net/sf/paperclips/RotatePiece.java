@@ -8,10 +8,13 @@
 
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-
 import net.sf.paperclips.internal.Util;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Transform;
 
 final class RotatePiece implements PrintPiece {
   private final Device     device;
@@ -73,7 +76,7 @@ final class RotatePiece implements PrintPiece {
         transform.translate( size.x, 0 );
         break;
       default:
-        PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Rotation angle must be 90, 180 or 270." );
+        PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Rotation angle must be 90, 180 or 270." ); //$NON-NLS-1$
     }
     transform.rotate( -angle ); // reverse the angle since Transform.rotate goes clockwise
   }

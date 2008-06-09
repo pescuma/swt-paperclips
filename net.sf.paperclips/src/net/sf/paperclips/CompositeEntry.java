@@ -7,10 +7,10 @@
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
+import net.sf.paperclips.internal.Util;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
-
-import net.sf.paperclips.internal.Util;
 
 /**
  * An entry in a CompositePiece.
@@ -35,7 +35,7 @@ public class CompositeEntry {
 
   private void checkOffset( Point offset ) {
     if ( offset.x < 0 || offset.y < 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Offset cannot be negative: " + offset );
+      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Offset cannot be negative: " + offset ); //$NON-NLS-1$
   }
 
   /**
