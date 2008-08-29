@@ -80,10 +80,11 @@ public class Snippet8 {
       createScrollingPreview( shell ).setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
 
       preview.setLazyPageLayout( true );
-      display.timerExec( 10, new Runnable() {
+      preview.setPrintJob( printJob );
+      updatePreviewSize();
+      updatePageNumber();
+      preview.startBackgroundLayout( new Runnable() {
         public void run() {
-          preview.setPrintJob( printJob );
-          updatePreviewSize();
           updatePageNumber();
         }
       } );
@@ -395,8 +396,9 @@ public class Snippet8 {
       boolean layoutComplete = preview.isPageLayoutComplete();
       String text = ( visiblePages > 1 ? "Pages " + ( pageIndex + 1 ) + "-"
           + Math.min( pageCount, pageIndex + visiblePages ) : "Page " + ( pageIndex + 1 ) );
-      if ( layoutComplete )
-        text += " of " + pageCount;
+      text += " of " + pageCount;
+      if ( !layoutComplete )
+        text += "..";
       pageNumber.setText( text );
       previousPage.setEnabled( pageIndex > 0 );
       nextPage.setEnabled( pageIndex < pageCount - visiblePages || !layoutComplete );

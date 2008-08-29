@@ -3,7 +3,8 @@
  * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
  * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
+ * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation Matthew Hall - feature
+ * request 2048603 "Thread generation of print preview"
  ***********************************************************************************************************/
 package net.sf.paperclips.ui;
 
@@ -155,8 +156,8 @@ public class PrintPreview extends Canvas {
 
   /**
    * Returns the known number of pages in the print job. If {@link #setLazyPageLayout(boolean)} is set to
-   * true, this method returns the number of pages laid out so far. This method returns 0 when {@link
-   * #getPrintJob()} is null or {@link #getPrinterData()} is null.
+   * true, this method returns the number of pages laid out so far. This method returns 0 when
+   * {@link #getPrintJob()} is null or {@link #getPrinterData()} is null.
    * 
    * @return the known number of pages in the print job.
    */
@@ -239,7 +240,7 @@ public class PrintPreview extends Canvas {
    * Sets the view scale.
    * 
    * @param scale the view scale. A scale of 1.0 causes the document to appear at full size on the computer
-   *  screen.
+   *        screen.
    */
   public void setScale( float scale ) {
     checkWidget();
@@ -330,6 +331,34 @@ public class PrintPreview extends Canvas {
   public void setLazyPageLayout( boolean lazy ) {
     checkWidget();
     this.lazy = lazy;
+  }
+
+  /**
+   * Begins lazy loading in the background, invoking the callback runnable periodically as pages are laid
+   * out.
+   * <p>
+   * <b>NOTE:</b> This API is experimental and subject to change.
+   * @param callback runnable that will be invoked periodically as pages are laid out.
+   */
+  // TODO finalize experimental API
+  public void startBackgroundLayout( final Runnable callback ) {
+    if ( isPageLayoutComplete() )
+      return;
+
+    final int DELAY = 10;
+    getDisplay().timerExec( DELAY, new Runnable() {
+      public void run() {
+        if ( isDisposed() )
+          return;
+        if ( !isPageLayoutComplete() && pages != null ) {
+          fetchPages( pages.size() + 1 );
+          if ( !isPageLayoutComplete() ) {
+            getDisplay().timerExec( DELAY, this );
+          }
+        }
+        callback.run();
+      }
+    } );
   }
 
   private void invalidatePageDisplayBounds() {
@@ -510,7 +539,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @return a Rectangle whose x, y, width, and height fields respectively indicate the margin at the left,
-   *  top, right, and bottom edges of the control.
+   *         top, right, and bottom edges of the control.
    */
   public Rectangle getMargins() {
     checkWidget();
@@ -523,7 +552,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @param margins a Rectangle whose x, y, width, and height fields respectively indicate the margin at the
-   *  left, top, right, and bottom edges of the control.
+   *        left, top, right, and bottom edges of the control.
    */
   public void setMargins( Rectangle margins ) {
     checkWidget();
@@ -541,7 +570,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @return a Point whose x and y fields respectively indicate the horizontal and vertical spacing between
-   *  pages on the control.
+   *         pages on the control.
    */
   public Point getPageSpacing() {
     return new Point( pageSpacing.x, pageSpacing.y );
@@ -553,7 +582,7 @@ public class PrintPreview extends Canvas {
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
    * 
    * @param pageSpacing a Point whose x and y fields respectively indicate the horizontal and vertical
-   *  spacing between pages on the control.
+   *        spacing between pages on the control.
    */
   public void setPageSpacing( Point pageSpacing ) {
     checkWidget();
