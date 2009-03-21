@@ -1,0 +1,9 @@
+syntax: glob
+
+*.class
+
+syntax: regexp
+
+^\.metadata/
+^.*/class/
+\.svn/
