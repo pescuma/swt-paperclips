@@ -1,18 +1,18 @@
 /************************************************************************************************************
- * Copyright (c) 2007 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
 import junit.framework.TestCase;
+import net.sf.paperclips.internal.Util;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
-
-import net.sf.paperclips.internal.Util;
 
 public class PageNumberPrintTest extends TestCase {
   public void testConstructor_illegalArguments() {
@@ -23,7 +23,7 @@ public class PageNumberPrintTest extends TestCase {
     catch ( IllegalArgumentException expected ) {}
 
     try {
-      new PageNumberPrint( new PageNumberStub( 0 ), null );
+      new PageNumberPrint( new PageNumberStub( 0 ), (TextStyle) null );
       fail();
     }
     catch ( IllegalArgumentException expected ) {}

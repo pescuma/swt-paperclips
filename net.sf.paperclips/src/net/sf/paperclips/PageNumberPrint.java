@@ -1,26 +1,37 @@
 /************************************************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
 package net.sf.paperclips;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import net.sf.paperclips.internal.PaperClipsUtil;
+import net.sf.paperclips.internal.ResourcePool;
+import net.sf.paperclips.internal.Util;
 
-import net.sf.paperclips.internal.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 
 /**
- * Displays the page number and page count within the context of a {@link PagePrint}. To properly display
- * page numbers, instances of this class should be created using the {@link PageNumber} argument which is
- * passed to the {@link PageDecoration#createPrint(PageNumber)} method by PagePrint.
+ * Displays the page number and page count within the context of a {@link PagePrint}. To properly
+ * display page numbers, instances of this class should be created using the {@link PageNumber}
+ * argument which is passed to the {@link PageDecoration#createPrint(PageNumber)} method by
+ * PagePrint.
  * <p>
- * PageNumberPrints are never greedy with layout space, even with center- or right-alignment. (Greedy prints
- * take up all the available space on the page.) Therefore, when center- or right-alignment is required, it
- * is necessary to wrap the page number in a Print which will enforce the same alignment. Usually this is a
- * center:default:grow or right:default:grow column in a GridPrint.
+ * PageNumberPrints are never greedy with layout space, even with center- or right-alignment.
+ * (Greedy prints take up all the available space on the page.) Therefore, when center- or
+ * right-alignment is required, it is necessary to wrap the page number in a Print which will
+ * enforce the same alignment. Usually this is a center:default:grow or right:default:grow column in
+ * a GridPrint.
  * 
  * @author Matthew Hall
  * @see PagePrint
@@ -31,23 +42,26 @@ import net.sf.paperclips.internal.*;
  */
 public class PageNumberPrint implements Print {
   /** The default font data for a PageNumberPrint. Value is device-dependent. */
-  public static final FontData DEFAULT_FONT_DATA = new FontData();
+  public static final FontData  DEFAULT_FONT_DATA  = new FontData();
 
   /** The default alignment for a PageNumberPrint. Value is SWT.LEFT. */
-  public static final int      DEFAULT_ALIGN     = SWT.LEFT;
+  public static final int       DEFAULT_ALIGN      = SWT.LEFT;
 
-  PageNumber                   pageNumber;
-  FontData                     fontData;
-  int                          align;
-  RGB                          rgb;
-  PageNumberFormat             format;
+  /** The default text style. Value is device-dependent. */
+  public static final TextStyle DEFAULT_TEXT_STYLE = new TextStyle().font(
+                                                       DEFAULT_FONT_DATA ).align(
+                                                       DEFAULT_ALIGN );
+
+  PageNumber                    pageNumber;
+  TextStyle                     textStyle;
+  PageNumberFormat              format;
 
   /**
    * Constructs a PageNumberPrint for the given page number.
    * @param pageNumber the page number of the page this Print will appear on.
    */
   public PageNumberPrint( PageNumber pageNumber ) {
-    this( pageNumber, DEFAULT_FONT_DATA, DEFAULT_ALIGN );
+    this( pageNumber, DEFAULT_TEXT_STYLE );
   }
 
   /**
@@ -56,7 +70,7 @@ public class PageNumberPrint implements Print {
    * @param fontData the font that this Print will appear in.
    */
   public PageNumberPrint( PageNumber pageNumber, FontData fontData ) {
-    this( pageNumber, fontData, DEFAULT_ALIGN );
+    this( pageNumber, DEFAULT_TEXT_STYLE.font( fontData ) );
   }
 
   /**
@@ -65,7 +79,7 @@ public class PageNumberPrint implements Print {
    * @param align the horizontal alignment of the text.
    */
   public PageNumberPrint( PageNumber pageNumber, int align ) {
-    this( pageNumber, DEFAULT_FONT_DATA, align );
+    this( pageNumber, DEFAULT_TEXT_STYLE.align( align ) );
   }
 
   /**
@@ -75,21 +89,26 @@ public class PageNumberPrint implements Print {
    * @param align the horizontal alignment of the text.
    */
   public PageNumberPrint( PageNumber pageNumber, FontData fontData, int align ) {
+    this( pageNumber, DEFAULT_TEXT_STYLE.font( fontData ).align( align ) );
+  }
+
+  /**
+   * Constructs a PageNumberPrint for the given page number and text style.
+   * @param pageNumber the page number of the page this Print will appear on.
+   * @param textStyle the text style that this Print will appear in.
+   */
+  public PageNumberPrint( PageNumber pageNumber, TextStyle textStyle ) {
     setPageNumber( pageNumber );
-    setFontData( fontData );
-    setAlign( align );
-    setRGB( new RGB( 0, 0, 0 ) );
+    setTextStyle( textStyle );
     setPageNumberFormat( new DefaultPageNumberFormat() );
   }
 
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + align;
-    result = prime * result + ( ( fontData == null ) ? 0 : fontData.hashCode() );
-    result = prime * result + ( ( format == null ) ? 0 : format.hashCode() );
     result = prime * result + ( ( pageNumber == null ) ? 0 : pageNumber.hashCode() );
-    result = prime * result + ( ( rgb == null ) ? 0 : rgb.hashCode() );
+    result = prime * result + ( ( textStyle == null ) ? 0 : textStyle.hashCode() );
+    result = prime * result + ( ( format == null ) ? 0 : format.hashCode() );
     return result;
   }
 
@@ -101,28 +120,25 @@ public class PageNumberPrint implements Print {
     if ( getClass() != obj.getClass() )
       return false;
     PageNumberPrint other = (PageNumberPrint) obj;
-    if ( align != other.align )
-      return false;
-    if ( fontData == null ) {
-      if ( other.fontData != null )
-        return false;
-    } else if ( !fontData.equals( other.fontData ) )
-      return false;
-    if ( format == null ) {
-      if ( other.format != null )
-        return false;
-    } else if ( !format.equals( other.format ) )
-      return false;
+
     if ( pageNumber == null ) {
       if ( other.pageNumber != null )
         return false;
     } else if ( !pageNumber.equals( other.pageNumber ) )
       return false;
-    if ( rgb == null ) {
-      if ( other.rgb != null )
+
+    if ( textStyle == null ) {
+      if ( other.textStyle != null )
         return false;
-    } else if ( !rgb.equals( other.rgb ) )
+    } else if ( !textStyle.equals( other.textStyle ) )
       return false;
+
+    if ( format == null ) {
+      if ( other.format != null )
+        return false;
+    } else if ( !format.equals( other.format ) )
+      return false;
+
     return true;
   }
 
@@ -149,7 +165,7 @@ public class PageNumberPrint implements Print {
    */
   public void setFontData( FontData fontData ) {
     Util.notNull( fontData );
-    this.fontData = fontData;
+    setTextStyle( textStyle.font( fontData ) );
   }
 
   /**
@@ -157,7 +173,7 @@ public class PageNumberPrint implements Print {
    * @return the text font.
    */
   public FontData getFontData() {
-    return fontData;
+    return textStyle.getFontData();
   }
 
   /**
@@ -166,7 +182,7 @@ public class PageNumberPrint implements Print {
    *        {@link SWT#RIGHT }.
    */
   public void setAlign( int align ) {
-    this.align = checkAlign( align );
+    setTextStyle( textStyle.align( checkAlign( align ) ) );
   }
 
   /**
@@ -174,11 +190,29 @@ public class PageNumberPrint implements Print {
    * @return the horizontal text alignment.
    */
   public int getAlign() {
-    return align;
+    return textStyle.getAlignment();
   }
 
   private int checkAlign( int align ) {
-    return PaperClipsUtil.firstMatch( align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+    return PaperClipsUtil.firstMatch(
+        align, new int[] { SWT.LEFT, SWT.CENTER, SWT.RIGHT }, SWT.LEFT );
+  }
+
+  /**
+   * Returns the text style that will be used to render the page number
+   * @return the text style that will be used to render the page number
+   */
+  public TextStyle getTextStyle() {
+    return textStyle;
+  }
+
+  /**
+   * Sets the text style that will be used to render the page number
+   * @param textStyle the text style
+   */
+  public void setTextStyle( TextStyle textStyle ) {
+    Util.notNull( textStyle );
+    this.textStyle = textStyle;
   }
 
   /**
@@ -191,8 +225,9 @@ public class PageNumberPrint implements Print {
   }
 
   /**
-   * Returns the page number format. This property determines how the PageNumber will be converted into a
-   * String representing the page number. The default value of this property formats page numbers as follows:<br>
+   * Returns the page number format. This property determines how the PageNumber will be converted
+   * into a String representing the page number. The default value of this property formats page
+   * numbers as follows:<br>
    * 
    * <pre>
    * Page 1 of 5
@@ -210,7 +245,7 @@ public class PageNumberPrint implements Print {
    */
   public void setRGB( RGB foreground ) {
     Util.notNull( foreground );
-    this.rgb = foreground;
+    setTextStyle( textStyle.foreground( foreground ) );
   }
 
   /**
@@ -218,7 +253,7 @@ public class PageNumberPrint implements Print {
    * @return the text color.
    */
   public RGB getRGB() {
-    return rgb;
+    return textStyle.getForeground();
   }
 
   public PrintIterator iterator( Device device, GC gc ) {
@@ -228,9 +263,7 @@ public class PageNumberPrint implements Print {
 
 class PageNumberIterator extends AbstractIterator {
   final PageNumber       pageNumber;
-  final FontData         fontData;
-  final int              align;
-  final RGB              rgb;
+  final TextStyle        textStyle;
   final PageNumberFormat format;
   final Point            size;
 
@@ -240,15 +273,13 @@ class PageNumberIterator extends AbstractIterator {
     super( device, gc );
 
     this.pageNumber = print.pageNumber;
-    this.fontData = print.fontData;
-    this.align = print.align;
-    this.rgb = print.rgb;
+    this.textStyle = print.textStyle;
     this.format = print.format;
 
     // Calculate the size for the largest possible page number string.
     Font oldFont = gc.getFont();
     try {
-      gc.setFont( ResourcePool.forDevice( device ).getFont( fontData ) );
+      gc.setFont( ResourcePool.forDevice( device ).getFont( textStyle.getFontData() ) );
 
       size = gc.textExtent( format.format( new PageNumber() {
         public int getPageCount() {
@@ -268,9 +299,7 @@ class PageNumberIterator extends AbstractIterator {
   PageNumberIterator( PageNumberIterator that ) {
     super( that );
     this.pageNumber = that.pageNumber;
-    this.fontData = that.fontData;
-    this.align = that.align;
-    this.rgb = that.rgb;
+    this.textStyle = that.textStyle;
     this.format = that.format;
     this.size = that.size;
     this.hasNext = that.hasNext;
@@ -293,6 +322,7 @@ class PageNumberIterator extends AbstractIterator {
       return null;
 
     Point size = new Point( this.size.x, this.size.y );
+    int align = textStyle.getAlignment();
     if ( align == SWT.CENTER || align == SWT.RIGHT )
       size.x = width;
 
@@ -309,18 +339,14 @@ class PageNumberIterator extends AbstractIterator {
 
 class PageNumberPiece extends AbstractPiece {
   private final PageNumber       pageNumber;
-  private final FontData         fontData;
-  private final int              align;
+  private final TextStyle        textStyle;
   private final PageNumberFormat format;
-  private final RGB              rgb;
 
   PageNumberPiece( PageNumberIterator iter, Point size ) {
     super( iter, size );
     this.pageNumber = iter.pageNumber;
-    this.fontData = iter.fontData;
-    this.align = iter.align;
+    this.textStyle = iter.textStyle;
     this.format = iter.format;
-    this.rgb = iter.rgb;
   }
 
   public void paint( final GC gc, final int x, final int y ) {
@@ -331,11 +357,12 @@ class PageNumberPiece extends AbstractPiece {
 
     try {
       ResourcePool resources = ResourcePool.forDevice( device );
-      gc.setFont( resources.getFont( fontData ) );
-      gc.setForeground( resources.getColor( rgb ) );
+      gc.setFont( resources.getFont( textStyle.getFontData() ) );
+      gc.setForeground( resources.getColor( textStyle.getForeground() ) );
 
       String text = format.format( pageNumber );
-      gc.drawText( text, x + getHorzAlignmentOffset( gc.textExtent( text ).x, size.x ), y, true );
+      gc.drawText(
+          text, x + getHorzAlignmentOffset( gc.textExtent( text ).x, size.x ), y, true );
     }
     finally {
       gc.setFont( oldFont );
@@ -345,7 +372,7 @@ class PageNumberPiece extends AbstractPiece {
 
   private int getHorzAlignmentOffset( int textWidth, int totalWidth ) {
     int offset = 0;
-    switch ( align ) {
+    switch ( textStyle.getAlignment() ) {
       case SWT.CENTER:
         offset = ( totalWidth - textWidth ) / 2;
         break;
