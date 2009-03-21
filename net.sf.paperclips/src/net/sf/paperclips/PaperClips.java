@@ -332,9 +332,14 @@ public class PaperClips {
       // http://bugzilla.gnome.org/show_bug.cgi?id=339323
       // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212594
     } else if ( isCarbon() ) // Mac OSX
-      // 2007-04-30: A bug in Mac OSX renders Printer instances useless after a call to cancelJob().
+      // 2007-04-30: A bug in SWT on Mac OSX prior to 3.3 renders Printer
+      // instances useless after a call to cancelJob().
       // Therefore on Mac OSX we call endJob() instead of cancelJob().
-      printer.endJob();
+      if ( SWT.getVersion() < 3346 ) { // Version 3.3
+        printer.endJob();
+      } else {
+        printer.cancelJob();
+      }
   }
 
   private static boolean isCarbon() {
