@@ -409,7 +409,7 @@ public class TextStyle {
 	 *            the text
 	 * @return a TextPrint of the given text in this text style
 	 */
-	public TextPrint createPrint(String text) {
+	public TextPrint create(String text) {
 		return new TextPrint(text, this);
 	}
 }
