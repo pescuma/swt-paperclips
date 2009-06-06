@@ -120,8 +120,8 @@ class ScaleIterator implements PrintIterator {
     Point min = target.minimumSize();
     Point pref = target.preferredSize();
     if ( scale == null ) { // auto-scale
-      minimumSize = new Point( Math.min( 1, min.x ), Math.min( 1, min.y ) );
-      preferredSize = new Point( Math.min( 1, pref.x ), Math.min( 1, pref.y ) );
+      minimumSize = new Point( 1, 1 );
+      preferredSize = pref;
     } else { // specific scale
       double s = scale.doubleValue();
       minimumSize = new Point( (int) Math.ceil( min.x * s ), (int) Math.ceil( min.y * s ) );
