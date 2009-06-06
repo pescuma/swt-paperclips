@@ -35,7 +35,7 @@ public class PrintPreview extends Canvas {
   private static final int ALL_PAGES            = -1;
 
   private PrintJob         printJob             = null;
-  private PrinterData      printerData          = Printer.getDefaultPrinterData();
+  private PrinterData      printerData          = PaperClips.getDefaultPrinterData();
   private int              pageIndex            = 0;
   private boolean          fitHorizontal        = true;
   private boolean          fitVertical          = true;

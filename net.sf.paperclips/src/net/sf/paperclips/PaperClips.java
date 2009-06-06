@@ -1,7 +1,8 @@
 /************************************************************************************************************
- * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2006 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
@@ -21,8 +22,8 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 
 /**
- * This class contains static constants and methods for preparing and printing documents. Methods in this
- * class supersede those in PrintUtil.
+ * This class contains static constants and methods for preparing and printing documents. Methods in
+ * this class supersede those in PrintUtil.
  * 
  * @author Matthew Hall
  */
@@ -75,8 +76,9 @@ public class PaperClips {
   }
 
   /**
-   * <b>EXPERIMENTAL</b>: Sets whether debug mode is enabled. This mode may be used for troubleshooting
-   * documents that cannot be laid out for some reason (e.g. "Cannot layout page x" error occurs).
+   * <b>EXPERIMENTAL</b>: Sets whether debug mode is enabled. This mode may be used for
+   * troubleshooting documents that cannot be laid out for some reason (e.g. "Cannot layout page x"
+   * error occurs).
    * 
    * <p>
    * <b>THIS API IS EXPERIMENTAL AND MAY BE REMOVED OR CHANGED IN THE FUTURE.</b>
@@ -100,24 +102,42 @@ public class PaperClips {
   }
 
   /**
-   * Calls iterator.next(width, height) and returns the result. This method checks multiple conditions to
-   * ensure proper usage and behavior of PrintIterators.
+   * Returns a PrinterData for the system-default printer, or the first printer if no default
+   * printer is configured.
+   * @return a PrinterData for the system-default printer, or the first printer if no default
+   *         printer is configured.
+   */
+  public static PrinterData getDefaultPrinterData() {
+    PrinterData printerData = Printer.getDefaultPrinterData();
+    if ( printerData == null ) {
+      // Linux may have one or more printers without a default printer
+      PrinterData[] list = Printer.getPrinterList();
+      if ( list.length > 0 )
+        printerData = list[0];
+    }
+    return printerData;
+  }
+
+  /**
+   * Calls iterator.next(width, height) and returns the result. This method checks multiple
+   * conditions to ensure proper usage and behavior of PrintIterators.
    * <p>
-   * This method is intended to be used by PrintIterator classes, as a results-checking alternative to
-   * calling next(int, int) directly on the target iterator. All PrintIterator classes in the PaperClips
-   * library use this method instead of directly calling the {@link PrintIterator#next(int, int)} method.
+   * This method is intended to be used by PrintIterator classes, as a results-checking alternative
+   * to calling next(int, int) directly on the target iterator. All PrintIterator classes in the
+   * PaperClips library use this method instead of directly calling the
+   * {@link PrintIterator#next(int, int)} method.
    * 
    * @param iterator the PrintIterator
    * @param width the available width.
    * @param height the available height.
-   * @return the next portion of the Print, or null if the width and height are not enough to display any of
-   *  the iterator's contents.
+   * @return the next portion of the Print, or null if the width and height are not enough to
+   *         display any of the iterator's contents.
    */
   public static PrintPiece next( PrintIterator iterator, int width, int height ) {
     Util.notNull( iterator );
     if ( width < 0 || height < 0 )
-      error( SWT.ERROR_INVALID_ARGUMENT,
-             "PrintPiece size " + width + "x" + height + " not possible" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      error(
+          SWT.ERROR_INVALID_ARGUMENT, "PrintPiece size " + width + "x" + height + " not possible" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     if ( !iterator.hasNext() )
       error( "Iterator " + iterator + " has no more content." ); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -135,8 +155,8 @@ public class PaperClips {
   }
 
   /**
-   * Prints the print job to the given printer. This method constructs a Printer, forwards to {@link
-   * #print(PrintJob, Printer)}, and disposes the printer before returning.
+   * Prints the print job to the given printer. This method constructs a Printer, forwards to
+   * {@link #print(PrintJob, Printer)}, and disposes the printer before returning.
    * 
    * @param printJob the print job.
    * @param printerData the PrinterData of the selected printer.
@@ -158,7 +178,8 @@ public class PaperClips {
    * @param printer the printer device.
    */
   public static void print( PrintJob printJob, Printer printer ) {
-    // Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by default.
+    // Bug in SWT on OSX: If Printer.startJob() is not called first, the GC will be disposed by
+    // default.
     startJob( printer, printJob.getName() );
 
     boolean completed = false;
@@ -198,8 +219,8 @@ public class PaperClips {
   }
 
   /**
-   * Prints the print job to the specified printer using the GC. This method does not manage the print job
-   * lifecycle (it does not call startJob or endJob).
+   * Prints the print job to the specified printer using the GC. This method does not manage the
+   * print job lifecycle (it does not call startJob or endJob).
    * 
    * @param printJob the print job
    * @param printer the printer
@@ -270,18 +291,18 @@ public class PaperClips {
   }
 
   /**
-   * Processes the print job and returns an array of pages for the given printer device. Each element in the
-   * returned array has already had the page orientation and page margins applied. Therefore, when calling
-   * the paint(GC, int, int) method on each page, the printer's trim should be provided as the x and y
-   * arguments. In other words, the trim is taken as a minimum margin while applying calculating margins, but
-   * the position where the page's content is drawn is determined solely by the margin, and is not offset by
-   * the trim. This behavior is helpful for screen display, and is already compensated for in the {@link
-   * #print(PrintJob, Printer)} method.
+   * Processes the print job and returns an array of pages for the given printer device. Each
+   * element in the returned array has already had the page orientation and page margins applied.
+   * Therefore, when calling the paint(GC, int, int) method on each page, the printer's trim should
+   * be provided as the x and y arguments. In other words, the trim is taken as a minimum margin
+   * while applying calculating margins, but the position where the page's content is drawn is
+   * determined solely by the margin, and is not offset by the trim. This behavior is helpful for
+   * screen display, and is already compensated for in the {@link #print(PrintJob, Printer)} method.
    * 
    * @param printer the printing device.
    * @param printJob the print job.
-   * @return an array of all pages of the print job. Each element of the returned array represents one page
-   *  in the printed document.
+   * @return an array of all pages of the print job. Each element of the returned array represents
+   *         one page in the printed document.
    */
   public static PrintPiece[] getPages( PrintJob printJob, Printer printer ) {
     startDummyJob( printer, printJob.getName() );
@@ -301,15 +322,17 @@ public class PaperClips {
   }
 
   /**
-   * Starts a dummy job on the given Printer if the platform requires it. Dummy jobs allow the various Print
-   * components of PaperClips to perform measurements required for document layout, without actually sending
-   * a job to the printer. Only Mac OS X Carbon and Linux GTK+ are known to require dummy jobs.
+   * Starts a dummy job on the given Printer if the platform requires it. Dummy jobs allow the
+   * various Print components of PaperClips to perform measurements required for document layout,
+   * without actually sending a job to the printer. Only Mac OS X Carbon and Linux GTK+ are known to
+   * require dummy jobs.
    * 
    * @param printer the Printer hosting the dummy print job.
    * @param name the name of the dummy print job.
    */
   public static void startDummyJob( Printer printer, String name ) {
-    // On Mac OS X Carbon and Linux GTK+, created GC is disposed unless Printer.startJob() is called first.
+    // On Mac OS X Carbon and Linux GTK+, created GC is disposed unless Printer.startJob() is called
+    // first.
     if ( isCarbon() || isGTK() )
       startJob( printer, name );
   }
@@ -321,7 +344,8 @@ public class PaperClips {
    */
   public static void endDummyJob( Printer printer ) {
     if ( isGTK() ) { // Linux GTK
-      // Printer.cancelJob() is not implemented in SWT since GTK has no API for cancelling a print job.
+      // Printer.cancelJob() is not implemented in SWT since GTK has no API for cancelling a print
+      // job.
       // For now we must use endJob(), even though it spits out an empty page.
       // http://sourceforge.net/tracker/index.php?func=detail&aid=1773091&group_id=148509&atid=771872
 
@@ -367,11 +391,12 @@ public class PaperClips {
   }
 
   /**
-   * Returns a {@link PageEnumeration} for the passed in PrintJob on the given Printer, using the given GC.
-   * The Printer and GC must not be disposed while the enumeration is in use.
+   * Returns a {@link PageEnumeration} for the passed in PrintJob on the given Printer, using the
+   * given GC. The Printer and GC must not be disposed while the enumeration is in use.
    * 
    * @param printJob the print job
-   * @param printer the Printer device, which must not be disposed while the PageEnumeration is in use.
+   * @param printer the Printer device, which must not be disposed while the PageEnumeration is in
+   *        use.
    * @param gc the GC, which must not be disposed while the PageEnumeration is in use.
    * @return a {@link PageEnumeration} for the passed in PrintJob.
    */
@@ -401,8 +426,8 @@ public class PaperClips {
   }
 
   /**
-   * Returns the bounding rectangle of the printable area which is inside the given margins on the paper. The
-   * printer's minimum margins are reflected in the returned rectangle.
+   * Returns the bounding rectangle of the printable area which is inside the given margins on the
+   * paper. The printer's minimum margins are reflected in the returned rectangle.
    * 
    * @param printer the printer device.
    * @param margins the desired page margins.

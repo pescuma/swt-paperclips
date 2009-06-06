@@ -1,7 +1,8 @@
 /************************************************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
@@ -13,8 +14,8 @@ import org.eclipse.swt.printing.PrinterData;
 /**
  * Deprecated class methods for printing documents--use the {@link PaperClips} class instead.
  * @author Matthew Hall
- * @deprecated Create {@link PrintJob} instances, and print them with the {@link PaperClips#print(PrintJob,
- *  PrinterData)} method.
+ * @deprecated Create {@link PrintJob} instances, and print them with the
+ *             {@link PaperClips#print(PrintJob, PrinterData)} method.
  */
 public class PrintUtil {
   private PrintUtil() {}
@@ -22,30 +23,31 @@ public class PrintUtil {
   private static final String DEFAULT_JOB_NAME = "PaperClips printing"; //$NON-NLS-1$
 
   /**
-   * Prints the argument to the default printer with 1" margins. The Print's toString() result will be used
-   * as the print job name.
+   * Prints the argument to the default printer with 1" margins. The Print's toString() result will
+   * be used as the print job name.
    * @param print the item to print.
    * @deprecated use {@link PaperClips#print(PrintJob, PrinterData)} instead.
    */
   public static void print( Print print ) {
-    PaperClips.print( new PrintJob( DEFAULT_JOB_NAME, print ), new PrinterData() );
+    PaperClips.print( new PrintJob( DEFAULT_JOB_NAME, print ), PaperClips.getDefaultPrinterData() );
   }
 
   /**
-   * Prints the argument to the default printer. The Print's toString() result will be used as the print job
-   * name.
+   * Prints the argument to the default printer. The Print's toString() result will be used as the
+   * print job name.
    * @param print the item to print.
    * @param margins the page margins, in points.
    * @deprecated use {@link PaperClips#print(PrintJob, PrinterData)} instead.
    */
   public static void print( Print print, int margins ) {
-    PaperClips.print( new PrintJob( DEFAULT_JOB_NAME, print ).setMargins( new Margins( margins ) ),
-                      new PrinterData() );
+    PaperClips.print(
+        new PrintJob( DEFAULT_JOB_NAME, print ).setMargins( new Margins( margins ) ), PaperClips
+            .getDefaultPrinterData() );
   }
 
   /**
-   * Prints the argument to the given printer with 1" margins. The Print's toString() result will be used as
-   * the print job name.
+   * Prints the argument to the given printer with 1" margins. The Print's toString() result will be
+   * used as the print job name.
    * @param printer the device to print on.
    * @param print the item to print.
    * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData)} instead.
@@ -55,8 +57,8 @@ public class PrintUtil {
   }
 
   /**
-   * Prints the argument to the given printer. The Print's toString() result will be used as the print job
-   * name.
+   * Prints the argument to the given printer. The Print's toString() result will be used as the
+   * print job name.
    * @param printer the device to print on.
    * @param print the item to print.
    * @param margins the page margins, in points.
@@ -73,7 +75,7 @@ public class PrintUtil {
    * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData)} instead.
    */
   public static void print( String jobName, Print print ) {
-    PaperClips.print( new PrintJob( jobName, print ), new PrinterData() );
+    PaperClips.print( new PrintJob( jobName, print ), PaperClips.getDefaultPrinterData() );
   }
 
   /**
@@ -84,7 +86,8 @@ public class PrintUtil {
    * @deprecated Use {@link PaperClips#print(PrintJob, PrinterData)} instead.
    */
   public static void print( String jobName, Print print, int margins ) {
-    PaperClips.print( new PrintJob( jobName, print ).setMargins( margins ), new PrinterData() );
+    PaperClips.print( new PrintJob( jobName, print ).setMargins( margins ), PaperClips
+        .getDefaultPrinterData() );
   }
 
   /**
