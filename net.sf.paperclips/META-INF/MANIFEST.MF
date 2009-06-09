@@ -4,7 +4,7 @@ Bundle-Name: PaperClips Core Plug-in
 Bundle-SymbolicName: net.sf.paperclips
 Bundle-Version: 1.0.3
 Bundle-Vendor: Woodcraft Mill & Cabinet and others
-Require-Bundle: org.eclipse.swt;bundle-version="3.2.0";visibility:=reexport
+Require-Bundle: org.eclipse.swt;bundle-version="[3.2.0,4.0.0)"
 Export-Package: net.sf.paperclips,
  net.sf.paperclips.decorator,
  net.sf.paperclips.internal;x-friends:="net.sf.paperclips.tests"
