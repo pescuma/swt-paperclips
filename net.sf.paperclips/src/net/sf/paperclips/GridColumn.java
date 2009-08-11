@@ -246,7 +246,7 @@ public class GridColumn {
 
   private static final Pattern EXPLICIT_SIZE_PATTERN  = Pattern
                                                           .compile(
-                                                              "^(\\d+(\\.d+)?)\\s*(pt|in(ch)?|mm|cm)?$", //$NON-NLS-1$
+                                                              "^(\\d+(\\.\\d+)?)\\s*(pt|in(ch)?|mm|cm)?$", //$NON-NLS-1$
                                                               Pattern.CASE_INSENSITIVE );
 
   private static int parseSize( String sizeString ) {
