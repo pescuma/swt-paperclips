@@ -5,5 +5,6 @@ syntax: glob
 syntax: regexp
 
 ^\.metadata/
+^pasted_code/
 ^.*/class/
 \.svn/
