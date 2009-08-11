@@ -1,7 +1,8 @@
 /************************************************************************************************************
- * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2005 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
  ***********************************************************************************************************/
@@ -38,32 +39,32 @@ public class GridColumn {
   /**
    * The size property for this GridColumn. Possible values:
    * <ul>
-   * <li>GridPrint.PREFERRED - indicates that the column should be as wide as the preferred width of its
-   * widest element.
-   * <li>SWT.DEFAULT - Similar to GridPrint.PREFERRED, except that the column may shrink down to its minimum
-   * width if space is scarce.
+   * <li>GridPrint.PREFERRED - indicates that the column should be as wide as the preferred width of
+   * its widest element.
+   * <li>SWT.DEFAULT - Similar to GridPrint.PREFERRED, except that the column may shrink down to its
+   * minimum width if space is scarce.
    * <li>A value > 0 indicates that the column should be <code>size</code> points wide (72pts = 1").
    * </ul>
    */
   public final int        size;
 
   /**
-   * The default alignment for Prints in this column. Possible values are SWT.LEFT, SWT.CENTER, SWT.RIGHT, or
-   * SWT.DEFAULT. Note that alignment affects the placement of PrintPieces within the grid's cell--the
-   * alignment elements of the PrintPiece themselves are not affected. Thus, in order to achieve the desired
-   * effect, a Print having an alignment property should be set to the same alignment as the grid cell it is
-   * added to. For example, a TextPrint in a right-aligned grid cell should be set to right alignment as
-   * well.
+   * The default alignment for Prints in this column. Possible values are SWT.LEFT, SWT.CENTER,
+   * SWT.RIGHT, or SWT.DEFAULT. Note that alignment affects the placement of PrintPieces within the
+   * grid's cell--the alignment elements of the PrintPiece themselves are not affected. Thus, in
+   * order to achieve the desired effect, a Print having an alignment property should be set to the
+   * same alignment as the grid cell it is added to. For example, a TextPrint in a right-aligned
+   * grid cell should be set to right alignment as well.
    * <p>
    * Cells that span multiple columns use the alignment of the left-most cell in the cell span.
    */
   public final int        align;
 
   /**
-   * The weight of this column. If the available print space is wider than the grid's preferred width, this
-   * field determines how much of that extra space should be given to this column. A larger weight causes the
-   * column to receive more of the extra width. A value of 0 indicates that the column should not be given
-   * any excess width.
+   * The weight of this column. If the available print space is wider than the grid's preferred
+   * width, this field determines how much of that extra space should be given to this column. A
+   * larger weight causes the column to receive more of the extra width. A value of 0 indicates that
+   * the column should not be given any excess width.
    */
   public final int        weight;
 
@@ -109,8 +110,9 @@ public class GridColumn {
     align = PaperClipsUtil.firstMatch( align, new int[] {
         SWT.LEFT, SWT.CENTER, SWT.RIGHT, SWT.DEFAULT }, 0 );
     if ( align == 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
-                        "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" ); //$NON-NLS-1$
+      PaperClips.error(
+          SWT.ERROR_INVALID_ARGUMENT,
+          "Alignment argument must be one of SWT.LEFT, SWT.CENTER, SWT.RIGHT, or SWT.DEFAULT" ); //$NON-NLS-1$
     if ( align == SWT.DEFAULT )
       return DEFAULT_ALIGN;
     return align;
@@ -118,8 +120,9 @@ public class GridColumn {
 
   private static int checkSize( int size ) {
     if ( size != SWT.DEFAULT && size != GridPrint.PREFERRED && size <= 0 )
-      PaperClips.error( SWT.ERROR_INVALID_ARGUMENT,
-                        "Size argument must be SWT.DEFAULT, GridPrint.PREFERRED, or > 0" ); //$NON-NLS-1$
+      PaperClips.error(
+          SWT.ERROR_INVALID_ARGUMENT,
+          "Size argument must be SWT.DEFAULT, GridPrint.PREFERRED, or > 0" ); //$NON-NLS-1$
     return size;
   }
 
@@ -149,9 +152,9 @@ public class GridColumn {
    * 
    * The default alignment is LEFT. The
    * 
-   * <code>weight</code> argument expresses the weight property: NONE indicates a weight of 0; GROW indicates
-   * a weight of 1; and GROW(3) indicates a weight of 3. The default weight (if <code>weight</code> is
-   * omitted) is 0.
+   * <code>weight</code> argument expresses the weight property: NONE indicates a weight of 0; GROW
+   * indicates a weight of 1; and GROW(3) indicates a weight of 3. The default weight (if
+   * <code>weight</code> is omitted) is 0.
    * <p>
    * Examples:
    * 
@@ -207,16 +210,17 @@ public class GridColumn {
 
   // Alignment patterns
   private static final Pattern LEFT_ALIGN_PATTERN   = Pattern.compile( "^l(eft)?$", //$NON-NLS-1$
-                                                                       Pattern.CASE_INSENSITIVE );
+                                                        Pattern.CASE_INSENSITIVE );
 
   private static final Pattern CENTER_ALIGN_PATTERN = Pattern.compile( "^c(enter)?$", //$NON-NLS-1$
-                                                                       Pattern.CASE_INSENSITIVE );
+                                                        Pattern.CASE_INSENSITIVE );
 
   private static final Pattern RIGHT_ALIGN_PATTERN  = Pattern.compile( "^r(ight)?$", //$NON-NLS-1$
-                                                                       Pattern.CASE_INSENSITIVE );
+                                                        Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern ANY_ALIGN_PATTERN    = Pattern.compile( "^l(eft)?|c(enter)?|r(ight)?$", //$NON-NLS-1$
-                                                                       Pattern.CASE_INSENSITIVE );
+  private static final Pattern ANY_ALIGN_PATTERN    = Pattern.compile(
+                                                        "^l(eft)?|c(enter)?|r(ight)?$", //$NON-NLS-1$
+                                                        Pattern.CASE_INSENSITIVE );
 
   private static boolean isAlign( String alignmentString ) {
     return ANY_ALIGN_PATTERN.matcher( alignmentString ).matches();
@@ -235,13 +239,15 @@ public class GridColumn {
 
   // Size patterns.
   private static final Pattern DEFAULT_SIZE_PATTERN   = Pattern.compile( "^d(ef(ault)?)?$", //$NON-NLS-1$
-                                                                         Pattern.CASE_INSENSITIVE );
+                                                          Pattern.CASE_INSENSITIVE );
 
   private static final Pattern PREFERRED_SIZE_PATTERN = Pattern.compile( "^p(ref(erred)?)?", //$NON-NLS-1$
-                                                                         Pattern.CASE_INSENSITIVE );
+                                                          Pattern.CASE_INSENSITIVE );
 
-  private static final Pattern EXPLICIT_SIZE_PATTERN  = Pattern.compile( "^(\\d+(\\.d+)?)\\s*(pt|in(ch)?|mm|cm)?$", //$NON-NLS-1$
-                                                                         Pattern.CASE_INSENSITIVE );
+  private static final Pattern EXPLICIT_SIZE_PATTERN  = Pattern
+                                                          .compile(
+                                                              "^(\\d+(\\.d+)?)\\s*(pt|in(ch)?|mm|cm)?$", //$NON-NLS-1$
+                                                              Pattern.CASE_INSENSITIVE );
 
   private static int parseSize( String sizeString ) {
     Matcher matcher;
@@ -250,8 +256,8 @@ public class GridColumn {
     else if ( PREFERRED_SIZE_PATTERN.matcher( sizeString ).matches() )
       return GridPrint.PREFERRED;
     else if ( ( matcher = EXPLICIT_SIZE_PATTERN.matcher( sizeString ) ).matches() ) {
-      return (int) Math.ceil( convertToPoints( Double.parseDouble( matcher.group( 1 ) ),
-                                               matcher.group( 3 ) ) );
+      return (int) Math.ceil( convertToPoints( Double.parseDouble( matcher.group( 1 ) ), matcher
+          .group( 3 ) ) );
     } else {
       PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Unknown size pattern: \"" + sizeString + "\"" ); //$NON-NLS-1$ //$NON-NLS-2$
       return 0; // unreachable
@@ -262,20 +268,20 @@ public class GridColumn {
     if ( unit == null || unit.length() == 0 || unit.equalsIgnoreCase( "pt" ) ) //$NON-NLS-1$
       return value;
     else if ( unit.equalsIgnoreCase( "in" ) || unit.equalsIgnoreCase( "inch" ) ) //$NON-NLS-1$ //$NON-NLS-2$
-      return value / 72;
+      return 72 * value;
     else if ( unit.equalsIgnoreCase( "cm" ) ) //$NON-NLS-1$
-      return 2.54 * value / 72;
+      return 72 * value / 2.54;
     else if ( unit.equalsIgnoreCase( "mm" ) ) //$NON-NLS-1$
-      return 25.4 * value / 72;
+      return 72 * value / 25.4;
     PaperClips.error( SWT.ERROR_INVALID_ARGUMENT, "Unknown unit \"" + unit + "\"." ); //$NON-NLS-1$ //$NON-NLS-2$
     return 0;
   }
 
   private static final Pattern WEIGHTLESS_PATTERN = Pattern.compile( "n(one)?", //$NON-NLS-1$
-                                                                     Pattern.CASE_INSENSITIVE );
+                                                      Pattern.CASE_INSENSITIVE );
 
   private static final Pattern WEIGHTED_PATTERN   = Pattern.compile( "(g(row)?)(\\((\\d+)\\))?", // yikes //$NON-NLS-1$
-                                                                     Pattern.CASE_INSENSITIVE );
+                                                      Pattern.CASE_INSENSITIVE );
 
   private static int parseWeight( String weightString ) {
     Matcher matcher;
