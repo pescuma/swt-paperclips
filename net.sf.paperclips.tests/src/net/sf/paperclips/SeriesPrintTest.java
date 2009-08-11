@@ -1,23 +1,26 @@
-/************************************************************************************************************
- * Copyright (c) 2007 Woodcraft Mill & Cabinet Corporation. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+/*
+ * Copyright (c) 2007 Matthew Hall and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Woodcraft Mill & Cabinet Corporation - initial API and implementation
- ***********************************************************************************************************/
+ * Contributors:
+ *     Matthew Hall - initial API and implementation
+ */
 package net.sf.paperclips;
 
 import junit.framework.TestCase;
 
 public class SeriesPrintTest extends TestCase {
-  public void testEquals() {
-    SeriesPrint series1 = new SeriesPrint();
-    SeriesPrint series2 = new SeriesPrint();
-    assertEquals( series1, series2 );
+	public void testEquals() {
+		SeriesPrint series1 = new SeriesPrint();
+		SeriesPrint series2 = new SeriesPrint();
+		assertEquals(series1, series2);
 
-    series1.add( new PrintStub() );
-    assertFalse( series1.equals( series2 ) );
-    series2.add( new PrintStub() );
-    assertEquals( series1, series2 );
-  }
+		series1.add(new PrintStub());
+		assertFalse(series1.equals(series2));
+		series2.add(new PrintStub());
+		assertEquals(series1, series2);
+	}
 }
