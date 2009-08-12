@@ -1,0 +1,2 @@
+  * [http://www.richclient2.eu/2006_11_22/printing-with-swt-an-eclipse-editor-example/ rich client 2.0 >> Printing with SWT - An Eclipse Editor Example]
+  * [http://www.schmeeky.co.uk/articles/2008-06/charts.aspx Printing charts in SWT with JFreeChart and PaperClips - Schmeeky.co.uk]

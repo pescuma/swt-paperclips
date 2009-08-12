@@ -1,0 +1,18 @@
+*General*
+  * [PaperClips Introduction]
+  * [News]
+  * [FrequentlyAskedQuestions FAQ]
+
+*Documentation*
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips_1.0.2_javadoc.zip API Javadoc]
+  * [Tutorials]
+  * [Snippets]
+  * [Links]
+
+*Get !PaperClips*
+  * [Downloads]
+
+*Forums*
+  * [http://groups.google.com/group/swt-paperclips Google Groups]
+
+[http://www.eclipseplugincentral.com/Web_Links-index-req-ratelink-lid-557.html Rate PaperClips on Eclipse Plugin Central]

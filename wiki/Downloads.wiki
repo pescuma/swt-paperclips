@@ -1,0 +1,17 @@
+=== !PaperClips 1.0.3 ===
+
+==== Binary Jars ====
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips_1.0.3.jar net.sf.paperclips_1.0.3.jar] - Core plug-in with all printing functionality
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips.ui_1.0.3.jar net.sf.paperclips.ui_1.0.3.jar] - UI plug-in with print preview controls
+
+==== Source Zips ====
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips_1.0.3_source.zip net.sf.paperclips_1.0.3_source.zip]
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips.ui_1.0.3_source.zip net.sf.paperclips.ui_1.0.3_source.zip]
+
+==== Documentation ====
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips_1.0.2_javadoc.zip API Javadocs]
+  * [http://swt-paperclips.googlecode.com/files/net.sf.paperclips.examples_1.0.3_source.zip Example Snippets]
+
+----
+
+[http://code.google.com/p/swt-paperclips/downloads/list All Downloads]
