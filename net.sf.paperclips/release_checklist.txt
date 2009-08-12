@@ -10,9 +10,7 @@ Release checklist
 * Regenerate javadoc
 * Regenerate snippet PDFs
 * Build javadoc zip
-* Build example source zip
-* Upload build jar and zips
-* Upload javadocs to paperclips.sourceforge.net/api/
+* Upload jars and zips to Google Code
 * Upload PDFs to paperclips.sourceforge.net/pdf/
 * Upload snippets to paperclips.sourceforge.net/snippets/
 * Create sourceforge release - notify project monitors

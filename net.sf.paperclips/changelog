@@ -8,7 +8,7 @@ Version 1.0.4
     Mac)
   * Fixed compiler compliance levels so PaperClips can run in Java 1.4 JREs.
   * GridColumn's conversion of inches, millimeters and centimeters sizes to
-    point was wrong, causing those columns to be displayed at the wrong size. 
+    points was wrong, causing those columns to be displayed at the wrong size.
   * Fixed GridColumn's recognition of column sizes with a decimal part.
 * New Features:
   * Page numbers are internationalized in English, French and German.
