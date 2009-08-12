@@ -1,8 +1,0 @@
-|| Snippet || PDF || Description ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet1.java Snippet1.java] || [http://paperclips.sourceforge.net/pdf/Snippet1.pdf Snippet1.pdf] || Prints the contents of a SWT Table widget, using a [http://paperclips.sourceforge.net/api/net/sf/paperclips/GridPrint.html GridPrint] ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet2.java Snippet2.java] || [http://paperclips.sourceforge.net/pdf/Snippet2.pdf Snippet2.pdf] || Add a background color behind a Print ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet3.java Snippet3.java] || [http://paperclips.sourceforge.net/pdf/Snippet3.pdf Snippet3.pdf] || Split very large prints across several pages like a spreadsheet using BigPrint ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet4.java Snippet4.java] || [http://paperclips.sourceforge.net/pdf/Snippet4.pdf Snippet4.pdf] || Scale very large prints down to fit on the page using ScalePrint ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet5.java Snippet5.java] || [http://paperclips.sourceforge.net/pdf/Snippet5.pdf Snippet5.pdf] || Control the background color in grid cells using CellBackgroundProvider with a DefaultGridLook ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet6.java Snippet6.java] || [http://paperclips.sourceforge.net/pdf/Snippet6.pdf Snippet6.pdf] || Display page footers, with page numbering, using PagePrint and PageNumberPrint ||
-|| [http://paperclips.sourceforge.net/snippets/Snippet7.java Snippet7.java] || [http://paperclips.sourceforge.net/pdf/Snippet7.pdf Snippet7.pdf] || Demonstrate use of PrintPreview control ||

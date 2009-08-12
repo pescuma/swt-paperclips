@@ -1,3 +1,0 @@
-  * [BeginnerTutorial Beginning Tutorial] - for beginners
-  * [GridPrint GridPrint Tutorial] - a detailed discussion of the usage and features of the GridPrint class.
-  * [PagePrint PagePrint Tutorial] - How to add custom headers and footers with page numbers
