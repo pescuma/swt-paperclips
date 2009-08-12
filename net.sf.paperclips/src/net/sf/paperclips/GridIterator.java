@@ -938,7 +938,8 @@ class GridIterator implements PrintIterator {
 					- bodyBottomSpacingClosed, rowStarted);
 			boolean hasNext = hasNext(thisRow);
 
-			if (cellClippingEnabled && (rowPiece == null || hasNext)) {
+			if ((cellClippingEnabled || entries.isEmpty())
+					&& (rowPiece == null || hasNext)) {
 				thisRow = cloneRow(body[row]);
 				rowPiece = nextRow(thisRow, colSizes, height - y
 						- bodyBottomSpacingOpen, true);
