@@ -26,6 +26,7 @@ import net.sf.paperclips.examples.Snippet8;
 
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Benchmarks the time required to layout the various snippets.
@@ -40,11 +41,17 @@ public class SnippetBenchmarks {
 	 *            command-line args.
 	 */
 	public static void main(String[] args) {
+		// Bug in SWT--a Display must be instantiated under Linux in order to
+		// use printer
+		Display.getDefault();
+
 		benchmarkSnippet8();
 	}
 
 	private static void benchmarkSnippet8() {
 		final Printer printer = new Printer();
+		printer.startJob("benchmarkSnippet8");
+
 		final PrintJob job = new PrintJob("Snippet8", Snippet8.createPrint());
 
 		final GC gc = new GC(printer);
@@ -64,6 +71,7 @@ public class SnippetBenchmarks {
 					}
 				});
 
+		printer.cancelJob();
 		printer.dispose();
 	}
 
@@ -74,6 +82,7 @@ public class SnippetBenchmarks {
 				Snippet4.createPrint(), Snippet5.createPrint(),
 				Snippet6.createPrint(), Snippet7.createPrint() };
 		final Printer printer = new Printer();
+		printer.startJob("benchmarkSnippets");
 		final int RUN_COUNT = 100;
 
 		long total = 0;
@@ -88,6 +97,7 @@ public class SnippetBenchmarks {
 					});
 		}
 
+		printer.cancelJob();
 		printer.dispose();
 
 		printFinalResult(total, total / (double) (RUN_COUNT * documents.length));
