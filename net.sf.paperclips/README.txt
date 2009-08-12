@@ -1,19 +1,19 @@
-==================================
-PaperClips Core 1.0.3
-http://paperclips.sourceforge.net/
-==================================
+========================================
+PaperClips Core 1.0.4
+http://code.google.com/p/swt-paperclips/
+========================================
 
-Copyright (c) 2005-2007 Woodcraft Mill & Cabinet Corporation and others.  All
-rights reserved. This program and the accompanying materials are made available
-under the terms of the Eclipse Public License v1.0 which accompanies this
-distribution, and is available at
+
+Copyright (c) 2005-2009 Matthew Hall and others.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
 
 A copy is found in the file epl-v10.html distributed in this package.
 
 Contributors:
-  Woodcraft Mill & Cabinet Corporation - initial API and implementation
-  (matthall@woodcraftmill.com)
+  Matthew Hall <matthall@woodcraftmill.com> - initial API and implementation
 
 This copyright notice MUST APPEAR in all copies of the file!
 
@@ -52,18 +52,20 @@ To use PaperClips as a binary plugin, simply save the jar into the plugins
 folder of your target platform.
 
 If you are extending PaperClips (or you want the latest bleeding edge
-features), your best bet is to checkout the project as a plugin project from
-Subversion.
+features), your best bet is to checkout the sources from from
+Mercurial and import each project into your workspace.
 
-Use this URL to checkout PaperClips plugins through Subversion.
-https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips/
-https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips.ui/
-https://svn.sourceforge.net/svnroot/paperclips/trunk/net.sf.paperclips.examples/
+Mercurial repository URL:
+  https://swt-paperclips.googlecode.com/hg/
 
-See http://subversion.tigris.org/ for information about Subversion.
+Import these folders:
+  net.sf.paperclips/           # core (required)
+  net.sf.paperclips.ui/        # screen widgets
+  net.sf.paperclips.examples/  # snippets
+  net.sf.paperclips.tests/     # unit tests
 
 Credits
 -------
 
 PaperClips development team:
-    Matthew Hall (Woodcraft Mill & Cabinet) - Developer / Project Admin
+    Matthew Hall <matthall@woodcraftmill.com> - Developer / Project Admin

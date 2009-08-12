@@ -1,3 +1,27 @@
+Version 1.0.4
+* Bugs fixed:
+  * [Mac OSX] Disposing a PrintPreview sends a blank page to the printer.
+  * Autoscaled ScalePrints were not computing minimum sizes correctly
+    which distorted some layouts
+  * PaperClips and PrintPreview now use the first system printer listed if
+    no system default printer has been selected (can be the case on Linux,
+    Mac)
+  * Fixed compiler compliance levels so PaperClips can run in Java 1.4 JREs.
+  * GridColumn's conversion of inches, millimeters and centimeters sizes to
+    point was wrong, causing those columns to be displayed at the wrong size. 
+  * Fixed GridColumn's recognition of column sizes with a decimal part.
+* New Features:
+  * Page numbers are internationalized in English, French and German.
+  * TextStyle.create(String) creates a TextPrint
+  * Added DebugPrint helper class for troubleshooting documents that won't
+    print
+* Known issues:
+  * [Linux GTK] Printed text scales up or down depending on what DPI the
+    screen is configured to
+  * [Linux GTK] When a PrintPreview changes printers, print jobs, or is
+    disposed, a blank page is emitted on the printer.  This is due to missing
+    API in GTK for cancelling a print job.
+
 Version 1.0.3
 * Bugs fixed:
   * Fixed integer overflow error in GridPrint which sometimes caused printing

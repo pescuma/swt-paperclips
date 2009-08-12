@@ -5,6 +5,8 @@ syntax: glob
 syntax: regexp
 
 ^\.metadata/
+^build/
+^javadoc/
 ^pasted_code/
 ^.*/class/
 \.svn/
