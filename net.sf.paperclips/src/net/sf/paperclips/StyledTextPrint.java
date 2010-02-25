@@ -115,7 +115,7 @@ public class StyledTextPrint implements Print {
 	 * @see #setStyle(TextStyle)
 	 */
 	public StyledTextPrint append(String text, TextStyle style) {
-		TextPrint textPrint = new TextPrint(text, style);
+		TextPrint textPrint = new TextPrint(text, style.align(SWT.LEFT));
 		textPrint.setWordSplitting(false);
 		currentLine(style).append(textPrint);
 		return this;
@@ -162,7 +162,7 @@ public class StyledTextPrint implements Print {
 		GridPrint grid = new GridPrint("d:g"); //$NON-NLS-1$
 		for (Iterator it = paragraphs.iterator(); it.hasNext();) {
 			StyledParagraph paragraph = (StyledParagraph) it.next();
-			grid.add(paragraph.style.getAlignment(), paragraph);
+			grid.add(paragraph);
 		}
 		return grid.iterator(device, gc);
 	}
@@ -248,25 +248,30 @@ class StyledParagraphIterator implements PrintIterator {
 		int y = 0;
 
 		List lines = new ArrayList();
+		Point size = new Point(0, 0);
 		while (y < height) {
 			PrintPiece row = nextLine(width, height - y);
 			if (row == null)
 				break;
 
 			int x = 0;
-			if (style.getAlignment() == SWT.CENTER)
+			if (style.getAlignment() == SWT.CENTER) {
 				x = (width - row.getSize().x) / 2;
-			else if (style.getAlignment() == SWT.RIGHT)
+				size.x = width;
+			} else if (style.getAlignment() == SWT.RIGHT) {
 				x = width - row.getSize().x;
+				size.x = width;
+			}
 
 			lines.add(new CompositeEntry(row, new Point(x, y)));
 			y += row.getSize().y;
+			size.y = y;
 		}
 
 		if (lines.size() == 0)
 			return null;
 
-		return new CompositePiece(lines);
+		return new CompositePiece(lines, size);
 	}
 
 	private PrintPiece nextLine(int width, int height) {
